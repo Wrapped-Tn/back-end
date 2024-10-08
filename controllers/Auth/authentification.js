@@ -1,16 +1,14 @@
 require('dotenv').config();
-const User = require('../models/Users.js');
+const User = require('../../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
-// Utiliser une clé RSA pour signer les tokens
-const privateKey = fs.readFileSync('./path/to/private.pem', 'utf8');
-const publicKey = fs.readFileSync('./path/to/public.pem', 'utf8');
+// Utiliser un secret partagé pour signer les tokens
+const secretKey = process.env.JWT_SECRET;
 
 const generateToken = (userId, userName) => {
   const expiresIn = 60 * 60 * 24 * 7; // 7 jours
-  return jwt.sign({ userId, userName }, privateKey, { algorithm: 'RS256', expiresIn });
+  return jwt.sign({ userId, userName }, secretKey, { expiresIn });
 };
 
 async function loginUser(req, res) {
