@@ -1,11 +1,27 @@
+const bcrypt = require('bcrypt'); // Importer bcryptjs
 const User = require('../models/User.js');
 
 // Créer un utilisateur
 const createUser = async (req, res) => {
-  const { email, password, full_name, phone_number } = req.body;
+  const { email, password, full_name, phone_number,sexe,grade,profile_picture_url,region } = req.body;
 
   try {
-    const newUser = await User.create({ email, password, full_name, phone_number });
+    // Hacher le mot de passe
+    const salt = await bcrypt.genSalt(10); // Générer un "salt" pour renforcer le hashage
+    const hashedPassword = await bcrypt.hash(password, salt); // Hacher le mot de passe avec le salt
+
+    // Créer un nouvel utilisateur avec le mot de passe haché
+    const newUser = await User.create({
+      email,
+      password: hashedPassword, // Utiliser le mot de passe haché
+      full_name,
+      phone_number,
+      sexe,
+      profile_picture_url,
+      grade,
+      region
+    });
+
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create user' });

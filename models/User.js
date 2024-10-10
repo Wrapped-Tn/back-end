@@ -49,7 +49,15 @@ const User = sequelize.define('User', {
   commission_earned: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00,
-  }
+  },
+  sexe: {
+    type: DataTypes.ENUM('men', 'women'),
+    allowNull: false,
+
+  },
+  region: {
+    type: DataTypes.STRING,
+  },
 });
 
 module.exports = User;
