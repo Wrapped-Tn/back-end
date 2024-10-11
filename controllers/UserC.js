@@ -3,7 +3,7 @@ const User = require('../models/User.js');
 
 // Créer un utilisateur
 const createUser = async (req, res) => {
-  const { email, password, full_name, phone_number,sexe,grade,profile_picture_url,region } = req.body;
+  const { email, password, full_name, phone_number,sexe,grade,profile_picture_url,region,birthdate } = req.body;
 
   try {
     // Hacher le mot de passe
@@ -19,7 +19,8 @@ const createUser = async (req, res) => {
       sexe,
       profile_picture_url,
       grade,
-      region
+      region,
+      birthdate
     });
 
     res.status(201).json(newUser);

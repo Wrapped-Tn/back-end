@@ -58,6 +58,9 @@ const User = sequelize.define('User', {
   region: {
     type: DataTypes.STRING,
   },
+  birthdate: {
+    type: DataTypes.DATE,
+  },
 });
 
 module.exports = User;
