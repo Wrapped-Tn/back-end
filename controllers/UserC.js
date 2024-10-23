@@ -1,30 +1,32 @@
 const bcrypt = require('bcrypt'); // Importer bcryptjs
 const User = require('../models/User.js');
+const moment = require('moment'); // Import moment for date formatting
 
 // Créer un utilisateur
 const createUser = async (req, res) => {
-  const { email, password, full_name, phone_number,sexe,grade,profile_picture_url,region,birthdate } = req.body;
+  const { email, password, full_name, phone_number, sexe, grade, profile_picture_url, region, birthdate, user_type } = req.body;
 
   try {
-    // Hacher le mot de passe
-    const salt = await bcrypt.genSalt(10); // Générer un "salt" pour renforcer le hashage
-    const hashedPassword = await bcrypt.hash(password, salt); // Hacher le mot de passe avec le salt
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Créer un nouvel utilisateur avec le mot de passe haché
     const newUser = await User.create({
       email,
-      password: hashedPassword, // Utiliser le mot de passe haché
+      password: hashedPassword,
       full_name,
       phone_number,
       sexe,
       profile_picture_url,
       grade,
       region,
-      birthdate
+      birthdate,
+      user_type: user_type || 'regular', // Ensure the correct or default value for user_type
+      commission_earned: req.body.commission_earned || 0,
     });
 
-    res.status(201).json(newUser);
+    res.status(200).json({ id: newUser.id });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to create user' });
   }
 };
@@ -35,6 +37,20 @@ const getUserById = async (req, res) => {
 
   try {
     const user = await User.findByPk(id);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve user' });
+  }
+};
+// Tous les users
+const getAllUser = async (req, res) => {
+
+  try {
+    const user = await User.findAll();
     if (user) {
       res.status(200).json(user);
     } else {
@@ -87,4 +103,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  getAllUser
 };

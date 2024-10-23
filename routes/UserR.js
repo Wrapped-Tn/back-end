@@ -3,7 +3,8 @@ const {
   createUser,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
+  getAllUser
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
@@ -13,6 +14,9 @@ router.post('/', createUser);
 
 // Lire un utilisateur par ID
 router.get('/:id', getUserById);
+
+// Lire tous les utilisateurs 
+router.get('/', getAllUser);
 
 // Mettre à jour un utilisateur
 router.put('/:id', updateUser);

@@ -1,6 +1,7 @@
 const Article = require('../models/Article.js');
 
 // Créer un article
+// pour user et pour seller
 const createArticle = async (req, res) => {
   const { seller_id, title, description, price, category, brand, color, size, available_stock, images } = req.body;
 
@@ -31,7 +32,7 @@ const getArticleById = async (req, res) => {
 // Mettre à jour un article
 const updateArticle = async (req, res) => {
   const { id } = req.params;
-  const { title, description, price, category, brand, color, size, available_stock } = req.body;
+  const { title, description, price, category, brand, color, size, available_stock } = req.body; 
 
   try {
     const article = await Article.findByPk(id);
