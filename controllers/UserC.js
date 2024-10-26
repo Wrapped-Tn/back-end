@@ -16,7 +16,7 @@ const createUser = async (req, res) => {
       full_name,
       phone_number,
       sexe,
-      profile_picture_url,
+      profile_picture_url:"",
       grade,
       region,
       birthdate,

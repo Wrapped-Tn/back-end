@@ -55,9 +55,8 @@ const User = sequelize.define('User', {
   },
   profile_picture_url: {
     type: DataTypes.STRING,
-    validate: {
-      isUrl: true, // Ensures the value is a valid URL
-    }
+    allowNull: false,
+
   },
   commission_earned: {
     type: DataTypes.DECIMAL(10, 2),
