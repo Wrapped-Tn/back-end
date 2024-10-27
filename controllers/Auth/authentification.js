@@ -93,8 +93,8 @@ async function forgotPassword(req, res) {
     const code = generateCode();
     console.log('Generated code:', code);
 
-    // Stocker le code avec une expiration de 1 minute (60000 ms)
-    verificationCodes.set(email, { code, expiresAt: Date.now() + 60000 });
+    // Stocker le code avec une expiration de 1:30 minute (90000 ms)
+    verificationCodes.set(email, { code, expiresAt: Date.now() + 90000 });
 
     // Envoyer le code par e-mail
     const mailOptions = {
@@ -125,23 +125,23 @@ async function verifyCode(req, res) {
     const storedData = verificationCodes.get(email);
 
     if (!storedData) {
-      return res.status(400).json({ message: 'No code found for this email' });
+      return res.status(200).json({ message: 'No code found for this email' });
     }
 
     const { code: storedCode, expiresAt } = storedData;
 
     // Vérifier si le code a expiré
     if (Date.now() > expiresAt) {
-      return res.status(400).json({ message: 'Code has expired' });
+      return res.status(200).json({ valid:false, message: 'Code has expired' });
     }
 
     // Vérifier si le code correspond
     if (parseInt(code) !== storedCode) {
-      return res.status(400).json({ message: 'Invalid code' });
+      return res.status(200).json({ valid:false, message: 'Invalid code' });
     }
 
     // Le code est valide
-    res.status(200).json({ message: 'Code is valid, proceed to reset password' });
+    res.status(200).json({ valid:true, message: 'Code is valid, proceed to reset password' });
 
   } catch (error) {
     console.error('Error verifying code:', error);
@@ -152,14 +152,7 @@ async function resetPassword(req, res) {
   const { email, newPassword } = req.body;
 
   try {
-    // Check if verification code is still stored (user must have validated it)
-    if (!verificationCodes.has(email)) {
-      return res.status(400).json({ message: 'Verification code not found or expired' });
-    }
-
-    // Remove the verification code from the map as it’s no longer needed
-    verificationCodes.delete(email);
-
+    
     // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
