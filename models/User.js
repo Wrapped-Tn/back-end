@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
+const Grade = require('./Grade');
 
 const User = sequelize.define('User', {
   id: {
@@ -12,8 +13,8 @@ const User = sequelize.define('User', {
     unique: true,
     allowNull: false,
     validate: {
-      isEmail: true, // Ensures that the value is a valid email
-    }
+      isEmail: true,
+    },
   },
   password: {
     type: DataTypes.STRING,
@@ -29,10 +30,14 @@ const User = sequelize.define('User', {
   },
   social_platform: {
     type: DataTypes.STRING,
-    allowNull: true, // Only required if `social_login` is true
+    allowNull: true,
   },
-  grade: {
-    type: DataTypes.STRING, // Adjust to ENUM or INTEGER if needed
+  grade_id: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Grade,
+      key: 'id',
+    },
   },
   creation_date: {
     type: DataTypes.DATE,
@@ -41,7 +46,6 @@ const User = sequelize.define('User', {
   last_login: {
     type: DataTypes.DATE,
     allowNull: true,
-    defaultValue: null,
   },
   user_type: {
     type: DataTypes.ENUM('regular', 'seller'),
@@ -50,13 +54,12 @@ const User = sequelize.define('User', {
   phone_number: {
     type: DataTypes.STRING,
     validate: {
-      is: /^[0-9]{8}$/ // Regular expression for a Tunisian phone number (8 digits)
+      is: /^[0-9]{8}$/,
     },
   },
   profile_picture_url: {
     type: DataTypes.STRING,
     allowNull: false,
-
   },
   commission_earned: {
     type: DataTypes.DECIMAL(10, 2),
@@ -73,5 +76,4 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
   },
 });
-
 module.exports = User;

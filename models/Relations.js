@@ -4,6 +4,8 @@ const Article = require("./Article");
 const Filter = require('./Filter');
 const Commission =require ("./Commission");
 const Transaction = require ("./Transaction");
+const Grade = require('./Grade');
+
 const sequelize = require("../config/config.js");
 
 // User et Seller
@@ -33,6 +35,8 @@ Commission.belongsTo(User, { foreignKey: 'user_id' });
 // Transaction et Commission
 Transaction.hasMany(Commission, { foreignKey: 'transaction_id' });
 Commission.belongsTo(Transaction, { foreignKey: 'transaction_id' });
+
+User.belongsTo(Grade, { foreignKey: 'grade_id', as: 'grade' });
 
 // sequelize
 //   .sync()

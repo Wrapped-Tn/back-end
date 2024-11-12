@@ -1,22 +1,24 @@
 const express = require('express');
 const {
-  createUser,
+  createUserWithGrade,
   getUserById,
   updateUser,
   deleteUser,
-  getAllUser
+  getAllUser,
+  getUserCart
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
 
 // Créer un utilisateur
-router.post('/', createUser);
+router.post('/', createUserWithGrade);
 
 // Lire un utilisateur par ID
 router.get('/:id', getUserById);
 
 // Lire tous les utilisateurs 
 router.get('/', getAllUser);
+router.get('/UserCart/:id',getUserCart)
 
 // Mettre à jour un utilisateur
 router.put('/:id', updateUser);

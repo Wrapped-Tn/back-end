@@ -14,7 +14,9 @@ const filterRoutes = require('./routes/FilterR');
 const commissionRoutes = require('./routes/CommissonR');
 const itemFilterRoutes = require('./routes/ItemFilterR');
 const transactionRoutes = require('./routes/TransactionR');
+const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
+const imageUpload =require('./routes/PropsR')
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 const PORT =  3000;
 
@@ -49,6 +51,11 @@ app.use('/api/transactions', transactionRoutes);
 // Utiliser les routes d'authentification
 app.use('/api/auth', authRoutes);
 
+// Utiliser les routes de grades
+app.use('/api/grades', gradeRoutes);
+
+// Utiliser les routes d'upload d'image
+app.use('/api/props', imageUpload);
 // Middleware pour les sessions
 // app.use(session({
 //     secret: process.env.SESSION_SECRET || 'secret', // Choisis un secret fort

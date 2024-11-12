@@ -20,4 +20,4 @@ router.put('/:id', updateItemFilter);
 // Supprimer une association article-filtre
 router.delete('/:id', deleteItemFilter);
 
-module.exports = router;
+  module.exports = router;

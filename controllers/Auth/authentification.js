@@ -181,7 +181,7 @@ async function checkEmailExists(req, res) {
 
     if (user) {
       // If a user with the email exists, return a response indicating it's taken
-      return res.status(200).json({ exists: true, message: 'Email already in use' });
+      return res.status(201).json({ exists: true, message: 'Email already in use' });
     } else {
       // If no user with the email exists, return a response indicating it's available
       return res.status(200).json({ exists: false, message: 'Email is available' });
