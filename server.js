@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 // const session = require('express-session');
 // const passport = require('passport');
 const userRoutes = require('./routes/UserR');
-const sellerRoutes = require('./routes/SellerR');
 const articleRoutes = require('./routes/ArticleR');
 const filterRoutes = require('./routes/FilterR');
 const commissionRoutes = require('./routes/CommissonR');
@@ -31,7 +30,6 @@ app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 
 // Routes pour les vendeurs
-app.use('/api/sellers', sellerRoutes);
 
 // Routes pour les articles
 app.use('/api/articles', articleRoutes);

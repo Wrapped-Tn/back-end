@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
-const Seller = require('./Seller.js');
+const Brand = require ("./Brand.js")
 
 const Article = sequelize.define('Article', {
   id: {
@@ -11,7 +11,7 @@ const Article = sequelize.define('Article', {
   seller_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: Seller,
+      model: Brand,
       key: 'id',
     },
   },
