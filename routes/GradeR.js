@@ -4,7 +4,8 @@ const {
   getGradeById,
   getAllGrades,
   updateGrade,
-  deleteGrade
+  deleteGrade,
+  getGradeCart
 } = require('../controllers/GradeC.js');
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.get('/:id', getGradeById);
 
 // Lire tous les grades
 router.get('/', getAllGrades);
+
+router.get('/Gradename/:id',getGradeCart);
 
 // Mettre à jour un grade
 router.put('/:id', updateGrade);

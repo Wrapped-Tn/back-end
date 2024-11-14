@@ -9,29 +9,29 @@ const createUserWithGrade = async (req, res) => {
   const { email, password, full_name, phone_number, sexe, profile_picture_url, region, birthdate, user_type } = req.body;
 
   try {
-    // Créer le grade par défaut
+    // Create the default grade
     const newGrade = await Grade.create({
-      grade_name: 'Débutant',  // Initialisation par défaut
-      min_stars: 0,            // Initialise à 0
-      max_stars: 100,          // Limite supérieure pour le grade "Débutant"
-      min_sales: 0,            // Initialise à 0
-      max_sales: 10,           // Limite supérieure pour le grade "Débutant"
-      rewards: 'Badge, accès aux statistiques de ses recommandations',  // Récompenses pour "Débutant"
+      grade_name: 'Débutant',  // Default grade name
+      min_stars: 0,            // Set to 0
+      max_stars: 100,          // Upper limit for the "Débutant" grade
+      min_sales: 0,            // Set to 0
+      max_sales: 10,           // Upper limit for the "Débutant" grade
+      rewards: 'Badge, accès aux statistiques de ses recommandations',  // Rewards for "Débutant"
     });
 
-    // Créer l'utilisateur avec l'ID du grade créé
-    const { grade } = req.body; // On utilise l'ID du grade créé pour l'attribuer à l'utilisateur
+    // Generate salt and hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create the user with the new grade ID
     const newUser = await User.create({
       email,
       password: hashedPassword,
       full_name,
       phone_number,
       sexe,
-      profile_picture_url: "",
-      grade: newGrade.id,  // Utilise l'ID du grade nouvellement créé
+      profile_picture_url: profile_picture_url || "",  // Default to empty if not provided
+      grade_id: newGrade.id,  // Use the ID of the newly created grade
       region,
       birthdate,
       user_type: user_type || 'regular', // Default to 'regular' if not provided
@@ -44,6 +44,7 @@ const createUserWithGrade = async (req, res) => {
     res.status(500).json({ error: 'Failed to create user with grade' });
   }
 };
+
 
 // Lire les informations d'un utilisateur
 const getUserById = async (req, res) => {
@@ -118,7 +119,7 @@ const getUserCart = async (req, res) => {
     const user = await User.findByPk(id);
     if (user) {
       res.status(200).json({
-        grade: user.grade,
+        grade: user.grade_id,
         full_name: user.full_name,
         profile_picture_url: user.profile_picture_url
       });

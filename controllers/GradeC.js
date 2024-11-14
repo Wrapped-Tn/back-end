@@ -35,6 +35,26 @@ const getGradeById = async (req, res) => {
   }
 };
 
+const getGradeCart= async (req,res)=>{
+  const {id} = req.params;
+  try{
+    const grade = await Grade.findByPk(id);
+    if(grade){
+      res.status(200).json( 
+       {titre : grade.grade_name,
+        stars : grade.min_stars,
+        sales : grade.min_sales
+      }
+      );
+    }
+    else{
+      res.status(404).json({error: 'Grade not found'});
+    }
+  }catch(error){
+
+  }
+}
+
 // Obtenir tous les grades
 const getAllGrades = async (req, res) => {
   try {
@@ -92,4 +112,5 @@ module.exports = {
   getAllGrades,
   updateGrade,
   deleteGrade,
+  getGradeCart,
 };

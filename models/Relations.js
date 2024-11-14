@@ -36,6 +36,7 @@ Commission.belongsTo(User, { foreignKey: 'user_id' });
 Transaction.hasMany(Commission, { foreignKey: 'transaction_id' });
 Commission.belongsTo(Transaction, { foreignKey: 'transaction_id' });
 
+Grade.hasMany(User, { foreignKey: 'transaction_id' });
 User.belongsTo(Grade, { foreignKey: 'grade_id', as: 'grade' });
 
 // sequelize
