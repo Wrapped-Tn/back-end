@@ -9,7 +9,7 @@ const Order= require('./Orders.js');
 const Rating=require('./Rating.js');
 const FashionistaTag=require('./FashionistaTag.js');
 const Invoice=require("./Invoice.js")
-
+const Auth=require('./Auth.js')
 const sequelize = require("../config/config.js");
 
 // User et Seller
@@ -75,8 +75,13 @@ Order.belongsTo(Article, { foreignKey: 'articleId', as: 'article' });
 Brand.hasMany(Invoice, { foreignKey: 'sellerId' });
 Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
+// Relation avec Brand
+Auth.hasOne(Brand, { foreignKey: 'auth_id' });
+Brand.belongsTo(Auth, { foreignKey: 'auth_id' });
 
-
+// Relation avec User
+Auth.hasOne(User, { foreignKey: 'auth_id' });
+User.belongsTo(Auth, { foreignKey: 'auth_id' });
 
 // sequelize
 //   .sync({ alter: true })

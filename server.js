@@ -16,14 +16,18 @@ const transactionRoutes = require('./routes/TransactionR');
 const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR')
+const BrandRoutes =require('./routes/BrandR')
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
+
+
 const PORT =  3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname + "/../react-client/dist"));
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true,limit: '10mb' }));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 // app.use(passport.initialize());
 // app.use(passport.session());
 // Routes pour les utilisateurs
@@ -54,6 +58,10 @@ app.use('/api/grades', gradeRoutes);
 
 // Utiliser les routes d'upload d'image
 app.use('/api/props', imageUpload);
+
+// Utiliser les routes de brands
+app.use('/api/brands', BrandRoutes)
+
 // Middleware pour les sessions
 // app.use(session({
 //     secret: process.env.SESSION_SECRET || 'secret', // Choisis un secret fort

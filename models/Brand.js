@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
+const Auth= require('./Auth.js')
 
 const Brand = sequelize.define('Brand', {
   id: {
@@ -7,54 +8,28 @@ const Brand = sequelize.define('Brand', {
     primaryKey: true,
     autoIncrement: true,
   },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
+  auth_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      isEmail: true,
+    references: {
+      model: Auth, // Table name
+      key: 'id',
     },
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   },
   brand_name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  acount_level:{
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  creation_date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  last_login: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  phone_number: {
-    type: DataTypes.STRING,
-    validate: {
-      is: /^[0-9]{8}$/,
-    },
-  },
-    logo_url: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  region: {
-    type: DataTypes.STRING,
-  },
   accountLevel: {
     type: DataTypes.ENUM('free', 'level_1', 'level_2', 'level_3', 'level_4', 'vip'),
     defaultValue: 'free',
-},
-  total_sales:{
+  },
+  total_sales: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
-  }
+  },
 });
+
 module.exports = Brand;
