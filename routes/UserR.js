@@ -18,7 +18,7 @@ router.get('/:id', getUserById);
 
 // Lire tous les utilisateurs 
 router.get('/', getAllUser);
-router.get('/UserCart/:id',getUserCart)
+router.post('/UserCart',getUserCart)
 
 // Mettre à jour un utilisateur
 router.put('/:id', updateUser);

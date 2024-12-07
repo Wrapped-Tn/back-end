@@ -147,17 +147,17 @@ const deleteUser = async (req, res) => {
 
 // Récupérer le panier d'un utilisateur
 const getUserCart = async (req, res) => {
-  const { id } = req.params;
+  const { idUser,idAuth } = req.body;
 
   try {
-    const user = await User.findByPk(id, {
-      include: [{ model: Auth }],
-    });
+    const user = await User.findByPk(idUser);
+    const auth=await Auth.findByPk(idAuth)
+
     if (user) {
       res.status(200).json({
         grade: user.grade_id,
         full_name: user.full_name,
-        profile_picture_url: user.Auth?.profile_picture_url || '',
+        profile_picture_url: auth.profile_picture_url || '', // Photo de profil
       });
     } else {
       res.status(404).json({ message: 'User not found' });
