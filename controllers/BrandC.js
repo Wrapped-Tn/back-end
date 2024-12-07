@@ -4,35 +4,35 @@ const bcrypt = require('bcrypt');
 
 // Créer un vendeur
 const createBrand = async (req, res) => {
-  const { email, password, brand_name, profile_picture_url, accountLevel, region,phone_number } = req.body;
+  const { email, password, brand_name, profile_picture_url, region,phone_number } = req.body;
 
   try {
     // Vérifier si tous les champs nécessaires sont fournis
-    if (!email || !password || !brand_name || !profile_picture_url) {
+    if (!email || !password || !brand_name ) {
       return res.status(400).json({ error: 'Email, password, brand_name, and profile_picture_url are required.' });
     }
 
     // Générer un mot de passe haché
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
+    
+    // Créer une marque liée à l'entrée Auth
+    const newBrand = await Brand.create({
+      brand_name,
+      profile_picture_url,  // Associer le profile_picture_url à la marque
+      accountLevel:'free',  // Niveau par défaut si non fourni
+    });
     // Créer une entrée Auth pour le vendeur
     const newAuth = await Auth.create({
       email,
       password: hashedPassword,
-      profile_picture_url,  // Utiliser profile_picture_url
+      profile_picture_url:profile_picture_url|| '',  // Utiliser profile_picture_url
       region: region || '',  // En cas de valeur vide
       phone_number:phone_number,
       role: 'brand',
+      users_id:newBrand.id
     });
 
-    // Créer une marque liée à l'entrée Auth
-    const newBrand = await Brand.create({
-      auth_id: newAuth.id,
-      brand_name,
-      profile_picture_url,  // Associer le profile_picture_url à la marque
-      accountLevel: accountLevel || 'free',  // Niveau par défaut si non fourni
-    });
 
     // Répondre avec un succès
     res.status(201).json({
@@ -150,23 +150,18 @@ const deleteBrand = async (req, res) => {
   }
 };
 const getBrandCart = async (req, res) => {
-  const { id } = req.params; // ID du vendeur transmis dans l'URL
+  const { idbrand,idauth } = req.body; // ID du vendeur transmis dans l'URL
 
   try {
     // Récupérer la marque avec l'authentification associée
-    const brand = await Brand.findByPk(id, {
-      include: [{ model: Auth }],
-    });
-
+    const brand = await Brand.findByPk(idbrand);
+    const auth=await Auth.findByPk(idauth)
     if (brand) {
       res.status(200).json({
-        auth_id: brand.auth_id,
         brand_name: brand.brand_name,
-        logo_url: brand.logo_url || '',
         account_level: brand.accountLevel,
         total_sales: brand.total_sales,
-        email: brand.Auth?.email || '', // Email provenant de l'authentification
-        profile_picture_url: brand.Auth?.profile_picture_url || '', // Photo de profil
+        profile_picture_url: auth.profile_picture_url || '', // Photo de profil
       });
     } else {
       res.status(404).json({ message: 'Brand not found' });

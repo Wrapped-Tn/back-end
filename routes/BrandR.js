@@ -18,6 +18,6 @@ router.put('/:id', BrandC.updateBrand);
 router.delete('/:id', BrandC.deleteBrand);
 
 // Récupérer le panier d'une marque
-router.get('/BrandCart/:id', BrandC.getBrandCart);
+router.post('/BrandCart', BrandC.getBrandCart);
 
 module.exports = router;

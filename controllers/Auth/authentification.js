@@ -1,5 +1,5 @@
 require('dotenv').config();
-const User = require('../../models/User');
+const Auth = require('../../models/Auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -30,7 +30,7 @@ async function loginUser(req, res) {
   console.log('Login request received:', email);
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await Auth.findOne({ where: { email } });
     console.log('User found:', user);
 
     if (!user) {
@@ -44,11 +44,13 @@ async function loginUser(req, res) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = generateToken(user.id, user.full_name);
-    const idUser = user.id;
+    const token = generateToken(user.id, user.email);
+    const idUser = user.users_id;
+    const role = user.role; // Inclure le rôle dans la réponse
+    const idAuth = user.id
     console.log('Generated token:', token);
 
-    res.status(200).json({ token, idUser });
+    res.status(200).json({ token, idUser, role ,idAuth});
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -59,7 +61,7 @@ async function checkPass(req, res) {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await Auth.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -71,8 +73,9 @@ async function checkPass(req, res) {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = generateToken(user.id, user.username);
-    res.status(200).json({ token });
+    const token = generateToken(user.id, user.email);
+    const role = user.role; // Inclure le rôle dans la réponse
+    res.status(200).json({ token, role });
   } catch (error) {
     console.error('Error checking password:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -83,7 +86,7 @@ async function forgotPassword(req, res) {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await Auth.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -157,7 +160,7 @@ async function resetPassword(req, res) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Find the user and update their password
-    const user = await User.findOne({ where: { email } });
+    const user = await Auth.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -176,14 +179,11 @@ async function checkEmailExists(req, res) {
   const { email } = req.body;
 
   try {
-    // Check if a user with this email already exists in the database
-    const user = await User.findOne({ where: { email } });
+    const user = await Auth.findOne({ where: { email } });
 
     if (user) {
-      // If a user with the email exists, return a response indicating it's taken
       return res.status(201).json({ exists: true, message: 'Email already in use' });
     } else {
-      // If no user with the email exists, return a response indicating it's available
       return res.status(200).json({ exists: false, message: 'Email is available' });
     }
   } catch (error) {
@@ -191,7 +191,6 @@ async function checkEmailExists(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 module.exports = {
   loginUser,
   checkPass,

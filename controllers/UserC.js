@@ -33,6 +33,15 @@ const createUserWithGrade = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Créer l'utilisateur lié à Auth
+    const newUser = await User.create({
+      full_name,
+      grade_id: newGrade.id,
+      birthdate,
+      sexe,
+      user_type: user_type || 'regular',
+      commission_earned: req.body.commission_earned || 0,
+    });
     // Créer l'entrée Auth
     const newAuth = await Auth.create({
       email,
@@ -41,18 +50,9 @@ const createUserWithGrade = async (req, res) => {
       profile_picture_url: profile_picture_url || '',
       region,
       role: 'user',
+      users_id:newUser.id
     });
 
-    // Créer l'utilisateur lié à Auth
-    const newUser = await User.create({
-      full_name,
-      grade_id: newGrade.id,
-      auth_id: newAuth.id,
-      birthdate,
-      sexe,
-      user_type: user_type || 'regular',
-      commission_earned: req.body.commission_earned || 0,
-    });
 
     res.status(200).json({ userId: newUser.id, gradeId: newGrade.id, authId: newAuth.id });
   } catch (error) {

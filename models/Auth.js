@@ -50,6 +50,10 @@ const Auth = sequelize.define('Auth', {
   },
    role: {
     type: DataTypes.ENUM('brand', 'user'),
+  },
+  users_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   }
 });
 module.exports = Auth;

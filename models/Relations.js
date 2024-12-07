@@ -76,12 +76,12 @@ Brand.hasMany(Invoice, { foreignKey: 'sellerId' });
 Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // Relation avec Brand
-Auth.hasOne(Brand, { foreignKey: 'auth_id' });
-Brand.belongsTo(Auth, { foreignKey: 'auth_id' });
+// Brand.hasOne(Auth, { foreignKey: 'users_id' });
+// Auth.belongsTo(Brand, { foreignKey: 'users_id' });
 
-// Relation avec User
-Auth.hasOne(User, { foreignKey: 'auth_id' });
-User.belongsTo(Auth, { foreignKey: 'auth_id' });
+// // Relation avec User
+// User.hasOne(Auth, { foreignKey: 'users_id' });
+// Auth.belongsTo(User, { foreignKey: 'users_id' });
 
 // sequelize
 //   .sync({ alter: true })

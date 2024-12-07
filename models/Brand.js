@@ -8,16 +8,6 @@ const Brand = sequelize.define('Brand', {
     primaryKey: true,
     autoIncrement: true,
   },
-  auth_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Auth, // Table name
-      key: 'id',
-    },
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  },
   brand_name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,6 +20,7 @@ const Brand = sequelize.define('Brand', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  
 });
 
 module.exports = Brand;

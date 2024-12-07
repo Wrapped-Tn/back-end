@@ -8,16 +8,6 @@ const User = sequelize.define('User', {
     primaryKey: true,
     autoIncrement: true,
   },
-  auth_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Auth, // Table name
-      key: 'id',
-    },
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  },
   full_name: {
     type: DataTypes.STRING,
     allowNull: false,
