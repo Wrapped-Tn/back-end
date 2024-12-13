@@ -15,8 +15,11 @@ const itemFilterRoutes = require('./routes/ItemFilterR');
 const transactionRoutes = require('./routes/TransactionR');
 const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
-const imageUpload =require('./routes/PropsR')
-const BrandRoutes =require('./routes/BrandR')
+const imageUpload =require('./routes/PropsR');
+const BrandRoutes =require('./routes/BrandR');
+const commentsRoutes = require('./routes/CommentsR');
+const likesRoutes = require('./routes/LikesR');
+const savingsRoutes = require('./routes/SavingsR');
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 
 
@@ -61,6 +64,15 @@ app.use('/api/props', imageUpload);
 
 // Utiliser les routes de brands
 app.use('/api/brands', BrandRoutes)
+
+// Utiliser les routes de commentaires
+app.use('/comments', commentsRoutes);
+
+// utiliser e routes de likes
+app.use('/likes', likesRoutes);
+
+// Utiliser les routes de savings
+app.use('/savings', savingsRoutes);
 
 // Middleware pour les sessions
 // app.use(session({

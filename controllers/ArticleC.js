@@ -1,7 +1,9 @@
 const Article = require('../models/Article.js');
+const Image = require('../models/Image.js');
+const User = require('../models/User.js');
+const Seller = require('../models/Seller.js');
 
 // Créer un article
-// pour user et pour seller
 const createArticle = async (req, res) => {
   const { seller_id, title, description, price, category, brand, color, size, available_stock, images } = req.body;
 
@@ -13,19 +15,63 @@ const createArticle = async (req, res) => {
   }
 };
 
-// Lire un article
+// Lire un article par ID
 const getArticleById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const article = await Article.findByPk(id);
+    const article = await Article.findByPk(id, {
+      include: [
+        {
+          model: User,
+          attributes: ['full_name', 'profile_picture_url', 'grade_id']
+        },
+        {
+          model: Seller,
+          attributes: ['company_name'] 
+        },
+        {
+          model: Image, 
+          as: 'images', 
+          attributes: ['id', 'image_url']
+        }
+      ]
+    });
+
     if (article) {
       res.status(200).json(article);
     } else {
       res.status(404).json({ error: 'Article not found' });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve article' });
+    res.status(500).json({ error: 'Failed to retrieve article', details: error.message });
+  }
+};
+
+
+const getAllArticles = async (req, res) => {
+  try {
+    const articles = await Article.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['full_name', 'profile_picture_url', 'grade_id']
+        },
+        {
+          model: Image,
+          as: 'images',
+          attributes: ['id', 'image_url']
+        }
+      ]
+    });
+
+    res.status(200).json(articles);
+  } catch (error) {
+    console.error('Error retrieving articles:', error); // Log the detailed error
+    res.status(500).json({ 
+      error: 'Failed to retrieve articles', 
+      details: error.message 
+    });
   }
 };
 
@@ -75,6 +121,7 @@ const deleteArticle = async (req, res) => {
 module.exports = {
   createArticle,
   getArticleById,
+  getAllArticles,
   updateArticle,
   deleteArticle,
 };
