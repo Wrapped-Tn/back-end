@@ -5,7 +5,8 @@ const {
   updateUser,
   deleteUser,
   getAllUser,
-  getUserCart
+  getUserCart,
+  updatePofileImg
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
@@ -22,6 +23,9 @@ router.post('/UserCart',getUserCart)
 
 // Mettre à jour un utilisateur
 router.put('/:id', updateUser);
+
+// Mettre à jour Photo de profile
+router.put('/profilepic/:id',updatePofileImg);
 
 // Supprimer un utilisateur
 router.delete('/:id', deleteUser);

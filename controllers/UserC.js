@@ -166,6 +166,22 @@ const getUserCart = async (req, res) => {
     res.status(500).json({ message: 'An error occurred', error: error.message });
   }
 };
+const updatePofileImg=async(req,res)=>{
+try{
+  const {id}=req.params
+  const {profile_picture_url}=req.body
+  const user=await Auth.findByPk(id)
+  if(user){
+    user.profile_picture_url=profile_picture_url
+    await user.save()
+    res.status(200).json({message:'Profile picture updated successfully'})
+    }else{
+      res.status(404).json({message:'User not found'})
+  }
+}catch(e){
+  res.status(500).json({message:'An error occurred',error:e.message})
+}
+}
 
 module.exports = {
   createUserWithGrade,
@@ -174,4 +190,5 @@ module.exports = {
   deleteUser,
   getAllUser,
   getUserCart,
+  updatePofileImg
 };
