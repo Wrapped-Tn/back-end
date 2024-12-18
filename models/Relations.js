@@ -101,13 +101,13 @@ Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
 // User.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(User, { foreignKey: 'users_id' });
 
-sequelize
-  .sync({ alter: true })
-  .then(() => {
-    console.log("Database tables updated successfully.");
-    // Démarre ton application ou effectue d'autres actions ici
-  })
-  .catch((error) => {
-    console.error("Error updating database tables:", error);
-  });
+// sequelize
+//   .sync({ alter: true })
+//   .then(() => {
+//     console.log("Database tables updated successfully.");
+//     // Démarre ton application ou effectue d'autres actions ici
+//   })
+//   .catch((error) => {
+//     console.error("Error updating database tables:", error);
+//   });
 
