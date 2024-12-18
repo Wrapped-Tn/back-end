@@ -8,8 +8,10 @@ const Brand= require("./Brand.js");
 const Order= require('./Orders.js');
 const Rating=require('./Rating.js');
 const FashionistaTag=require('./FashionistaTag.js');
-const Invoice=require("./Invoice.js")
-const Auth=require('./Auth.js')
+const Invoice=require("./Invoice.js");
+const Like = require('./Like');
+const Comment = require('./Comments');
+const Auth=require('./Auth.js');
 const sequelize = require("../config/config.js");
 
 // User et Seller
@@ -75,6 +77,22 @@ Order.belongsTo(Article, { foreignKey: 'articleId', as: 'article' });
 Brand.hasMany(Invoice, { foreignKey: 'sellerId' });
 Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
+// Relation avec likes et comments
+
+Like.belongsTo(User, { foreignKey: 'users_id' });
+Like.belongsTo(Article, { foreignKey: 'articles_id' });
+Like.belongsTo(Comment, { foreignKey: 'comments_id' });
+User.hasMany(Like, { foreignKey: 'users_id' });
+Article.hasMany(Like, { foreignKey: 'articles_id' });
+Comment.hasMany(Like, { foreignKey: 'comments_id' });
+
+User.hasMany(Article, { foreignKey: 'users_id' }); 
+Article.belongsTo(User, { foreignKey: 'users_id' }); 
+
+Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
+
+
+
 // Relation avec Brand
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(Brand, { foreignKey: 'users_id' });
@@ -83,13 +101,13 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 // User.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(User, { foreignKey: 'users_id' });
 
-// sequelize
-//   .sync({ alter: true })
-//   .then(() => {
-//     console.log("Database tables updated successfully.");
-//     // Démarre ton application ou effectue d'autres actions ici
-//   })
-//   .catch((error) => {
-//     console.error("Error updating database tables:", error);
-//   });
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("Database tables updated successfully.");
+    // Démarre ton application ou effectue d'autres actions ici
+  })
+  .catch((error) => {
+    console.error("Error updating database tables:", error);
+  });
 
