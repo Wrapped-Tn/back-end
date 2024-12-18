@@ -3,7 +3,8 @@ const {
   createArticle,
   getArticleById,
   updateArticle,
-  deleteArticle
+  deleteArticle,
+  getAllArticles
 } = require('../controllers/ArticleC');
 
 const router = express.Router();
@@ -13,6 +14,9 @@ router.post('/', createArticle);
 
 // Lire un article par ID
 router.get('/:id', getArticleById);
+
+// Lire toutes les articles article par ID
+router.get('/', getAllArticles);;
 
 // Mettre à jour un article
 router.put('/:id', updateArticle);
