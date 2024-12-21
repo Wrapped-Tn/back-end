@@ -97,15 +97,33 @@ Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(Brand, { foreignKey: 'users_id' });
 
-// // Relation avec User
+// Relation avec User
 // User.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(User, { foreignKey: 'users_id' });
 
+// Create tables in correct order
 // sequelize
-//   .sync({ alter: true })
+//   .sync({ 
+//     alter: true,
+//     order: [
+//       ['Grades'],
+//       ['Users'],
+//       ['brands'],  
+//       ['articles'],
+//       ['comments'],
+//       ['likes'],
+//       ['ratings'],
+//       ['orders'],
+//       ['invoices'],
+//       ['transactions'],
+//       ['commissions'],
+//       ['filters'],
+//       ['fashionista_tags'],
+//       ['images']
+//     ]
+//   })
 //   .then(() => {
 //     console.log("Database tables updated successfully.");
-//     // Démarre ton application ou effectue d'autres actions ici
 //   })
 //   .catch((error) => {
 //     console.error("Error updating database tables:", error);
