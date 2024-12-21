@@ -43,15 +43,33 @@
 
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const Auth = require('../models/Auth');
 
 // Configure storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/') // Files will be stored in 'uploads' directory
+        // Access fields from req.body
+        const fileUploadpicture = req.body.fileUploadpicture || 'default';
+        const userId = req.body.userId || 'unknown';
+        
+        // Create nested directory structure
+        const uploadDir = path.join('uploads', fileUploadpicture, userId);
+        
+        // Create directories if they don't exist
+        fs.mkdirSync(uploadDir, { recursive: true });
+        
+        // Log for debugging
+        console.log('Upload directory:', uploadDir);
+        console.log('Request body:', req.body);
+        
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        // Create unique filename with original extension
-        cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
+        // Log for debugging
+        console.log('Original filename:', file.originalname);
+        
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
     }
 });
 
@@ -64,14 +82,14 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
 };
 
-// Create upload middleware
+// Create multer instance with configuration
 const upload = multer({
     storage: storage,
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB max file size
     },
     fileFilter: fileFilter
-});
+}).single('file');
 
 // Upload function
 const uploadImage = async (req, res) => {
@@ -79,13 +97,29 @@ const uploadImage = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded.' });
         }
-        const X = req.params.id;
-        // Create file URL
-        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/  X /  username /${req.file.filename}`;
+
+        // Create file URL with nested structure
+        const fileUploadpicture = req.body.fileUploadpicture || 'default';
+        const userId = req.body.userId || 'unknown';
+        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileUploadpicture}/${userId}/${req.file.filename}`;
         
+        // Update Auth table with new profile picture URL
+        try {
+            const auth = await Auth.findOne({ where: { users_id: userId } });
+            if (auth) {
+                auth.profile_picture_url = req.file.filename;
+                await auth.save();
+                console.log('Profile picture URL updated in Auth table');
+            }
+        } catch (dbError) {
+            console.error('Error updating Auth table:', dbError);
+            // Continue with the response even if DB update fails
+        }
+
         return res.status(201).json({ 
             url: fileUrl,
-            filename: req.file.filename
+            filename: req.file.filename,
+            message: 'Profile picture updated successfully'
         });
     } catch (error) {
         console.error('Error during file upload:', error);
