@@ -21,6 +21,9 @@ const Brand = sequelize.define('Brand', {
     defaultValue: 0,
   },
   
+}, {
+  tableName: 'brands',
+  timestamps: true
 });
 
 module.exports = Brand;

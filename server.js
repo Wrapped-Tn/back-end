@@ -21,6 +21,8 @@ const commentsRoutes = require('./routes/CommentsR');
 const likesRoutes = require('./routes/LikesR');
 const savingsRoutes = require('./routes/SavingsR');
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
+const path = require('path');
+const uploadRoutes = require('./routes/PropsR');
 
 
 const PORT =  3000;
@@ -83,6 +85,12 @@ app.use('/savings', savingsRoutes);
 
   // Autres middlewares, routes, etc.
 // app.use('api/authGoFb', authRoutesGoFb);
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Use upload routes
+app.use('/api', uploadRoutes);
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
