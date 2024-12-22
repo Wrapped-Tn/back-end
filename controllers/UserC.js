@@ -161,7 +161,9 @@ const getUserCart = async (req, res) => {
       res.status(200).json({
         grade: user.grade_id,
         full_name: user.full_name,
-        profile_picture_url: auth.profile_picture_url || '', // Photo de profil
+        profile_picture_url: auth.profile_picture_url || '', 
+        role:auth.role,
+        user_id:auth.users_id
       });
     } else {
       res.status(404).json({ message: 'User not found' });

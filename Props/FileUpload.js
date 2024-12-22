@@ -10,9 +10,9 @@ const storage = multer.diskStorage({
         // Access fields from req.body
         const fileUploadpicture = req.body.fileUploadpicture || 'default';
         const userId = req.body.userId || 'unknown';
-        
+        const typesignup = req.body.typesignup || 'unknown';
         // Create nested directory structure
-        const uploadDir = path.join('uploads', fileUploadpicture, userId);
+        const uploadDir = path.join('uploads', fileUploadpicture, typesignup, userId);
         
         // Create directories if they don't exist
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -59,12 +59,18 @@ const uploadImage = async (req, res) => {
         // Create file URL with nested structure
         const fileUploadpicture = req.body.fileUploadpicture || 'default';
         const userId = req.body.userId || 'unknown';
-        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileUploadpicture}/${userId}/${req.file.filename}`;
+        const typesignup = req.body.typesignup || 'unknown';
+        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${fileUploadpicture}/${typesignup}/${userId}/${req.file.filename}`;
         
         // Update Auth table with new profile picture URL
         try {
-            const auth = await Auth.findOne({ where: { users_id: userId } });
-            if (auth) {
+            const auth = await Auth.findOne({ 
+                where: { 
+                    users_id: userId,
+                    role: req.body.typesignup 
+                } 
+            });
+                if (auth) {
                 auth.profile_picture_url = req.file.filename;
                 await auth.save();
                 console.log('Profile picture URL updated in Auth table');
