@@ -87,7 +87,11 @@ app.use('/savings', savingsRoutes);
 // app.use('api/authGoFb', authRoutesGoFb);
 
 // Serve static files from uploads directory
+
 app.use('/uploads', express.static('uploads'));
+
+app.use('/posts', express.static(path.join(__dirname, 'posts')));
+
 // Use upload routes
 app.use('/api', uploadRoutes);
 
