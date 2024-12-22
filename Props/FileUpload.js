@@ -1,45 +1,3 @@
-// const cloudinary = require('cloudinary').v2;
-// require('dotenv').config(); // Charger les variables d'environnement
-
-// // Configuration de Cloudinary
-// cloudinary.config({
-//     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//     api_key: process.env.CLOUDINARY_API_KEY,
-//     api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
-
-// // Fonction d'upload
-// const uploadImage = async (req, res) => {
-//     const file = req.body.file; // Le fichier attendu en base64 ou chemin public
-
-//     // Validation du fichier
-//     if (!file) {
-//         return res.status(400).json({ error: 'Aucun fichier fourni pour l\'upload.' });
-//     }
-
-//     try {
-//         // Upload vers Cloudinary
-//         const result = await cloudinary.uploader.upload(file, {
-//             folder: 'wrapped', // Nom du dossier dans Cloudinary
-//         });
-
-//         console.log('Image uploaded avec succès:', result.secure_url);
-
-//         // Retourner l'URL de l'image
-//         return res.status(201).json({ url: result.secure_url });
-//     } catch (error) {
-//         console.error('Erreur lors de l\'upload:', error);
-
-//         // Retourner une erreur
-//         return res.status(500).json({ error: 'Échec de l\'upload de l\'image.' });
-//     }
-// };
-
-// module.exports = uploadImage;
-
-  
-//   // Export the function
-//   module.exports = { uploadImage };
 
 const multer = require('multer');
 const path = require('path');
@@ -92,5 +50,59 @@ const uploadImage = async (req, res) => {
         return res.status(500).json({ error: 'Failed to upload file.' });
     }
 };
+// Configuration du stockage pour les images des articles
+const articleStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const articleId = req.params.articleId;
+        const uploadPath = path.join('posts', 'articles', articleId);
 
-module.exports = { upload, uploadImage };
+        // Créer le répertoire si nécessaire
+        fs.mkdirSync(uploadPath, { recursive: true });
+
+        cb(null, uploadPath); // Enregistre dans le dossier spécifique à l'article
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+    }
+});
+
+// Middleware pour le téléchargement d'images d'articles
+const uploadArticle = multer({
+    storage: articleStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: fileFilter
+}).array('images', 3); // Limite à 3 images
+
+// Fonction pour télécharger les images des articles
+const uploadArticleImages = async (req, res) => {
+    try {
+        uploadArticle(req, res, function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ error: err.message });
+            } else if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+
+            if (!req.files || req.files.length === 0) {
+                return res.status(400).json({ error: 'No files uploaded.' });
+            }
+
+            const articleId = req.params.articleId;
+            const fileUrls = req.files.map(file => ({
+                url: `${req.protocol}://${req.get('host')}/posts/articles/${articleId}/${file.filename}`,
+                filename: file.filename
+            }));
+
+            return res.status(201).json({ 
+                message: 'Images uploaded successfully.',
+                files: fileUrls
+            });
+        });
+    } catch (error) {
+        console.error('Error during file upload:', error);
+        return res.status(500).json({ error: 'Failed to upload images.' });
+    }
+};
+
+// Export des fonctions
+module.exports = { upload, uploadImage, uploadArticleImages };

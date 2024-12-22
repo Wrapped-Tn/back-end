@@ -88,6 +88,7 @@ app.use('/savings', savingsRoutes);
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/posts', express.static(path.join(__dirname, 'posts')));
 
 // Use upload routes
 app.use('/api', uploadRoutes);
