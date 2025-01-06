@@ -27,7 +27,7 @@ function generateCode() {
 
 async function loginUser(req, res) {
   const { email, password } = req.body;
-  console.log('Login request received:', email);
+  console.log('Login request received:',req.body);
 
   try {
     const user = await Auth.findOne({ where: { email } });
