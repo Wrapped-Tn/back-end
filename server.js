@@ -7,6 +7,9 @@ const app = express()
 const bodyParser = require('body-parser');
 // const session = require('express-session');
 // const passport = require('passport');
+// Start Added By Youssef
+const PostRoutes = require('./routes/PostR');
+// End Added By Youssef
 const userRoutes = require('./routes/UserR');
 const articleRoutes = require('./routes/ArticleR');
 const filterRoutes = require('./routes/FilterR');
@@ -38,6 +41,9 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 // Routes pour les utilisateurs
 app.use('/api/users', userRoutes);
 
+// Start Added By Youssef
+app.use('/api/posts', PostRoutes);
+// End Added By Youssef
 // Routes pour les vendeurs
 
 // Routes pour les articles

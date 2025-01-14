@@ -1,3 +1,9 @@
+// Start Added By Youssef
+const Post = require('./Post');
+const PostImage = require('./PostImage');
+const PostPosition = require('./PostPosition');
+// End Added By Youssef
+
 const User = require("./User");
 const Article = require("./Article");
 const Filter = require('./Filter');
@@ -13,6 +19,15 @@ const Like = require('./Like');
 const Comment = require('./Comments');
 const Auth=require('./Auth.js');
 const sequelize = require("../config/config.js");
+const { on } = require('nodemailer/lib/xoauth2/index.js');
+
+// Start Added By Youssef
+Post.hasMany(PostImage, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+PostImage.belongsTo(Post, { foreignKey: 'post_id' });
+
+PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCADE' });
+PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
+// End Added By Youssef
 
 // User et Seller
 User.hasOne(Brand, { foreignKey: 'user_id' });
@@ -119,7 +134,10 @@ Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
 //       ['commissions'],
 //       ['filters'],
 //       ['fashionista_tags'],
-//       ['images']
+//       ['images'],
+//       ['Post'],
+//       ['PostImage'],
+//       ['PostPosition']
 //     ]
 //   })
 //   .then(() => {
