@@ -1,20 +1,20 @@
 // Added By Youssef
-const { Model, DataTypes } = require('sequelize');
+const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/config');
 
 const User = require('./User');
 const Post = require('./Post');
 
-class LikePost extends Model {}
+class SavePost extends Model {}
 
-LikePost.init(
+SavePost.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    likeDate: {
+    saveDate: {
       type: DataTypes.DATE,
       allowNull: false,
     },
@@ -37,8 +37,8 @@ LikePost.init(
   },
   {
     sequelize,
-    modelName: 'LikePost',
-    tableName: 'likePost',
+    modelName: 'SavePost',
+    tableName: 'savePost',
     timestamps: false,
   }
 );

@@ -26,7 +26,11 @@ const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
 const commentsRoutes = require('./routes/CommentsR');
 const likesRoutes = require('./routes/LikesR');
-const savingsRoutes = require('./routes/SavingsR');
+
+// Updated By Youssef
+const savePostRoutes = require('./routes/SavePostR.js');
+// End Updated By Youssef
+
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 const path = require('path');
 const uploadRoutes = require('./routes/PropsR');
@@ -86,7 +90,7 @@ app.use('/comments', commentsRoutes);
 app.use('/likes', likesRoutes);
 
 // Utiliser les routes de savings
-app.use('/savings', savingsRoutes);
+app.use('/savings', savePostRoutes);
 
 // Middleware pour les sessions
 // app.use(session({
