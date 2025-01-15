@@ -8,9 +8,12 @@ const app = express()
 const bodyParser = require('body-parser');
 // const session = require('express-session');
 // const passport = require('passport');
+
 // Start Added By Youssef
 const PostRoutes = require('./routes/PostR');
+const LikePostRoutes = require('./routes/LikePostR');
 // End Added By Youssef
+
 const userRoutes = require('./routes/UserR');
 const articleRoutes = require('./routes/ArticleR');
 const filterRoutes = require('./routes/FilterR');
@@ -44,7 +47,9 @@ app.use('/api/users', userRoutes);
 
 // Start Added By Youssef
 app.use('/api/posts', PostRoutes);
+app.use('/api/likePosts', LikePostRoutes);
 // End Added By Youssef
+
 // Routes pour les vendeurs
 
 // Routes pour les articles

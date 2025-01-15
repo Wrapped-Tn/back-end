@@ -2,6 +2,7 @@
 const Post = require('./Post');
 const PostImage = require('./PostImage');
 const PostPosition = require('./PostPosition');
+const LikePost = require('./LikePost');
 // End Added By Youssef
 
 const User = require("./User");
@@ -27,6 +28,13 @@ PostImage.belongsTo(Post, { foreignKey: 'post_id' });
 
 PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCADE' });
 PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
+
+// Likes and Posts
+Post.hasMany(LikePost, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+LikePost.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasMany(LikePost, { foreignKey: 'users_id', onDelete: 'CASCADE' });
+LikePost.belongsTo(User, { foreignKey: 'users_id' });
 // End Added By Youssef
 
 // User et Seller
