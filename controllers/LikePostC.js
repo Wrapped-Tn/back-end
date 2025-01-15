@@ -2,7 +2,7 @@
 const LikePost = require('../models/LikePost');
 const Post = require('../models/Post');
 
-const likePostC = {
+const LikePostC = {
 
     getLikedPostsByUser: async (req, res) => {
         const { user_id } = req.params;
@@ -27,4 +27,4 @@ const likePostC = {
     }
 };
 
-model.exports = likePostC;
+module.exports = LikePostC;

@@ -35,4 +35,5 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
   },
 });
+
 module.exports = User;

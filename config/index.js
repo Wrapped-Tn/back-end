@@ -1,5 +1,5 @@
 const sequelize = require("./config.js");
-const relation = require('../models/Relations.js')
+require('../models/Relations.js')
 
 const Connection = async () => {
   try {

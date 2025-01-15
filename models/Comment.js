@@ -46,7 +46,7 @@ Comment.init(
   },
   {
     sequelize,
-    modelName: 'comment',
+    modelName: 'Comment',
     tableName: 'comments',
     timestamps: true,
   }

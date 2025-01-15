@@ -1,25 +1,34 @@
 // Start Added By Youssef
 const Post = require('./Post');
+console.log('Post Model:', Post);
+
+
 const PostImage = require('./PostImage');
 const PostPosition = require('./PostPosition');
 const LikePost = require('./LikePost');
 const SavePost = require('./SavePost');
 // End Added By Youssef
 
+// Causing issue
+const Comment = require('./Comment');
+console.log('Comment Model:', Comment);
+
 const User = require("./User");
+console.log('User Model:', User);
+
+
 const Article = require("./Article");
 const Filter = require('./Filter');
 const Commission =require ("./Commission");
 const Transaction = require ("./Transaction");
 const Grade = require('./Grade');
-const Brand= require("./Brand.js");
-const Order= require('./Orders.js');
-const Rating=require('./Rating.js');
-const FashionistaTag=require('./FashionistaTag.js');
-const Invoice=require("./Invoice.js");
+const Brand= require("./Brand");
+const Order= require('./Orders');
+const Rating=require('./Rating');
+const FashionistaTag=require('./FashionistaTag');
+const Invoice=require("./Invoice");
 const Like = require('./Like');
-const Comment = require('./Comment.js');
-const Auth=require('./Auth.js');
+const Auth=require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 
@@ -47,6 +56,9 @@ SavePost.belongsTo(User, { foreignKey: 'user_id' });
 // Comments and Posts
 Post.hasMany(Comment, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 Comment.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasMany(Comment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+Comment.belongsTo(User, { foreignKey: 'user_id' });
 // End Added By Youssef
 
 // User et Seller

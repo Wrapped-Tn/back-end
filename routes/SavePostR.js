@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getSavedPostsByUser, addSaving, deleteSaving } = require('../controllers/SavePostController');
+const { getSavedPostsByUser, addSaving, deleteSaving } = require('../controllers/SavePostC');
 
 // Get saved posts by user
 router.get('/saved-posts/:userId', async (req, res) => {
