@@ -1,5 +1,6 @@
 const sequelize = require("./config.js");
 const relation = require('../models/Relations.js')
+
 const Connection = async () => {
   try {
     await sequelize.authenticate();
@@ -8,4 +9,5 @@ const Connection = async () => {
     console.error("Unable to connect to the database:", error);
   }
 };
+
 Connection();

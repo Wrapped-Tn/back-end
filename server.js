@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const db = require ('./config/index.JS')
+const db = require ('./config/index.js');
+
 // require('dotenv').config();
 // require('./Middleware Passport/passport-setup');
 const app = express()
