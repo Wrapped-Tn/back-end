@@ -18,7 +18,7 @@ const Rating=require('./Rating.js');
 const FashionistaTag=require('./FashionistaTag.js');
 const Invoice=require("./Invoice.js");
 const Like = require('./Like');
-const Comment = require('./Comments');
+const Comment = require('./Comment.js');
 const Auth=require('./Auth.js');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
@@ -43,6 +43,10 @@ SavePost.belongsTo(Post, { foreignKey: 'post_id' });
 
 User.hasMany(SavePost, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 SavePost.belongsTo(User, { foreignKey: 'user_id' });
+
+// Comments and Posts
+Post.hasMany(Comment, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Comment.belongsTo(Post, { foreignKey: 'post_id' });
 // End Added By Youssef
 
 // User et Seller
@@ -112,10 +116,12 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 Like.belongsTo(User, { foreignKey: 'users_id' });
 Like.belongsTo(Article, { foreignKey: 'articles_id' });
-Like.belongsTo(Comment, { foreignKey: 'comments_id' });
+
+Like.belongsTo(Comment, { foreignKey: 'comment_id' });
 User.hasMany(Like, { foreignKey: 'users_id' });
+
 Article.hasMany(Like, { foreignKey: 'articles_id' });
-Comment.hasMany(Like, { foreignKey: 'comments_id' });
+Comment.hasMany(Like, { foreignKey: 'comment_id' });
 
 User.hasMany(Article, { foreignKey: 'users_id' }); 
 Article.belongsTo(User, { foreignKey: 'users_id' }); 

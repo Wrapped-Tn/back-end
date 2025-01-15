@@ -1,5 +1,9 @@
+// Updated By Youssef
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/config.js');
+
+const User = require('./User.js');
+const Post = require('./Post.js');
 
 class Comment extends Model {}
 
@@ -9,49 +13,43 @@ Comment.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true, 
+      autoIncrement: true,
     },
     content: {
       type: DataTypes.STRING(200),
-      allowNull: false, 
+      allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
-    users_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users', 
+        model: User,
         key: 'id',
       },
     },
-    articles_id: {
+    post_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'articles', 
+        model: Post,
         key: 'id',
       },
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW, 
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW, 
+      defaultValue: DataTypes.NOW,
     },
   },
   {
     sequelize,
     modelName: 'comment',
-    tableName: 'comments', 
-    timestamps: true, 
+    tableName: 'comments',
+    timestamps: true,
   }
 );
-
 
 module.exports = Comment;

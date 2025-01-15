@@ -24,7 +24,7 @@ const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
-const commentsRoutes = require('./routes/CommentsR');
+const commentRoutes = require('./routes/CommentR');
 const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
@@ -84,7 +84,7 @@ app.use('/api/props', imageUpload);
 app.use('/api/brands', BrandRoutes)
 
 // Utiliser les routes de commentaires
-app.use('/comments', commentsRoutes);
+app.use('/comment', commentRoutes);
 
 // utiliser e routes de likes
 app.use('/likes', likesRoutes);
