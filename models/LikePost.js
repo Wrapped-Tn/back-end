@@ -1,9 +1,6 @@
-// Added By Youssef
+// models/LikePost.js
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/config');
-
-const User = require('./User');
-const Post = require('./Post');
 
 class LikePost extends Model {}
 
@@ -21,18 +18,10 @@ LikePost.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: User,
-        key: 'id',
-      },
     },
     post_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: Post,
-        key: 'id',
-      },
     },
   },
   {
@@ -42,3 +31,5 @@ LikePost.init(
     timestamps: false,
   }
 );
+
+module.exports = LikePost;

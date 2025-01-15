@@ -138,10 +138,6 @@ Comment.hasMany(Like, { foreignKey: 'comment_id' });
 User.hasMany(Article, { foreignKey: 'users_id' }); 
 Article.belongsTo(User, { foreignKey: 'users_id' }); 
 
-Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
-
-
-
 // Relation avec Brand
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(Brand, { foreignKey: 'users_id' });
