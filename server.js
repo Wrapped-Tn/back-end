@@ -1,15 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const db = require ('./config/index.JS')
+const db = require ('./config/index.js');
+
 // require('dotenv').config();
 // require('./Middleware Passport/passport-setup');
 const app = express()
 const bodyParser = require('body-parser');
 // const session = require('express-session');
 // const passport = require('passport');
+
 // Start Added By Youssef
 const PostRoutes = require('./routes/PostR');
+const LikePostRoutes = require('./routes/LikePostR');
 // End Added By Youssef
+
 const userRoutes = require('./routes/UserR');
 const articleRoutes = require('./routes/ArticleR');
 const filterRoutes = require('./routes/FilterR');
@@ -20,9 +24,13 @@ const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
-const commentsRoutes = require('./routes/CommentsR');
+const commentRoutes = require('./routes/CommentR');
 const likesRoutes = require('./routes/LikesR');
-const savingsRoutes = require('./routes/SavingsR');
+
+// Updated By Youssef
+const savePostRoutes = require('./routes/SavePostR.js');
+// End Updated By Youssef
+
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 const path = require('path');
 const uploadRoutes = require('./routes/PropsR');
@@ -43,7 +51,9 @@ app.use('/api/users', userRoutes);
 
 // Start Added By Youssef
 app.use('/api/posts', PostRoutes);
+app.use('/api/likePosts', LikePostRoutes);
 // End Added By Youssef
+
 // Routes pour les vendeurs
 
 // Routes pour les articles
@@ -74,13 +84,13 @@ app.use('/api/props', imageUpload);
 app.use('/api/brands', BrandRoutes)
 
 // Utiliser les routes de commentaires
-app.use('/comments', commentsRoutes);
+app.use('/comment', commentRoutes);
 
 // utiliser e routes de likes
 app.use('/likes', likesRoutes);
 
 // Utiliser les routes de savings
-app.use('/savings', savingsRoutes);
+app.use('/savings', savePostRoutes);
 
 // Middleware pour les sessions
 // app.use(session({

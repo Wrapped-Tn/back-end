@@ -1,6 +1,9 @@
+// Added By Youssef
 const Post = require('../models/Post');
 const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
+
+const LikePost = require('../models/LikePost');
 
 // Add a post with images and positions
 const addPost = async (req, res) => {
@@ -116,7 +119,6 @@ const getPostById = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post.' });
     }
 };
-
 
 module.exports = {
     addPost,

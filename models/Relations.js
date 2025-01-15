@@ -1,23 +1,34 @@
 // Start Added By Youssef
 const Post = require('./Post');
+console.log('Post Model:', Post);
+
+
 const PostImage = require('./PostImage');
 const PostPosition = require('./PostPosition');
+const LikePost = require('./LikePost');
+const SavePost = require('./SavePost');
 // End Added By Youssef
 
+// Causing issue
+const Comment = require('./Comment');
+console.log('Comment Model:', Comment);
+
 const User = require("./User");
+console.log('User Model:', User);
+
+
 const Article = require("./Article");
 const Filter = require('./Filter');
 const Commission =require ("./Commission");
 const Transaction = require ("./Transaction");
 const Grade = require('./Grade');
-const Brand= require("./Brand.js");
-const Order= require('./Orders.js');
-const Rating=require('./Rating.js');
-const FashionistaTag=require('./FashionistaTag.js');
-const Invoice=require("./Invoice.js");
+const Brand= require("./Brand");
+const Order= require('./Orders');
+const Rating=require('./Rating');
+const FashionistaTag=require('./FashionistaTag');
+const Invoice=require("./Invoice");
 const Like = require('./Like');
-const Comment = require('./Comments');
-const Auth=require('./Auth.js');
+const Auth=require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 
@@ -27,6 +38,27 @@ PostImage.belongsTo(Post, { foreignKey: 'post_id' });
 
 PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCADE' });
 PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
+
+// Likes and Posts
+Post.hasMany(LikePost, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+LikePost.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasMany(LikePost, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+LikePost.belongsTo(User, { foreignKey: 'user_id' });
+
+// Saves and Posts
+Post.hasMany(SavePost, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+SavePost.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasMany(SavePost, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+SavePost.belongsTo(User, { foreignKey: 'user_id' });
+
+// Comments and Posts
+Post.hasMany(Comment, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Comment.belongsTo(Post, { foreignKey: 'post_id' });
+
+User.hasMany(Comment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+Comment.belongsTo(User, { foreignKey: 'user_id' });
 // End Added By Youssef
 
 // User et Seller
@@ -96,17 +128,15 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 Like.belongsTo(User, { foreignKey: 'users_id' });
 Like.belongsTo(Article, { foreignKey: 'articles_id' });
-Like.belongsTo(Comment, { foreignKey: 'comments_id' });
+
+Like.belongsTo(Comment, { foreignKey: 'comment_id' });
 User.hasMany(Like, { foreignKey: 'users_id' });
+
 Article.hasMany(Like, { foreignKey: 'articles_id' });
-Comment.hasMany(Like, { foreignKey: 'comments_id' });
+Comment.hasMany(Like, { foreignKey: 'comment_id' });
 
 User.hasMany(Article, { foreignKey: 'users_id' }); 
 Article.belongsTo(User, { foreignKey: 'users_id' }); 
-
-Comment.belongsTo(User, { foreignKey: 'users_id' , as: 'User', });
-
-
 
 // Relation avec Brand
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
