@@ -34,7 +34,7 @@ const PostPosition = sequelize.define('PostPosition', {
     },
 
     size: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
 

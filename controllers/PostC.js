@@ -42,13 +42,13 @@ const addPost = async (req, res) => {
             // Create positions for the image
             for (const position of image.positions) {
                 if (
-                    typeof position.x !== 'number' || 
-                    typeof position.y !== 'number' || 
+                    !position.x || 
+                    !position.y || 
                     !position.brand || 
-                    typeof position.size !== 'number' || 
-                    typeof position.prix !== 'number'
+                    !position.size || 
+                    !position.prix
                 ) {
-                    return res.status(400).json({ error: 'Invalid position data format.' });
+                    return res.status(401).json({ error: 'Invalid position data format.' });
                 }
 
                 await PostPosition.create({
@@ -62,7 +62,7 @@ const addPost = async (req, res) => {
             }
         }
 
-        res.status(201).json({ message: 'Post created successfully!', post });
+        res.status(201).json({ message: 'Post created successfully!', post, articleId: post.id  });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to complete post creation.' });

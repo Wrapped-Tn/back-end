@@ -167,7 +167,10 @@ Article.belongsTo(User, { foreignKey: 'users_id' });
 //       ['images'],
 //       ['Post'],
 //       ['PostImage'],
-//       ['PostPosition']
+//       ['PostPosition'],
+//       ['savePost'],
+//       ['likePost'],
+//       ['comments']
 //     ]
 //   })
 //   .then(() => {
