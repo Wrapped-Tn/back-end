@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {addPost,getUserPosts,getPostById} = require('../controllers/PostC');
+const {addPost,getUserPosts,getPostById,getMyWordrobes,deleteImages} = require('../controllers/PostC');
 
 // Add a post
 router.post('/posts', addPost);
@@ -10,5 +10,9 @@ router.post('/posts', addPost);
 router.get('/posts/user/:userId', getUserPosts);
 // Get a post of a user
 router.get('/posts/user/:userId/:postId', getPostById);
+
+router.get('/posts/wordrobes/:userId', getMyWordrobes);
+// Delete images
+router.delete('/posts/images/:userId', deleteImages);
 
 module.exports = router;

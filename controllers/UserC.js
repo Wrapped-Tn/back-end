@@ -3,64 +3,86 @@ const User = require('../models/User.js');
 const Grade = require('../models/Grade.js');
 const Auth = require('../models/Auth.js');
 const moment = require('moment'); // Importer moment pour le formatage des dates
-
+const { v2: cloudinary } = require('cloudinary');
+require('dotenv').config();
+// Configurer Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET,
+});
 // Créer un utilisateur avec grade et auth
 const createUserWithGrade = async (req, res) => {
   const {
-    email,
-    password,
-    full_name,
-    phone_number,
-    sexe,
-    profile_picture_url,
-    region,
-    birthdate,
-    user_type,
-  } = req.body;
-
-  try {
-    // Créer le grade par défaut
-    const newGrade = await Grade.create({
-      grade_name: 'Débutant',
-      min_stars: 0,
-      max_stars: 100,
-      min_sales: 0,
-      max_sales: 10,
-      rewards: 'Badge, accès aux statistiques de ses recommandations',
-    });
-
-    // Hasher le mot de passe
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Créer l'utilisateur
-    const newUser = await User.create({
-      full_name,
-      email, // Include email
-      password: hashedPassword, // Include hashed password
-      profile_picture_url: profile_picture_url || '', // Include profile picture
-      grade_id: newGrade.id,
-      birthdate,
-      sexe,
-      user_type: user_type || 'regular',
-      commission_earned: req.body.commission_earned || 0,
-    });
-
-    // Créer l'entrée Auth (if still needed)
-    const newAuth = await Auth.create({
       email,
-      password: hashedPassword,
+      password,
+      full_name,
       phone_number,
-      profile_picture_url: profile_picture_url || '',
+      sexe,
+      profile_picture_url,
       region,
-      role: 'user',
-      users_id: newUser.id
-    });
+      birthdate,
+      user_type,
+  } = req.body;
+ console.log(req.body);
+ 
+  try {
+      // Créer le grade par défaut
+      const newGrade = await Grade.create({
+          grade_name: 'Débutant',
+          min_stars: 0,
+          max_stars: 100,
+          min_sales: 0,
+          max_sales: 10,
+          rewards: 'Badge, accès aux statistiques de ses recommandations',
+      });
 
-    res.status(200).json({ userId: newUser.id, gradeId: newGrade.id, authId: newAuth.id });
+      // Hasher le mot de passe
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // Uploader la photo de profil sur Cloudinary si elle est fournie
+      let profilePictureUrl = '';
+      if (profile_picture_url) {
+          const uploadResult = await cloudinary.uploader.upload(profile_picture_url, {
+              folder: 'profilepicture',
+          });
+          profilePictureUrl = uploadResult.secure_url; // Utiliser l'URL sécurisée fournie par Cloudinary
+      }
+
+      // Créer l'utilisateur
+      const newUser = await User.create({
+          full_name,
+          email,
+          password: hashedPassword,
+          profile_picture_url: profilePictureUrl , // Utiliser la photo téléchargée ou une chaîne vide
+          grade_id: newGrade.id,
+          birthdate,
+          sexe,
+          user_type: user_type || 'regular',
+          commission_earned: req.body.commission_earned || 0,
+      });
+
+      // Créer l'entrée Auth
+      const newAuth = await Auth.create({
+          email,
+          password: hashedPassword,
+          phone_number,
+          profile_picture_url: profilePictureUrl || '',
+          region,
+          role: 'user',
+          users_id: newUser.id,
+      });
+
+      res.status(200).json({ 
+          message: 'User, grade, and auth created successfully!',
+          userId: newUser.id, 
+          gradeId: newGrade.id, 
+          authId: newAuth.id 
+      });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create user with grade and auth' });
+      console.error(error);
+      res.status(500).json({ error: 'Failed to create user with grade and auth' });
   }
 };
 
