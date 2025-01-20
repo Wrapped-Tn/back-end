@@ -6,12 +6,14 @@ const { v2: cloudinary } = require('cloudinary');
 require('dotenv').config();
 
 const LikePost = require('../models/LikePost');
+
 // Configurer Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET,
 });
+
 // Add a post with images and positions
 const addPost = async (req, res) => {
     try {
@@ -81,6 +83,7 @@ const addPost = async (req, res) => {
         res.status(500).json({ error: 'Failed to complete post creation.' });
     }
 };
+
 // Get all posts of a user
 const getUserPosts = async (req, res) => {
     try {
@@ -107,6 +110,8 @@ const getUserPosts = async (req, res) => {
     }
 };
 
+
+// Get all images of the posts of a user
 const getMyWordrobes = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -132,7 +137,8 @@ const getMyWordrobes = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
-}
+};
+
 const deleteImages = async (req, res) => {
     try {
         const { userId } = req.params; // Récupérer l'ID de l'utilisateur
@@ -192,10 +198,6 @@ const getPostById = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post.' });
     }
 };
-
-
-
-
 
 module.exports = {
     addPost,
