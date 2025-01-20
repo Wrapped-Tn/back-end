@@ -1,9 +1,12 @@
 // Added By Youssef
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 
 const {addPost,getUserPosts,getPostById,getMyWordrobes,deleteImages} = require('../controllers/PostC');
 
+const storage = multer.memoryStorage();  // Stocke les fichiers temporairement en mémoire
+const upload = multer({ storage: storage }).array('images'); 
 // Add a post
 router.post('/posts', addPost);
 // Get all posts of a user

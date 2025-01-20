@@ -3,7 +3,15 @@ const Post = require('../models/Post');
 const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
 const { v2: cloudinary } = require('cloudinary');
+const multer = require('multer');
+
 require('dotenv').config();
+
+
+// Configurer multer pour gérer les fichiers
+const storage = multer.memoryStorage();  // Stocker temporairement en mémoire
+const upload = multer({ storage: storage });
+
 
 const LikePost = require('../models/LikePost');
 // Configurer Cloudinary
@@ -39,8 +47,7 @@ const addPost = async (req, res) => {
             if (!image.url || !Array.isArray(image.positions)) {
                 return res.status(400).json({ error: 'Each image must have a URL and valid positions array.' });
             }
-            console.log(image.url);
-            
+
             // Uploader l'image sur Cloudinary
             const uploadResult = await cloudinary.uploader.upload(image.url, {
                 folder: 'post_images',
@@ -126,7 +133,9 @@ const getMyWordrobes = async (req, res) => {
         const imageUrls = posts.map(post => 
             post.PostImages.map(image => image.url)
         ).flat();
-        res.status(200).json({ imageUrls });
+        // Extraction des IDs des posts
+        const postIds = posts.map(post => post.id);
+        res.status(200).json({ imageUrls ,postIds});
     }
     catch (error) {
         console.error(error);

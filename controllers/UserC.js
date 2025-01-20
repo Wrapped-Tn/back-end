@@ -339,6 +339,35 @@ const getUserCart = async (req, res) => {
     res.status(500).json({ message: 'An error occurred', error: error.message });
   }
 };
+//user profile
+const getUserProfile = async (req, res) => {
+  const { idUser } = req.params; // Seul idUser est requis
+
+  try {
+    // Trouver l'utilisateur par son ID
+    const user = await User.findByPk(idUser);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Trouver l'enregistrement Auth correspondant en utilisant users_id
+    const auth = await Auth.findOne({ where: { users_id: idUser } });
+
+    if (!auth) {
+      return res.status(404).json({ message: 'Auth information not found for this user' });
+    }
+
+    // Retourner uniquement le full_name et la photo de profil
+    res.status(200).json({
+      full_name: user.full_name,
+      profile_picture_url: auth.profile_picture_url || ''
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'An error occurred', error: error.message });
+  }
+};
+
 const updatePofileImg=async(req,res)=>{
 try{
   const {id}=req.params
@@ -365,5 +394,6 @@ module.exports = {
   getUserCart,
   updatePofileImg,
   getUserWithAuth,
-  updateUserWithAuth
+  updateUserWithAuth,
+  getUserProfile
 };

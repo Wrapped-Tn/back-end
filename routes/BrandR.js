@@ -8,6 +8,8 @@ router.post('/create', BrandC.createBrand);
 // Récupérer une marque par ID
 router.get('/:id', BrandC.getBrandById);
 
+router.post('/searchbyname', BrandC.getNamesBrand);////api/brands/searchbyname?search=brand_name
+
 // Récupérer toutes les marques
 router.get('/', BrandC.getAllBrands);
 

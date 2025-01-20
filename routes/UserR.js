@@ -8,7 +8,8 @@ const {
   getUserCart,
   updatePofileImg,
   getUserWithAuth,
-  updateUserWithAuth
+  updateUserWithAuth,
+  getUserProfile
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
@@ -23,6 +24,7 @@ router.get('/:id', getUserById);
 router.get('/', getAllUser);
 router.post('/UserCart',getUserCart)
 router.get('/UserAuth/:user_id',getUserWithAuth)
+router.get('/userProfile/:idUser',getUserProfile)
 router.put('/UserAuth/:user_id',updateUserWithAuth)
 // Mettre à jour un utilisateur
 router.put('/:id', updateUser);

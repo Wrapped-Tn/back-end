@@ -1,6 +1,7 @@
 const Brand = require('../models/Brand.js');
 const Auth = require('../models/Auth.js');
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 
 // Créer un vendeur
 const createBrand = async (req, res) => {
@@ -172,6 +173,24 @@ const getBrandCart = async (req, res) => {
 };
 
 
+const getNamesBrand = async (req, res) => {
+  const { search } = req.query;
+
+  try {
+    const brands = await Brand.findAll({
+      attributes: ['id', 'brand_name'],
+      where: search
+        ? { brand_name: { [Op.like]: `${search}%` } } // Recherche commençant par les lettres
+        : {},
+    });
+
+    res.status(200).json(brands);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve brands' });
+  }
+};
+
 module.exports = {
   createBrand,
   getBrandById,
@@ -179,4 +198,5 @@ module.exports = {
   updateBrand,
   deleteBrand,
   getBrandCart,
+  getNamesBrand
 };
