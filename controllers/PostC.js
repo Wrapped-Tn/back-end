@@ -84,10 +84,14 @@ const addPost = async (req, res) => {
     }
 };
 
-// Get all posts of a user
+// Get all posts of a user 
 const getUserPosts = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+        // Convert page and limit to numbers
+        const offset = (page - 1) * limit;
 
         const posts = await Post.findAll({
             where: { user_id: userId },
@@ -97,6 +101,9 @@ const getUserPosts = async (req, res) => {
                     include: [PostPosition],
                 },
             ],
+            limit: parseInt(limit), // Number of posts to return
+            offset: parseInt(offset), // Starting point for fetching posts
+            order: [['createdAt', 'DESC']], // Optional: Order by creation date (newest first)
         });
 
         if (posts.length === 0) {
@@ -110,11 +117,15 @@ const getUserPosts = async (req, res) => {
     }
 };
 
-
 // Get all images of the posts of a user
 const getMyWordrobes = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+        // Convert page and limit to numbers
+        const offset = (page - 1) * limit;
+
         const posts = await Post.findAll({
             where: { user_id: userId },
             include: [
@@ -122,18 +133,23 @@ const getMyWordrobes = async (req, res) => {
                     model: PostImage,
                     include: [PostPosition],
                 },
-            ], 
-        })
+            ],
+            limit: parseInt(limit), // Number of posts to return
+            offset: parseInt(offset), // Starting point for fetching posts
+            order: [['createdAt', 'DESC']], // Optional: Order by creation date (newest first)
+        });
+
         if (posts.length === 0) {
             return res.status(404).json({ message: 'No posts found for this user.' });
         }
-        // Extraction des URL des images
+
+        // Extract image URLs
         const imageUrls = posts.map(post => 
             post.PostImages.map(image => image.url)
         ).flat();
+
         res.status(200).json({ imageUrls });
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
