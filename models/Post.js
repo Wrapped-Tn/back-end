@@ -40,6 +40,12 @@ const Post = sequelize.define('Post', {
         defaultValue: 0,
     },
 
+    trend: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
