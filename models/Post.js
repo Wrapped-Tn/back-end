@@ -24,11 +24,6 @@ const Post = sequelize.define('Post', {
         allowNull: true,
     },
 
-    category: { 
-        type: DataTypes.JSON,
-        allowNull: false,
-    },
-
     occasion: {
         type: DataTypes.JSON,
         allowNull: true,

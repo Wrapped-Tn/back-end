@@ -17,60 +17,60 @@ cloudinary.config({
 // Add a post with images and positions
 const addPost = async (req, res) => {
     try {
-        const { userId, description, category, occasion, images } = req.body;
+        const { userId, description, occasion, images } = req.body;
 
-        // Valider les champs obligatoires
-        if (!userId || !category || !images || images.length === 0) {
+        // Validate required fields
+        if (!userId || !images || images.length === 0) {
             return res.status(400).json({ error: 'Required fields are missing.' });
         }
 
-        // Parser category et occasion en tableaux
-        const parsedCategory = Array.isArray(category) ? category : category.split(',');
+        // Parse occasion into an array
         const parsedOccasion = Array.isArray(occasion) ? occasion : (occasion ? occasion.split(',') : null);
 
-        // Créer le post
+        // Create the post
         const post = await Post.create({
             user_id: userId,
             description: description || null,
-            category: parsedCategory,
             occasion: parsedOccasion,
         });
 
-        // Traiter les images
+        // Process each image
         for (const image of images) {
             if (!image.url || !Array.isArray(image.positions)) {
                 return res.status(400).json({ error: 'Each image must have a URL and valid positions array.' });
             }
-            console.log(image.url);
-            
-            // Uploader l'image sur Cloudinary
+
+            // Upload the image to Cloudinary
             const uploadResult = await cloudinary.uploader.upload(image.url, {
                 folder: 'post_images',
             });
 
-            // Créer l'image associée au post
+            // Create the image associated with the post
             const postImage = await PostImage.create({
                 post_id: post.id,
-                url: uploadResult.secure_url, // URL sécurisée renvoyée par Cloudinary
+                url: uploadResult.secure_url, // Secure URL returned by Cloudinary
             });
 
-            // Traiter les positions associées à cette image
+            // Process each position associated with this image
             for (const position of image.positions) {
                 if (
                     !position.x || 
                     !position.y || 
                     !position.brand || 
+                    !position.category || // Ensure category is provided
                     !position.size || 
                     !position.prix
                 ) {
                     return res.status(400).json({ error: 'Invalid position data format.' });
                 }
 
+                // Create the position associated with the image
                 await PostPosition.create({
                     post_image_id: postImage.id,
                     x: position.x,
                     y: position.y,
                     brand: position.brand,
+                    category: position.category, // Add category here
                     size: position.size,
                     prix: position.prix,
                 });

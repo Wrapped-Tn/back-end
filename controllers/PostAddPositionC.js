@@ -3,16 +3,18 @@ const PostPosition = require('../models/PostPosition');
 
 const PostAddPositionC = async (req, res) => {
     try {
-        
-        const { imageId, x, y, brand, size, prix } = req.body;
+        const { imageId, x, y, brand, category, size, prix } = req.body;
 
-        if(!imageId || x === undefined || y === undefined || !brand || !size || !prix) return res.status(400).json({ error: 'Required fields are missing.' });
+        if (!imageId || x === undefined || y === undefined || !brand || !category || !size || !prix) {
+            return res.status(400).json({ error: 'Required fields are missing.' });
+        }
 
         const postPosition = await PostPosition.create({
             post_image_id: imageId,
             x,
             y,
             brand,
+            category, // Include category here
             size,
             prix,
         });
