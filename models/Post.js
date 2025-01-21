@@ -24,14 +24,21 @@ const Post = sequelize.define('Post', {
         allowNull: true,
     },
 
-    category: { 
-        type: DataTypes.JSON,
-        allowNull: false,
-    },
-
     occasion: {
         type: DataTypes.JSON,
         allowNull: true,
+    },
+
+    likes_count: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
+
+    trend: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
     },
 
     createdAt: {

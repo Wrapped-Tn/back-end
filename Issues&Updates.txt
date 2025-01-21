@@ -1,0 +1,5 @@
+Issues:
+PostC: Currently it  just del the image but not the post.
+
+Updates:
+Update the auto db creation to verify creating before creating so no more need to comment the code after execution.

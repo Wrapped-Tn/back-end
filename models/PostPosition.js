@@ -33,6 +33,11 @@ const PostPosition = sequelize.define('PostPosition', {
         allowNull: false,
     },
 
+    category: { 
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+
     size: {
         type: DataTypes.STRING,
         allowNull: false,

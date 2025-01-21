@@ -11,6 +11,12 @@ const Filter = sequelize.define('Filter', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+
+  category_filter: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
   filter_type: {
     type: DataTypes.ENUM('paid', 'free'),
     defaultValue: 'free',

@@ -14,68 +14,71 @@ const upload = multer({ storage: storage });
 
 
 const LikePost = require('../models/LikePost');
+
 // Configurer Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET,
 });
+
 // Add a post with images and positions
 const addPost = async (req, res) => {
     try {
-        const { userId, description, category, occasion, images } = req.body;
+        const { userId, description, occasion, images } = req.body;
 
-        // Valider les champs obligatoires
-        if (!userId || !category || !images || images.length === 0) {
+        // Validate required fields
+        if (!userId || !images || images.length === 0) {
             return res.status(400).json({ error: 'Required fields are missing.' });
         }
 
-        // Parser category et occasion en tableaux
-        const parsedCategory = Array.isArray(category) ? category : category.split(',');
+        // Parse occasion into an array
         const parsedOccasion = Array.isArray(occasion) ? occasion : (occasion ? occasion.split(',') : null);
 
-        // Créer le post
+        // Create the post
         const post = await Post.create({
             user_id: userId,
             description: description || null,
-            category: parsedCategory,
             occasion: parsedOccasion,
         });
 
-        // Traiter les images
+        // Process each image
         for (const image of images) {
             if (!image.url || !Array.isArray(image.positions)) {
                 return res.status(400).json({ error: 'Each image must have a URL and valid positions array.' });
             }
 
-            // Uploader l'image sur Cloudinary
+            // Upload the image to Cloudinary
             const uploadResult = await cloudinary.uploader.upload(image.url, {
                 folder: 'post_images',
             });
 
-            // Créer l'image associée au post
+            // Create the image associated with the post
             const postImage = await PostImage.create({
                 post_id: post.id,
-                url: uploadResult.secure_url, // URL sécurisée renvoyée par Cloudinary
+                url: uploadResult.secure_url, // Secure URL returned by Cloudinary
             });
 
-            // Traiter les positions associées à cette image
+            // Process each position associated with this image
             for (const position of image.positions) {
                 if (
                     !position.x || 
                     !position.y || 
                     !position.brand || 
+                    !position.category || // Ensure category is provided
                     !position.size || 
                     !position.prix
                 ) {
                     return res.status(400).json({ error: 'Invalid position data format.' });
                 }
 
+                // Create the position associated with the image
                 await PostPosition.create({
                     post_image_id: postImage.id,
                     x: position.x,
                     y: position.y,
                     brand: position.brand,
+                    category: position.category, // Add category here
                     size: position.size,
                     prix: position.prix,
                 });
@@ -88,10 +91,15 @@ const addPost = async (req, res) => {
         res.status(500).json({ error: 'Failed to complete post creation.' });
     }
 };
-// Get all posts of a user
+
+// Get all posts of a user 
 const getUserPosts = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+        // Convert page and limit to numbers
+        const offset = (page - 1) * limit;
 
         const posts = await Post.findAll({
             where: { user_id: userId },
@@ -101,6 +109,9 @@ const getUserPosts = async (req, res) => {
                     include: [PostPosition],
                 },
             ],
+            limit: parseInt(limit), // Number of posts to return
+            offset: parseInt(offset), // Starting point for fetching posts
+            order: [['createdAt', 'DESC']], // Optional: Order by creation date (newest first)
         });
 
         if (posts.length === 0) {
@@ -114,9 +125,15 @@ const getUserPosts = async (req, res) => {
     }
 };
 
+// Get all images of the posts of a user
 const getMyWordrobes = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+        // Convert page and limit to numbers
+        const offset = (page - 1) * limit;
+
         const posts = await Post.findAll({
             where: { user_id: userId },
             include: [
@@ -124,12 +141,17 @@ const getMyWordrobes = async (req, res) => {
                     model: PostImage,
                     include: [PostPosition],
                 },
-            ], 
-        })
+            ],
+            limit: parseInt(limit), // Number of posts to return
+            offset: parseInt(offset), // Starting point for fetching posts
+            order: [['createdAt', 'DESC']], // Optional: Order by creation date (newest first)
+        });
+
         if (posts.length === 0) {
             return res.status(404).json({ message: 'No posts found for this user.' });
         }
-        // Extraction des URL des images
+
+        // Extract image URLs
         const imageUrls = posts.map(post => 
             post.PostImages.map(image => image.url)
         ).flat();
@@ -141,7 +163,8 @@ const getMyWordrobes = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
-}
+};
+
 const deleteImages = async (req, res) => {
     try {
         const { userId } = req.params; // Récupérer l'ID de l'utilisateur
@@ -201,10 +224,6 @@ const getPostById = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post.' });
     }
 };
-
-
-
-
 
 module.exports = {
     addPost,

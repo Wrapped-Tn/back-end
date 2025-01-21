@@ -9,7 +9,7 @@ const Rating = sequelize.define('Rating', {
         primaryKey: true,
         autoIncrement: true,
     },
-    sellerId: {
+    brandId: {
         type: DataTypes.INTEGER,
         references: {
             model:Brand ,
@@ -27,10 +27,6 @@ const Rating = sequelize.define('Rating', {
         type: DataTypes.FLOAT,
         allowNull: false,
         validate: { min: 1, max: 5 }
-    },
-    comment: {
-        type: DataTypes.TEXT,
-        allowNull: true,
     }
 });
 
