@@ -2,8 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
 const Brand = require ("./Brand.js")
 const User =require("./User.js")
-const Article=require("./Article.js")
-
+const Post =require('./Post.js')
 const FashionistaTag = sequelize.define('FashionistaTag', {
     id: {
         type: DataTypes.INTEGER,
@@ -27,7 +26,7 @@ const FashionistaTag = sequelize.define('FashionistaTag', {
     articleId: {
         type: DataTypes.INTEGER,
         references: {
-            model:Article ,
+            model:Post ,
             key: 'id',
           },  
          },

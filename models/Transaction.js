@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
 const User = require('./User.js');
-const Article = require('./Article.js');
+const Brand =require('./Brand.js');
 
 const Transaction = sequelize.define('Transaction', {
   id: {
@@ -19,7 +19,7 @@ const Transaction = sequelize.define('Transaction', {
   item_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: Article,
+      model: Brand,
       key: 'id',
     },
   },

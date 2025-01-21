@@ -15,17 +15,15 @@ const LikePostRoutes = require('./routes/LikePostR');
 // End Added By Youssef
 
 const userRoutes = require('./routes/UserR');
-const articleRoutes = require('./routes/ArticleR');
 const filterRoutes = require('./routes/FilterR');
 const commissionRoutes = require('./routes/CommissonR');
-const itemFilterRoutes = require('./routes/ItemFilterR');
 const transactionRoutes = require('./routes/TransactionR');
 const gradeRoutes = require('./routes/GradeR');
 const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
 const commentRoutes = require('./routes/CommentR');
-const likesRoutes = require('./routes/LikesR');
+// const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
 const savePostRoutes = require('./routes/SavePostR.js');
@@ -56,8 +54,7 @@ app.use('/api/likePosts', LikePostRoutes);
 
 // Routes pour les vendeurs
 
-// Routes pour les articles
-app.use('/api/articles', articleRoutes);
+
 
 // Routes pour les filtres
 app.use('/api/filters', filterRoutes);
@@ -65,8 +62,7 @@ app.use('/api/filters', filterRoutes);
 // Routes pour les commissions
 app.use('/api/commissions', commissionRoutes);
 
-// Routes pour les associations article-filtre
-app.use('/api/itemFilters', itemFilterRoutes);
+
 
 // Routes pour les transactions
 app.use('/api/transactions', transactionRoutes);
@@ -86,8 +82,6 @@ app.use('/api/brands', BrandRoutes)
 // Utiliser les routes de commentaires
 app.use('/comment', commentRoutes);
 
-// utiliser e routes de likes
-app.use('/likes', likesRoutes);
 
 // Utiliser les routes de savings
 app.use('/savings', savePostRoutes);

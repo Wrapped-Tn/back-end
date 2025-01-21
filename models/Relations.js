@@ -17,7 +17,7 @@ const User = require("./User");
 console.log('User Model:', User);
 
 
-const Article = require("./Article");
+// const Article = require("./Article");
 const Filter = require('./Filter');
 const Commission =require ("./Commission");
 const Transaction = require ("./Transaction");
@@ -27,7 +27,7 @@ const Order= require('./Orders');
 const Rating=require('./Rating');
 const FashionistaTag=require('./FashionistaTag');
 const Invoice=require("./Invoice");
-const Like = require('./Like');
+// const Like = require('./Like');
 const Auth=require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
@@ -65,21 +65,21 @@ Comment.belongsTo(User, { foreignKey: 'user_id' });
 User.hasOne(Brand, { foreignKey: 'user_id' });
 Brand.belongsTo(User, { foreignKey: 'user_id' });
 
-// Seller et Article
-Brand.hasMany(Article, { foreignKey: 'seller_id' });
-Article.belongsTo(Brand, { foreignKey: 'seller_id' });
+// // Seller et Article
+// Brand.hasMany(Post, { foreignKey: 'seller_id' });
+// Article.belongsTo(Brand, { foreignKey: 'seller_id' });
 
 // Article et ItemFilter (Relation N-N avec Filter)
-Article.belongsToMany(Filter, { through: 'ItemFilter', foreignKey: 'item_id' });
-Filter.belongsToMany(Article, { through: 'ItemFilter', foreignKey: 'filter_value_id' });
+// Article.belongsToMany(Filter, { through: 'ItemFilter', foreignKey: 'item_id' });
+// Filter.belongsToMany(Article, { through: 'ItemFilter', foreignKey: 'filter_value_id' });
 
 // User et Transaction
 User.hasMany(Transaction, { foreignKey: 'user_id' });
 Transaction.belongsTo(User, { foreignKey: 'user_id' });
 
 // Article et Transaction
-Article.hasMany(Transaction, { foreignKey: 'item_id' });
-Transaction.belongsTo(Article, { foreignKey: 'item_id' });
+Brand.hasMany(Transaction, { foreignKey: 'item_id' });
+Transaction.belongsTo(Brand, { foreignKey: 'item_id' });
 
 // User et Commission
 User.hasMany(Commission, { foreignKey: 'user_id' });
@@ -117,8 +117,8 @@ User.hasMany(FashionistaTag, { foreignKey: 'userId' });
 FashionistaTag.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // Une commande contient un article.// Un article peut être lié à plusieurs commandes.
-Article.hasMany(Order, { foreignKey: 'articleId' });
-Order.belongsTo(Article, { foreignKey: 'articleId', as: 'article' });
+// Article.hasMany(Order, { foreignKey: 'articleId' });
+// Order.belongsTo(Article, { foreignKey: 'articleId', as: 'article' });
 
 // Un vendeur peut avoir plusieurs factures.// Une facture appartient à un vendeur.
 Brand.hasMany(Invoice, { foreignKey: 'sellerId' });
@@ -126,17 +126,17 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // Relation avec likes et comments
 
-Like.belongsTo(User, { foreignKey: 'users_id' });
-Like.belongsTo(Article, { foreignKey: 'articles_id' });
+// Like.belongsTo(User, { foreignKey: 'users_id' });
+// Like.belongsTo(Article, { foreignKey: 'articles_id' });
 
-Like.belongsTo(Comment, { foreignKey: 'comment_id' });
-User.hasMany(Like, { foreignKey: 'users_id' });
+// Like.belongsTo(Comment, { foreignKey: 'comment_id' });
+// User.hasMany(Like, { foreignKey: 'users_id' });
 
-Article.hasMany(Like, { foreignKey: 'articles_id' });
-Comment.hasMany(Like, { foreignKey: 'comment_id' });
+// Article.hasMany(Like, { foreignKey: 'articles_id' });
+// Comment.hasMany(Like, { foreignKey: 'comment_id' });
 
-User.hasMany(Article, { foreignKey: 'users_id' }); 
-Article.belongsTo(User, { foreignKey: 'users_id' }); 
+// User.hasMany(Article, { foreignKey: 'users_id' }); 
+// Article.belongsTo(User, { foreignKey: 'users_id' }); 
 
 // Relation avec Brand
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
@@ -154,7 +154,6 @@ Article.belongsTo(User, { foreignKey: 'users_id' });
 //       ['Grades'],
 //       ['Users'],
 //       ['brands'],  
-//       ['articles'],
 //       ['comments'],
 //       ['likes'],
 //       ['ratings'],
