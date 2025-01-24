@@ -2,38 +2,58 @@ const Brand = require('../models/Brand.js');
 const Auth = require('../models/Auth.js');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
-
+const { v2: cloudinary } = require('cloudinary');
+require('dotenv').config();
+// Configurer Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret:process.env.CLOUDINARY_API_SECRET,
+});
 // Créer un vendeur
 const createBrand = async (req, res) => {
-  const { email, password, brand_name, profile_picture_url, region,phone_number } = req.body;
+  const { email, password, brand_name, profile_picture_url, region, phone_number } = req.body;
 
   try {
     // Vérifier si tous les champs nécessaires sont fournis
-    if (!email || !password || !brand_name ) {
-      return res.status(400).json({ error: 'Email, password, brand_name, and profile_picture_url are required.' });
+    if (!email || !password || !brand_name) {
+      return res.status(400).json({ error: 'Email, password, and brand_name are required.' });
+    }
+
+    let uploadedImageUrl = '';
+
+    // Vérifier si un fichier d'image est fourni et le télécharger sur Cloudinary
+    if (profile_picture_url) {
+      const uploadResult = await cloudinary.uploader.upload(profile_picture_url, {
+        folder: 'profilepicture_brands', // Dossier où les images seront stockées dans Cloudinary
+      });
+      uploadedImageUrl = uploadResult.secure_url; // Récupérer l'URL sécurisée de l'image
+    } else if (profile_picture_url) {
+      // Si un URL d'image est fourni dans le body
+      uploadedImageUrl = profile_picture_url;
     }
 
     // Générer un mot de passe haché
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    
+
     // Créer une marque liée à l'entrée Auth
     const newBrand = await Brand.create({
       brand_name,
-      profile_picture_url,  // Associer le profile_picture_url à la marque
-      accountLevel:'free',  // Niveau par défaut si non fourni
+      profile_picture_url: uploadedImageUrl, // Associer l'image téléchargée
+      accountLevel: 'free', // Niveau par défaut si non fourni
     });
+
     // Créer une entrée Auth pour le vendeur
     const newAuth = await Auth.create({
       email,
       password: hashedPassword,
-      profile_picture_url:profile_picture_url|| '',  // Utiliser profile_picture_url
-      region: region || '',  // En cas de valeur vide
-      phone_number:phone_number,
+      profile_picture_url: uploadedImageUrl, // Utiliser l'URL téléchargée
+      region: region || '', // En cas de valeur vide
+      phone_number: phone_number,
       role: 'brand',
-      users_id:newBrand.id
+      users_id: newBrand.id,
     });
-
 
     // Répondre avec un succès
     res.status(201).json({
@@ -41,7 +61,6 @@ const createBrand = async (req, res) => {
       brandId: newBrand.id,
       authId: newAuth.id,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create brand' });
