@@ -1,8 +1,9 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/config.js");
-const Brand = require ("./Brand.js")
-const User =require("./User.js")
-const Post =require('./Post.js')
+const sequelize = require("../config/config");
+const Brand = require ("./Brand")
+const User =require("./User")
+const Post =require('./Post')
+
 const FashionistaTag = sequelize.define('FashionistaTag', {
     id: {
         type: DataTypes.INTEGER,

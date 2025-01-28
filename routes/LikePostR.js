@@ -3,7 +3,7 @@ const express = require('express');
 
 const {
   LikePostC,
-} = require('../controllers/LikePostC.js');
+} = require('../controllers/LikePostC');
 
 const router = express.Router();
 

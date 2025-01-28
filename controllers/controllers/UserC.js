@@ -2,9 +2,14 @@ const bcrypt = require('bcrypt'); // Importer bcrypt
 const User = require('../models/User');
 const Grade = require('../models/Grade');
 const Auth = require('../models/Auth');
+const Post = require('../models/Post');
+
+const { generateCode, verificationCodes, transporter } = require('../controllers/Auth/authentification'); 
+
 const moment = require('moment'); // Importer moment pour le formatage des dates
 const { v2: cloudinary } = require('cloudinary');
 require('dotenv').config();
+
 // Configurer Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,78 +19,86 @@ cloudinary.config({
 
 // Créer un utilisateur avec grade et auth
 const createUserWithGrade = async (req, res) => {
+
   const {
-      email,
-      password,
-      full_name,
-      phone_number,
-      sexe,
-      profile_picture_url,
-      region,
-      birthdate,
-      user_type,
+    email,
+    password,
+    full_name,
+    sexe,
+    phone_number,
+    profile_picture_url,
+    region,
+    birthdate,
+    user_type
   } = req.body;
- console.log(req.body);
- 
+
+  console.log('Data sent by user during signUp: ', req.body);
+
   try {
-      // Créer le grade par défaut
-      const newGrade = await Grade.create({
-          grade_name: 'Débutant',
-          min_stars: 0,
-          max_stars: 100,
-          min_sales: 0,
-          max_sales: 10,
-          rewards: 'Badge, accès aux statistiques de ses recommandations',
+    // Check if the email already exists
+    const existingAuth = await Auth.findOne({ where: { email } });
+    if (existingAuth) {
+      return res.status(409).json({ error: 'Email already in use.' });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Upload the profile picture to Cloudinary if provided
+    let profilePictureUrl = '';
+    if (profile_picture_url) {
+      const uploadResult = await cloudinary.uploader.upload(profile_picture_url, {
+        folder: 'profilepicture',
       });
+      profilePictureUrl = uploadResult.secure_url;
+    }
 
-      // Hasher le mot de passe
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+    // Create the Auth entry for the user
+    const newAuth = await Auth.create({
+      email,
+      password: hashedPassword,
+      full_name,
+      sexe,
+      phone_number: phone_number || '',
+      profile_picture_url: profilePictureUrl || '',
+      region: region || '',
+      role: 'user',
+      birthdate,
+      isActive: false, // Account inactive until verified
+    });
+    
 
-      // Uploader la photo de profil sur Cloudinary si elle est fournie
-      let profilePictureUrl = '';
-      if (profile_picture_url) {
-          const uploadResult = await cloudinary.uploader.upload(profile_picture_url, {
-              folder: 'profilepicture',
-          });
-          profilePictureUrl = uploadResult.secure_url; // Utiliser l'URL sécurisée fournie par Cloudinary
+    // Generate a 4-digit verification code
+    const code = generateCode(); // Use the imported function
+    console.log('Generated verification code:', code);
+
+    // Store the code with an expiration time (1 minute and 30 seconds)
+    verificationCodes.set(email, { code, expiresAt: Date.now() + 90000 });
+
+    // Send the verification code via email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Email Verification Code',
+      text: `Your verification code is ${code}. This code will expire in 1 minute and 30 seconds.`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Error sending verification email.' });
       }
 
-      // Créer l'utilisateur
-      const newUser = await User.create({
-          full_name,
-          email,
-          password: hashedPassword,
-          profile_picture_url: profilePictureUrl , // Utiliser la photo téléchargée ou une chaîne vide
-          grade_id: newGrade.id,
-          birthdate,
-          sexe,
-          user_type: user_type || 'regular',
-          commission_earned: req.body.commission_earned || 0,
+      console.log('Verification email sent:', info.response);
+      res.status(201).json({
+        message: 'Verification code sent to email. Please verify your account.',
+        authId: newAuth.id,
       });
-
-      // Créer l'entrée Auth
-      const newAuth = await Auth.create({
-          email,
-          password: hashedPassword,
-          phone_number,
-          profile_picture_url: profilePictureUrl || '',
-          region,
-          role: 'user',
-          users_id: newUser.id,
-      });
-
-      await sendVerificationCode(req, res); // Ensure to send the verification code
-
-      res.status(200).json({ 
-          message: 'User, grade, and auth created successfully!',
-          userId: newUser.id, 
-          gradeId: newGrade.id, 
-          authId: newAuth.id 
-      });
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to create user with grade and auth' });
+    console.error('Error creating Auth:', error);
+    res.status(500).json({ error: 'Failed to create Auth and send verification code.' });
   }
 };
 
@@ -140,6 +153,7 @@ const getUserWithAuth = async (req, res) => {
 
 const updateUserWithAuth = async (req, res) => {
   const { user_id } = req.params;
+
   const {
     // User table fields
     full_name,
@@ -152,8 +166,8 @@ const updateUserWithAuth = async (req, res) => {
     region,
     current_password,  
     password     
-    } = req.body;
-
+  } = req.body;
+  
   try {
     // Find user
     const user = await User.findByPk(user_id);
@@ -340,35 +354,8 @@ const getUserCart = async (req, res) => {
     res.status(500).json({ message: 'An error occurred', error: error.message });
   }
 };
-//user profile
-const getUserProfile = async (req, res) => {
-  const { idUser } = req.params; // Seul idUser est requis
 
-  try {
-    // Trouver l'utilisateur par son ID
-    const user = await User.findByPk(idUser);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Trouver l'enregistrement Auth correspondant en utilisant users_id
-    const auth = await Auth.findOne({ where: { users_id: idUser } });
-
-    if (!auth) {
-      return res.status(404).json({ message: 'Auth information not found for this user' });
-    }
-
-    // Retourner uniquement le full_name et la photo de profil
-    res.status(200).json({
-      full_name: user.full_name,
-      profile_picture_url: auth.profile_picture_url || ''
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred', error: error.message });
-  }
-};
-
+// Update user profile picture
 const updatePofileImg=async(req,res)=>{
 try{
   const {id}=req.params
@@ -386,8 +373,6 @@ try{
 }
 }
 
-
-// Get data about a profile api's
 const getSomeOneInfo = async (req, res) => {
   const { userId } = req.params;
 
@@ -466,8 +451,5 @@ module.exports = {
   getUserCart,
   updatePofileImg,
   getUserWithAuth,
-  updateUserWithAuth,
-  getUserProfile,
-  getSomeOneInfo,
-  getSomeOnePosts
+  updateUserWithAuth
 };
