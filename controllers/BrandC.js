@@ -21,11 +21,6 @@ const createBrand = async (req, res) => {
       return res.status(400).json({ error: 'Email, password, and brand_name are required.' });
     }
 
-    const existingAuth = await Auth.findOne({ where: { email } });
-    if (existingAuth) {
-      return res.status(409).json({ error: 'Email already in use.' });
-    }
-
     let uploadedImageUrl = '';
 
     // Vérifier si un fichier d'image est fourni et le télécharger sur Cloudinary
@@ -61,7 +56,7 @@ const createBrand = async (req, res) => {
       users_id: newBrand.id,
     });
 
-    await sendVerificationCode(req, res); // Ensure to send the verification code
+    await sendVerificationCode(req, res);
 
     // Répondre avec un succès
     res.status(201).json({
@@ -218,6 +213,142 @@ const getNamesBrand = async (req, res) => {
   }
 };
 
+const getTaggedPosts = async (req, res) => {
+  const { brand } = req.params;
+
+  console.log(brand); 
+
+  try {
+    const taggedPositions = await PostPosition.findAll({
+      where: { brand },
+      include: [
+        {
+          model: PostImage,
+          include: [
+            {
+              model: Post,
+              include: [
+                {
+                  model: User,
+                  attributes: ['id', 'full_name'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (taggedPositions.length === 0) {
+      return res.status(404).json({ error: 'No posts found for this brand' });
+    }
+
+    const posts = taggedPositions.map((position) => ({
+      postId: position.PostImage.Post.id,
+      description: position.PostImage.Post.description,
+      occasion: position.PostImage.Post.occasion,
+      likesCount: position.PostImage.Post.likes_count,
+      payTrend: position.PostImage.Post.trend, // updated to post's trend
+      verified: position.verified,  // now from PostPosition model
+      createdAt: position.PostImage.Post.createdAt,
+      updatedAt: position.PostImage.Post.updatedAt,
+      user: {
+        id: position.PostImage.Post.User.id,
+        fullName: position.PostImage.Post.User.full_name,
+      },
+      image: {
+        id: position.PostImage.id,
+        url: position.PostImage.url,
+      },
+      position: {
+        id: position.id,
+        x: position.x,
+        y: position.y,
+        category: position.category,
+        size: position.size,
+        prix: position.prix,
+      },
+    }));
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve tagged posts' });
+  }
+};
+
+// Get verified tagged posts
+const getVerifiedTaggedPosts = async (req, res) => {
+  const { brand } = req.params;
+
+  try {
+    const verifiedTaggedPositions = await PostPosition.findAll({
+      where: { brand, verified: true }, // Filter directly by verified on PostPosition
+      include: [
+        {
+          model: PostImage,
+          required: true, // Ensures only rows with valid PostImage
+          include: [
+            {
+              model: Post,
+              required: true, // Ensures only rows with valid Post
+              include: [
+                {
+                  model: User,
+                  attributes: ['id', 'full_name'],
+                  required: false, // User can be optional
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });    
+
+    if (!verifiedTaggedPositions || verifiedTaggedPositions.length === 0) {
+      return res.status(404).json({ error: 'No verified posts found for this brand' });
+    }
+
+    const posts = verifiedTaggedPositions
+      .filter((position) => position.PostImage && position.PostImage.Post) // Filter out invalid rows
+      .map((position) => ({
+        postId: position.PostImage.Post.id,
+        description: position.PostImage.Post.description,
+        occasion: position.PostImage.Post.occasion,
+        likesCount: position.PostImage.Post.likes_count,
+        payTrend: position.PostImage.Post.trend, // updated to post's trend
+        verified: position.verified, // now from PostPosition model
+        createdAt: position.PostImage.Post.createdAt,
+        updatedAt: position.PostImage.Post.updatedAt,
+        user: position.PostImage.Post.User
+          ? {
+              id: position.PostImage.Post.User.id,
+              fullName: position.PostImage.Post.User.full_name,
+            }
+          : null,
+        image: {
+          id: position.PostImage.id,
+          url: position.PostImage.url,
+        },
+        position: {
+          id: position.id,
+          x: position.x,
+          y: position.y,
+          category: position.category,
+          size: position.size,
+          prix: position.prix,
+        },
+      }));
+
+    console.log(JSON.stringify(verifiedTaggedPositions, null, 2));
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve verified tagged posts' });
+  }
+};
+
 module.exports = {
   createBrand,
   getBrandById,
@@ -225,5 +356,7 @@ module.exports = {
   updateBrand,
   deleteBrand,
   getBrandCart,
-  getNamesBrand
+  getNamesBrand,
+  getTaggedPosts,
+  getVerifiedTaggedPosts,
 };
