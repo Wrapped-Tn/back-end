@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const BrandC = require('../controllers/BrandC');  // Ajustez en fonction du chemin de votre contrôleur
+const BrandC = require('../controllers/BrandC');  // Adjust according to your controller path
 
 // Créer une nouvelle marque
 router.post('/create', BrandC.createBrand);
@@ -8,7 +8,8 @@ router.post('/create', BrandC.createBrand);
 // Récupérer une marque par ID
 router.get('/:id', BrandC.getBrandById);
 
-router.post('/searchbyname', BrandC.getNamesBrand);////api/brands/searchbyname?search=brand_name
+// Récupérer les marques par leur nom (search by name)
+router.post('/searchbyname', BrandC.getNamesBrand); // api/brands/searchbyname?search=brand_name
 
 // Récupérer toutes les marques
 router.get('/', BrandC.getAllBrands);
@@ -21,5 +22,11 @@ router.delete('/:id', BrandC.deleteBrand);
 
 // Récupérer le panier d'une marque
 router.post('/BrandCart', BrandC.getBrandCart);
+
+// Récupérer les posts où la marque a été taguée
+router.get('/:brand/tagged-posts', BrandC.getTaggedPosts); // api/brands/:brand/tagged-posts
+
+// Récupérer les posts vérifiés pour lesquels la marque a été taguée
+router.get('/:brand/verified-tagged-posts', BrandC.getVerifiedTaggedPosts); // api/brands/:brand/verified-tagged-posts
 
 module.exports = router;
