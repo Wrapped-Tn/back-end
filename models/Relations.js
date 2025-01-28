@@ -39,6 +39,9 @@ PostImage.belongsTo(Post, { foreignKey: 'post_id' });
 PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCADE' });
 PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
 
+Post.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(Post, { foreignKey: 'user_id', as: 'posts' });
+
 // Likes and Posts
 Post.hasMany(LikePost, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 LikePost.belongsTo(Post, { foreignKey: 'post_id' });

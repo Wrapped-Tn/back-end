@@ -26,7 +26,7 @@ const LikePostC = {
     },
 
     addLike: async (req, res) => {
-        const { user_id, post_id } = req.body;
+        const { user_id, post_id } = req.params;
 
         try {
             // Check if the user has already liked the post
@@ -65,7 +65,7 @@ const LikePostC = {
     },
 
     deleteLike: async (req, res) => {
-        const { user_id, post_id } = req.body;
+        const { user_id, post_id } = req.params;
 
         try {
             // Check if the user has liked the post

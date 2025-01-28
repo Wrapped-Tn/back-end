@@ -2,6 +2,8 @@
 const Post = require('../models/Post');
 const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
+const User = require('../models/User');
+const Auth = require('../models/Auth');
 const { v2: cloudinary } = require('cloudinary');
 const multer = require('multer');
 
@@ -91,6 +93,10 @@ const addPost = async (req, res) => {
         res.status(500).json({ error: 'Failed to complete post creation.' });
     }
 };
+
+
+
+
 
 // Get all posts of a user 
 const getUserPosts = async (req, res) => {
@@ -224,11 +230,89 @@ const getPostById = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post.' });
     }
 };
+//Get WhatsHot Posts
+const WhatsHotPosts = async (req, res) => {
+    try {
+        // Récupérer tous les posts avec leurs relations
+        const posts = await Post.findAll({
+            include: [
+                {
+                    model: PostImage,
+                    as: 'PostImages', // Assurez-vous que cet alias est correct
+                    include: [
+                        {
+                            model: PostPosition,
+                            as: 'PostPositions', // Assurez-vous que cet alias est correct
+                        }
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'user', // Assurez-vous que l'alias "user" correspond au modèle User dans votre association Sequelize
+                    attributes: ['id', 'full_name']
+                }
+            ],
+            attributes: ['id', 'description', 'createdAt','occasion','user_id'],
+        });
+
+        if (!posts || posts.length === 0) {
+            return res.status(200).json({ message: 'No posts found.', posts: [] });
+        }
+
+        // Récupérer toutes les données d'authentification associées aux utilisateurs des posts
+        const userIds = posts.map(post => post.user?.id).filter(Boolean);
+        const authData = await Auth.findAll({
+            where: {
+                users_id: userIds
+            },
+            attributes: ['users_id', 'profile_picture_url']
+        });
+
+        // Mapper les données d'authentification par user_id pour un accès rapide
+        const authMap = {};
+        authData.forEach(auth => {
+            authMap[auth.users_id] = auth.profile_picture_url;
+        });
+
+        // Formater les posts avec les informations complètes
+        const formattedPosts = posts.map(post => {
+            const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
+            return {
+                id: post.id,
+                description: post.description,
+                createdAt: post.createdAt,
+                occasion: occasion,  // S'assurer que `occasion` n'est jamais undefined ou null
+                user: {
+                    fullName: post.user?.full_name || 'Unknown',
+                    profilePicture: authMap[post.user?.id] || null
+                },
+                images: (post.PostImages || []).map(image => ({
+                    id: image.id,
+                    url: image.url,
+                    positions: (image.PostPositions || []).map(position => ({
+                        x: position.x,
+                        y: position.y,
+                        brand: position.brand,
+                        category: position.category,
+                        size: position.size,
+                        prix: position.prix,
+                    }))
+                }))
+            };
+        });
+
+        res.status(200).json(formattedPosts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to retrieve posts.' });
+    }
+};
 
 module.exports = {
     addPost,
     getUserPosts,
     getPostById,
     getMyWordrobes,
-    deleteImages
+    deleteImages,
+    WhatsHotPosts
 };

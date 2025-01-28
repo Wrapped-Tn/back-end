@@ -1,5 +1,8 @@
 const Brand = require('../models/Brand');
 const Auth = require('../models/Auth');
+const Post = require('../models/Post');
+const PostImage = require('../models/PostImage');
+const PostPosition = require('../models/PostPosition');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { v2: cloudinary } = require('cloudinary');
@@ -314,9 +317,7 @@ const getVerifiedTaggedPosts = async (req, res) => {
       .map((position) => ({
         postId: position.PostImage.Post.id,
         description: position.PostImage.Post.description,
-        occasion: position.PostImage.Post.occasion,
         likesCount: position.PostImage.Post.likes_count,
-        payTrend: position.PostImage.Post.trend, // updated to post's trend
         verified: position.verified, // now from PostPosition model
         createdAt: position.PostImage.Post.createdAt,
         updatedAt: position.PostImage.Post.updatedAt,
