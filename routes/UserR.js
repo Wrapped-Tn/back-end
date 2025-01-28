@@ -9,13 +9,20 @@ const {
   updatePofileImg,
   getUserWithAuth,
   updateUserWithAuth,
-  getUserProfile
+  getUserProfile,
+  getSomeOnePosts,
+  getSomeOneInfo
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
 
 // Créer un utilisateur
 router.post('/', createUserWithGrade);
+
+// Added by Youssef
+router.get('/profile/:id', getSomeOneInfo);
+router.get('/profile/posts/:id', getSomeOnePosts);
+// END Added by Youssef
 
 // Lire un utilisateur par ID
 router.get('/:id', getUserById);
@@ -34,5 +41,7 @@ router.put('/profilepic/:id',updatePofileImg);
 
 // Supprimer un utilisateur
 router.delete('/:id', deleteUser);
+
+
 
 module.exports = router;

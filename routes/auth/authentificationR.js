@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { loginUser, checkPass, forgotPassword, verifyCode, resetPassword, checkEmailExists } = require('../../controllers/Auth/authentification');
+const { loginUser, checkPass, forgotPassword, verifyCode, resetPassword, checkEmailExists, sendVerificationCode } = require('../../controllers/Auth/authentification');
 
 // Route pour la connexion de l'utilisateur
 router.post('/login', loginUser);
@@ -19,5 +19,8 @@ router.post('/reset-password', resetPassword);
 
 // Route pour vérifier si l'email existe déjà dans la base de données
 router.post('/check-email', checkEmailExists);
+
+// Route to send verification code
+router.post('/send-verification-code', sendVerificationCode);
 
 module.exports = router;

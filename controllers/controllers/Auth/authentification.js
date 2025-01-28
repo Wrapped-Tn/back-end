@@ -1,5 +1,9 @@
 require('dotenv').config();
+
 const Auth = require('../../models/Auth');
+const User = require('../../models/User');
+const Grade = require('../../models/Grade');
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -8,10 +12,12 @@ const nodemailer = require('nodemailer');
 const secretKey = process.env.JWT_SECRET;
 
 const transporter = nodemailer.createTransport({
-  service: 'Gmail', // ou un autre fournisseur d'email
+  host: process.env.MAILTRAP_HOST,
+  port: process.env.MAILTRAP_PORT,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER , // Votre email
-    pass: process.env.EMAIL_PASS, // Votre mot de passe
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASS,
   },
 });
 
@@ -20,11 +26,7 @@ const verificationCodes = new Map(); // Utilisation d'un Map pour stocker les co
 
 function generateToken(id, fullName) {
   return jwt.sign({ id, fullName }, secretKey, { expiresIn: '1h' });
-}
-
-function generateCode() {
-  return Math.floor(1000 + Math.random() * 9000); // Génère un nombre aléatoire à 4 chiffres
-}
+};
 
 async function loginUser(req, res) {
   const { email, password } = req.body;
@@ -56,7 +58,7 @@ async function loginUser(req, res) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 async function checkPass(req, res) {
   const { email, password } = req.body;
@@ -81,7 +83,7 @@ async function checkPass(req, res) {
     console.error('Error checking password:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 async function forgotPassword(req, res) {
   const { email } = req.body;
@@ -120,38 +122,7 @@ async function forgotPassword(req, res) {
     console.error('Error in forgotPassword:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
-
-async function verifyCode(req, res) {
-  const { email, code } = req.body;
-
-  try {
-    const storedData = verificationCodes.get(email);
-
-    if (!storedData) {
-      return res.status(200).json({ message: 'No code found for this email' });
-    }
-
-    const { code: storedCode, expiresAt } = storedData;
-
-    // Vérifier si le code a expiré
-    if (Date.now() > expiresAt) {
-      return res.status(200).json({ valid:false, message: 'Code has expired' });
-    }
-
-    // Vérifier si le code correspond
-    if (parseInt(code) !== storedCode) {
-      return res.status(200).json({ valid:false, message: 'Invalid code' });
-    }
-
-    // Le code est valide
-    res.status(200).json({ valid:true, message: 'Code is valid, proceed to reset password' });
-
-  } catch (error) {
-    console.error('Error verifying code:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
+};
 
 async function resetPassword(req, res) {
   const { email, newPassword } = req.body;
@@ -176,7 +147,7 @@ async function resetPassword(req, res) {
     console.error('Error resetting password:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 async function checkEmailExists(req, res) {
   const { email } = req.body;
@@ -193,58 +164,101 @@ async function checkEmailExists(req, res) {
     console.error('Error checking email existence:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
-// This API will handle sending the verification code to the user's email
-async function sendVerificationCode(req, res) {
-  const { email } = req.body;  // Get the email from the request body
+function generateCode() {
+  return Math.floor(1000 + Math.random() * 9000); // Génère un nombre aléatoire à 4 chiffres
+};
+
+async function verifyCode(req, res) {
+  const { email, code } = req.body;
 
   try {
-    // Check if email already exists in the system or if there's an existing verification code
+    // Step 1: Get the stored verification code
     const storedData = verificationCodes.get(email);
-
-    // If verification code exists, just re-send the code
-    if (storedData) {
-      // Check if the code has expired
-      if (Date.now() < storedData.expiresAt) {
-        return res.status(200).json({
-          message: 'Verification code has already been sent. Please check your inbox.'
-        });
-      }
+    if (!storedData) {
+      return res.status(400).json({ message: 'No verification code found for this email.' });
     }
 
-    // Generate the verification code
-    const code = generateCode();
-    console.log('Generated verification code:', code);
+    const { code: storedCode, expiresAt } = storedData;
 
-    // Store the code along with the expiration time (1 minute 30 seconds)
-    verificationCodes.set(email, { code, expiresAt: Date.now() + 90000 });
+    // Step 2: Check if the verification code has expired
+    if (Date.now() > expiresAt) {
+      verificationCodes.delete(email);
+      return res.status(400).json({ message: 'Verification code has expired.' });
+    }
 
-    // Send the verification code via email
-    const mailOptions = {
-      from: process.env.EMAIL_USER, // Your email address from environment variables
-      to: email,  // The email provided in the request
-      subject: 'Email Verification Code', // Email subject
-      text: `Your verification code is ${code}. This code will expire in 1 minute and 30 seconds.` // Email body
-    };
+    // Step 3: Validate the verification code
+    if (parseInt(code) !== storedCode) {
+      return res.status(400).json({ message: 'Invalid verification code.' });
+    }
 
-    // Send the email using Nodemailer
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ error: 'Error sending verification email.' });
-      }
+    // Step 4: Find the Auth record for the provided email
+    const auth = await Auth.findOne({ where: { email } });
 
-      console.log('Verification email sent:', info.response);
-      return res.status(200).json({
-        message: 'Verification code sent to email. Please verify your account.',
-      });
+    if (!auth) {
+      return res.status(404).json({ message: 'Account not found.' });
+    }
+
+    // Step 5: Ensure required fields are available from the Auth record
+    const { full_name, phone_number, profile_picture_url, region, role, sexe, birthdate, password } = auth;
+
+    // Check if the necessary fields are missing
+    if (!full_name || !sexe || !birthdate || !password) {
+      return res.status(400).json({ message: 'Missing required fields for user creation.' });
+    }
+
+    // Step 6: Create a new grade
+    const newGrade = await Grade.create({
+      grade_name: 'Débutant',
+      min_stars: 0,
+      max_stars: 100,
+      min_sales: 0,
+      max_sales: 10,
+      rewards: 'Badge, accès aux statistiques de ses recommandations',
     });
+
+    // Log the user data before creating the user
+    console.log("Creating new user with data:", {
+      full_name,
+      email,
+      password,
+      profile_picture_url,
+      grade_id: newGrade.id,
+      birthdate,
+      sexe,
+      commission_earned: 0,
+    });
+
+    // Step 7: Create the new User record
+    const newUser = await User.create({
+      full_name,
+      email,
+      password,
+      profile_picture_url,
+      grade_id: newGrade.id,
+      birthdate,
+      sexe,
+      user_type: role || 'regular', // Use default if not provided
+      commission_earned: 0,
+    });
+
+    // Step 8: Link the user to the Auth record and set it as active
+    auth.users_id = newUser.id;
+    auth.isActive = true;
+    await auth.save();
+
+    // Step 9: Clean up verification codes and respond
+    verificationCodes.delete(email);
+
+    return res.status(200).json({ message: 'Account verified successfully!' });
+
   } catch (error) {
-    console.error('Error sending verification code:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    // Step 10: Log and handle errors
+    console.error('Error verifying code:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
   }
-};
+}
 
 module.exports = {
   loginUser,
@@ -253,5 +267,7 @@ module.exports = {
   verifyCode,
   resetPassword,
   checkEmailExists,
-  sendVerificationCode
+  generateCode,
+  verificationCodes,
+  transporter,
 };

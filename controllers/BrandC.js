@@ -1,5 +1,5 @@
-const Brand = require('../models/Brand.js');
-const Auth = require('../models/Auth.js');
+const Brand = require('../models/Brand');
+const Auth = require('../models/Auth');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { v2: cloudinary } = require('cloudinary');
@@ -10,6 +10,7 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret:process.env.CLOUDINARY_API_SECRET,
 });
+
 // Créer un vendeur
 const createBrand = async (req, res) => {
   const { email, password, brand_name, profile_picture_url, region, phone_number } = req.body;
@@ -18,6 +19,11 @@ const createBrand = async (req, res) => {
     // Vérifier si tous les champs nécessaires sont fournis
     if (!email || !password || !brand_name) {
       return res.status(400).json({ error: 'Email, password, and brand_name are required.' });
+    }
+
+    const existingAuth = await Auth.findOne({ where: { email } });
+    if (existingAuth) {
+      return res.status(409).json({ error: 'Email already in use.' });
     }
 
     let uploadedImageUrl = '';
@@ -54,6 +60,8 @@ const createBrand = async (req, res) => {
       role: 'brand',
       users_id: newBrand.id,
     });
+
+    await sendVerificationCode(req, res); // Ensure to send the verification code
 
     // Répondre avec un succès
     res.status(201).json({
@@ -169,6 +177,7 @@ const deleteBrand = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete brand' });
   }
 };
+
 const getBrandCart = async (req, res) => {
   const { idbrand,idauth } = req.body; // ID du vendeur transmis dans l'URL
 
@@ -190,7 +199,6 @@ const getBrandCart = async (req, res) => {
     res.status(500).json({ message: 'An error occurred', error: error.message });
   }
 };
-
 
 const getNamesBrand = async (req, res) => {
   const { search } = req.query;
