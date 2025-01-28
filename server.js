@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const db = require ('./config/index.Js');
+const db = require ('./config/index');
 
 // require('dotenv').config();
 // require('./Middleware Passport/passport-setup');
@@ -10,6 +10,9 @@ const bodyParser = require('body-parser');
 // const passport = require('passport');
 
 // Start Added By Youssef
+const CartRoutes = require('./routes/CartR');
+const OrderRoutes = require('./routes/OrderR');
+
 const PostRoutes = require('./routes/PostR');
 const LikePostRoutes = require('./routes/LikePostR');
 // End Added By Youssef
@@ -23,7 +26,7 @@ const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
 const commentRoutes = require('./routes/CommentR');
-// const likesRoutes = require('./routes/LikesR');
+const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
 const savePostRoutes = require('./routes/SavePostR.js');
@@ -48,6 +51,9 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/users', userRoutes);
 
 // Start Added By Youssef
+app.use('/api/carts', CartRoutes);
+app.use('/api/orders', OrderRoutes);
+
 app.use('/api/posts', PostRoutes);
 app.use('/api/likePosts', LikePostRoutes);
 // End Added By Youssef
