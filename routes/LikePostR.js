@@ -1,9 +1,7 @@
 // Added By Youssef
 const express = require('express');
 
-const {
-  LikePostC,
-} = require('../controllers/LikePostC');
+const LikePostC = require('../controllers/LikePostC');
 
 const router = express.Router();
 
