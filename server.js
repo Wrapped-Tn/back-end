@@ -29,7 +29,7 @@ const commentRoutes = require('./routes/CommentR');
 // const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
-const savePostRoutes = require('./routes/SavePostR.js');
+const savePostRoutes = require('./routes/SavePostR');
 // End Updated By Youssef
 
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
@@ -90,7 +90,7 @@ app.use('/comment', commentRoutes);
 
 
 // Utiliser les routes de savings
-app.use('/savings', savePostRoutes);
+app.use('/api/savings', savePostRoutes);
 
 // Middleware pour les sessions
 // app.use(session({
