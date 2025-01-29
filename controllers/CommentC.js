@@ -1,5 +1,6 @@
 const Comment = require('../models/Comment');
 const User = require('../models/User');
+const Auth = require('../models/Auth');
 
 const getCommentsByPost = async (postId) => {
   try {
@@ -37,7 +38,14 @@ const addComment = async (userId, postId, content) => {
         {
           model: User,
           as: 'User',
-          attributes: ['full_name', 'profile_picture_url'],
+          attributes: ['full_name'],
+          include: [
+            {
+              model: Auth,
+              attributes: ['profile_picture_url'], // Fetch the profile picture from the Auth table
+              where: { users_id: userId }, // Ensure it is related to the correct user
+            },
+          ],
         },
       ],
     });

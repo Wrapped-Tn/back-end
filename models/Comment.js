@@ -1,14 +1,12 @@
 // Updated By Youssef
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/config.js');
+const sequelize = require('../config/config');
 
 const User = require('./User.js');
 const Post = require('./Post.js');
 
-class Comment extends Model {}
 
-Comment.init(
-  {
+const Comment = sequelize.define('Comment',{
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,

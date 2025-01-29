@@ -172,7 +172,6 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 //       ['PostPosition'],
 //       ['savePost'],
 //       ['likePost'],
-//       ['comments']
 //     ]
 //   })
 //   .then(() => {

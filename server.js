@@ -86,7 +86,7 @@ app.use('/api/props', imageUpload);
 app.use('/api/brands', BrandRoutes)
 
 // Utiliser les routes de commentaires
-app.use('/comment', commentRoutes);
+app.use('/api/comment', commentRoutes);
 
 
 // Utiliser les routes de savings
