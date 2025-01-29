@@ -1,8 +1,11 @@
+const User = require('../models/User');
 const Brand = require('../models/Brand');
 const Auth = require('../models/Auth');
+
 const Post = require('../models/Post');
 const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
+
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { v2: cloudinary } = require('cloudinary');
@@ -233,6 +236,7 @@ const getTaggedPosts = async (req, res) => {
               include: [
                 {
                   model: User,
+                  as: 'user',
                   attributes: ['id', 'full_name'],
                 },
               ],
@@ -246,32 +250,38 @@ const getTaggedPosts = async (req, res) => {
       return res.status(404).json({ error: 'No posts found for this brand' });
     }
 
-    const posts = taggedPositions.map((position) => ({
-      postId: position.PostImage.Post.id,
-      description: position.PostImage.Post.description,
-      occasion: position.PostImage.Post.occasion,
-      likesCount: position.PostImage.Post.likes_count,
-      payTrend: position.PostImage.Post.trend, // updated to post's trend
-      verified: position.verified,  // now from PostPosition model
-      createdAt: position.PostImage.Post.createdAt,
-      updatedAt: position.PostImage.Post.updatedAt,
-      user: {
-        id: position.PostImage.Post.User.id,
-        fullName: position.PostImage.Post.User.full_name,
-      },
-      image: {
-        id: position.PostImage.id,
-        url: position.PostImage.url,
-      },
-      position: {
-        id: position.id,
-        x: position.x,
-        y: position.y,
-        category: position.category,
-        size: position.size,
-        prix: position.prix,
-      },
-    }));
+    const posts = taggedPositions.map((position) => {
+      // Check if the PostImage and Post exist
+      const post = position.PostImage.Post || {};
+    
+      return {
+        postId: post.id || null,  // Default to null if not found
+        description: post.description || '',
+        occasion: post.occasion || '',
+        likesCount: post.likes_count || 0,
+        payTrend: post.trend || 0,  // Default to 0 if not found
+        verified: position.verified,  
+        createdAt: post.createdAt || null,
+        updatedAt: post.updatedAt || null,
+        user: {
+          id: post.User ? post.User.id : null,  // Ensure User is defined
+          fullName: post.User ? post.User.full_name : '',  // Ensure User is defined
+        },
+        image: {
+          id: position.PostImage.id,
+          url: position.PostImage.url,
+        },
+        position: {
+          id: position.id,
+          x: position.x,
+          y: position.y,
+          category: position.category,
+          size: position.size,
+          prix: position.prix,
+        },
+      };
+    });
+    
 
     res.status(200).json(posts);
   } catch (error) {
@@ -298,6 +308,7 @@ const getVerifiedTaggedPosts = async (req, res) => {
               include: [
                 {
                   model: User,
+                  as: 'user',
                   attributes: ['id', 'full_name'],
                   required: false, // User can be optional
                 },

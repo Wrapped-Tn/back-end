@@ -24,9 +24,9 @@ router.delete('/:id', BrandC.deleteBrand);
 router.post('/BrandCart', BrandC.getBrandCart);
 
 // Récupérer les posts où la marque a été taguée
-router.get('/:brand/tagged-posts', BrandC.getTaggedPosts); // api/brands/:brand/tagged-posts
+router.get('/:brand/taggedPosts', BrandC.getTaggedPosts); // api/brands/:brand/tagged-posts
 
 // Récupérer les posts vérifiés pour lesquels la marque a été taguée
-router.get('/:brand/verified-tagged-posts', BrandC.getVerifiedTaggedPosts); // api/brands/:brand/verified-tagged-posts
+router.get('/:brand/verifiedTaggedPosts', BrandC.getVerifiedTaggedPosts); // api/brands/:brand/verified-tagged-posts
 
 module.exports = router;
