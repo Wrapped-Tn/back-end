@@ -219,6 +219,7 @@ const getNamesBrand = async (req, res) => {
   }
 };
 
+// Get tagged posts
 const getTaggedPosts = async (req, res) => {
   const { brand } = req.params;
 
@@ -246,6 +247,8 @@ const getTaggedPosts = async (req, res) => {
       ],
     });
 
+    console.log(taggedPositions); // For tagged posts
+
     if (taggedPositions.length === 0) {
       return res.status(404).json({ error: 'No posts found for this brand' });
     }
@@ -263,10 +266,11 @@ const getTaggedPosts = async (req, res) => {
         verified: position.verified,  
         createdAt: post.createdAt || null,
         updatedAt: post.updatedAt || null,
-        user: {
-          id: post.User ? post.User.id : null,  // Ensure User is defined
-          fullName: post.User ? post.User.full_name : '',  // Ensure User is defined
-        },
+        user: post.user ? {
+          id: post.user.id,
+          fullName: post.user.full_name
+        } : null,
+        
         image: {
           id: position.PostImage.id,
           url: position.PostImage.url,
@@ -296,46 +300,47 @@ const getVerifiedTaggedPosts = async (req, res) => {
 
   try {
     const verifiedTaggedPositions = await PostPosition.findAll({
-      where: { brand, verified: true }, // Filter directly by verified on PostPosition
+      where: { brand, verified: true },
       include: [
         {
           model: PostImage,
-          required: true, // Ensures only rows with valid PostImage
+          required: true,
           include: [
             {
               model: Post,
-              required: true, // Ensures only rows with valid Post
+              as: 'Post', // Make sure this alias is correct
+              required: true,
               include: [
                 {
                   model: User,
-                  as: 'user',
-                  attributes: ['id', 'full_name'],
-                  required: false, // User can be optional
+                  as: 'user', // Ensure this alias matches the association
+                  attributes: ['id', 'full_name'], // Only fetch necessary fields
+                  required: false, // Allow posts without users
                 },
               ],
             },
           ],
         },
       ],
-    });    
+    });
 
     if (!verifiedTaggedPositions || verifiedTaggedPositions.length === 0) {
       return res.status(404).json({ error: 'No verified posts found for this brand' });
     }
 
     const posts = verifiedTaggedPositions
-      .filter((position) => position.PostImage && position.PostImage.Post) // Filter out invalid rows
+      .filter((position) => position.PostImage && position.PostImage.Post)
       .map((position) => ({
         postId: position.PostImage.Post.id,
         description: position.PostImage.Post.description,
         likesCount: position.PostImage.Post.likes_count,
-        verified: position.verified, // now from PostPosition model
+        verified: position.verified,
         createdAt: position.PostImage.Post.createdAt,
         updatedAt: position.PostImage.Post.updatedAt,
-        user: position.PostImage.Post.User
+        user: position.PostImage.Post.user // Fixed: 'user' should be accessed directly from `Post` model
           ? {
-              id: position.PostImage.Post.User.id,
-              fullName: position.PostImage.Post.User.full_name,
+              id: position.PostImage.Post.user.id,
+              fullName: position.PostImage.Post.user.full_name,
             }
           : null,
         image: {
@@ -358,6 +363,28 @@ const getVerifiedTaggedPosts = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to retrieve verified tagged posts' });
+  }
+};
+
+// Approve or reject post
+const approvePost = async (req, res) => {
+  const { id } = req.params;
+  const { verified } = req.body;
+
+  try {
+    const position = await PostPosition.findByPk(id);
+
+    if (!position) {
+      return res.status(404).json({ error: 'Post position not found' });
+    }
+
+    position.verified = verified;
+    await position.save();
+
+    res.status(200).json(position);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update post position' });
   }
 };
 
