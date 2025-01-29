@@ -20,8 +20,8 @@ const router = express.Router();
 router.post('/', createUserWithGrade);
 
 // Added by Youssef
-router.get('/profile/:id', getSomeOneInfo);
-router.get('/profile/posts/:id', getSomeOnePosts);
+router.get('/profile/:userId', getSomeOneInfo);
+router.get('/profile/posts/:userId', getSomeOnePosts);
 // END Added by Youssef
 
 // Lire un utilisateur par ID

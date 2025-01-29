@@ -1,10 +1,13 @@
+const User = require('../models/User');
 const Brand = require('../models/Brand');
 const Auth = require('../models/Auth');
+
 const Post = require('../models/Post');
 const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
+
 const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 const { v2: cloudinary } = require('cloudinary');
 require('dotenv').config();
 // Configurer Cloudinary
@@ -216,6 +219,7 @@ const getNamesBrand = async (req, res) => {
   }
 };
 
+// Get tagged posts
 const getTaggedPosts = async (req, res) => {
   const { brand } = req.params;
 
@@ -233,6 +237,7 @@ const getTaggedPosts = async (req, res) => {
               include: [
                 {
                   model: User,
+                  as: 'user',
                   attributes: ['id', 'full_name'],
                 },
               ],
@@ -242,36 +247,45 @@ const getTaggedPosts = async (req, res) => {
       ],
     });
 
+    console.log(taggedPositions); // For tagged posts
+
     if (taggedPositions.length === 0) {
       return res.status(404).json({ error: 'No posts found for this brand' });
     }
 
-    const posts = taggedPositions.map((position) => ({
-      postId: position.PostImage.Post.id,
-      description: position.PostImage.Post.description,
-      occasion: position.PostImage.Post.occasion,
-      likesCount: position.PostImage.Post.likes_count,
-      payTrend: position.PostImage.Post.trend, // updated to post's trend
-      verified: position.verified,  // now from PostPosition model
-      createdAt: position.PostImage.Post.createdAt,
-      updatedAt: position.PostImage.Post.updatedAt,
-      user: {
-        id: position.PostImage.Post.User.id,
-        fullName: position.PostImage.Post.User.full_name,
-      },
-      image: {
-        id: position.PostImage.id,
-        url: position.PostImage.url,
-      },
-      position: {
-        id: position.id,
-        x: position.x,
-        y: position.y,
-        category: position.category,
-        size: position.size,
-        prix: position.prix,
-      },
-    }));
+    const posts = taggedPositions.map((position) => {
+      // Check if the PostImage and Post exist
+      const post = position.PostImage.Post || {};
+    
+      return {
+        postId: post.id || null,  // Default to null if not found
+        description: post.description || '',
+        occasion: post.occasion || '',
+        likesCount: post.likes_count || 0,
+        payTrend: post.trend || 0,  // Default to 0 if not found
+        verified: position.verified,  
+        createdAt: post.createdAt || null,
+        updatedAt: post.updatedAt || null,
+        user: post.user ? {
+          id: post.user.id,
+          fullName: post.user.full_name
+        } : null,
+        
+        image: {
+          id: position.PostImage.id,
+          url: position.PostImage.url,
+        },
+        position: {
+          id: position.id,
+          x: position.x,
+          y: position.y,
+          category: position.category,
+          size: position.size,
+          prix: position.prix,
+        },
+      };
+    });
+    
 
     res.status(200).json(posts);
   } catch (error) {
@@ -286,45 +300,47 @@ const getVerifiedTaggedPosts = async (req, res) => {
 
   try {
     const verifiedTaggedPositions = await PostPosition.findAll({
-      where: { brand, verified: true }, // Filter directly by verified on PostPosition
+      where: { brand, verified: true },
       include: [
         {
           model: PostImage,
-          required: true, // Ensures only rows with valid PostImage
+          required: true,
           include: [
             {
               model: Post,
-              required: true, // Ensures only rows with valid Post
+              as: 'Post', // Make sure this alias is correct
+              required: true,
               include: [
                 {
                   model: User,
-                  attributes: ['id', 'full_name'],
-                  required: false, // User can be optional
+                  as: 'user', // Ensure this alias matches the association
+                  attributes: ['id', 'full_name'], // Only fetch necessary fields
+                  required: false, // Allow posts without users
                 },
               ],
             },
           ],
         },
       ],
-    });    
+    });
 
     if (!verifiedTaggedPositions || verifiedTaggedPositions.length === 0) {
       return res.status(404).json({ error: 'No verified posts found for this brand' });
     }
 
     const posts = verifiedTaggedPositions
-      .filter((position) => position.PostImage && position.PostImage.Post) // Filter out invalid rows
+      .filter((position) => position.PostImage && position.PostImage.Post)
       .map((position) => ({
         postId: position.PostImage.Post.id,
         description: position.PostImage.Post.description,
         likesCount: position.PostImage.Post.likes_count,
-        verified: position.verified, // now from PostPosition model
+        verified: position.verified,
         createdAt: position.PostImage.Post.createdAt,
         updatedAt: position.PostImage.Post.updatedAt,
-        user: position.PostImage.Post.User
+        user: position.PostImage.Post.user // Fixed: 'user' should be accessed directly from `Post` model
           ? {
-              id: position.PostImage.Post.User.id,
-              fullName: position.PostImage.Post.User.full_name,
+              id: position.PostImage.Post.user.id,
+              fullName: position.PostImage.Post.user.full_name,
             }
           : null,
         image: {
@@ -350,6 +366,79 @@ const getVerifiedTaggedPosts = async (req, res) => {
   }
 };
 
+
+// Fetch post by ID and include associated images and positions filtered by brand
+const getPostById = async (id, brand) => {
+  try {
+    const post = await Post.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'full_name'],
+        },
+        {
+          model: PostImage,
+          include: [
+            {
+              model: PostPosition,
+              where: { brand },
+              required: false,  // Only include PostPosition if it matches the brand
+            },
+          ],
+        },
+      ],
+    });
+    return post;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+// Approve or reject the post position based on the provided brand
+const approvePost = async (req, res) => {
+  const { id, brand } = req.params;
+  try {
+    // Get the post by ID (no need for `brand` as a query parameter here)
+    const post = await getPostById(id, brand);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Your existing logic for approving/rejecting the post
+    const postPosition = await PostPosition.findOne({
+      where: {
+        post_id: post.id,
+        brand,
+        post_image_id: {
+          [Sequelize.Op.in]: post.PostImages.map((img) => img.id), // Ensure PostImages are included
+        },
+      },
+    });
+
+    if (!postPosition) {
+      return res.status(404).json({ error: 'PostPosition not found for the brand' });
+    }
+
+    // Update the post position with the provided data
+    postPosition.verified = req.body.verified || postPosition.verified;
+    postPosition.prix = req.body.prix || postPosition.prix;
+    postPosition.size = req.body.size || postPosition.size;
+    postPosition.category = req.body.category || postPosition.category;
+
+    await postPosition.save();
+
+    return res.status(200).json({
+      message: 'Post position updated and approval processed',
+      postPosition,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to approve/reject post' });
+  }
+};
+
 module.exports = {
   createBrand,
   getBrandById,
@@ -360,4 +449,5 @@ module.exports = {
   getNamesBrand,
   getTaggedPosts,
   getVerifiedTaggedPosts,
+  approvePost,
 };

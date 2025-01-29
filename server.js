@@ -29,7 +29,7 @@ const commentRoutes = require('./routes/CommentR');
 // const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
-const savePostRoutes = require('./routes/SavePostR.js');
+const savePostRoutes = require('./routes/SavePostR');
 // End Updated By Youssef
 
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
@@ -86,11 +86,11 @@ app.use('/api/props', imageUpload);
 app.use('/api/brands', BrandRoutes)
 
 // Utiliser les routes de commentaires
-app.use('/comment', commentRoutes);
+app.use('/api/comment', commentRoutes);
 
 
 // Utiliser les routes de savings
-app.use('/savings', savePostRoutes);
+app.use('/api/savings', savePostRoutes);
 
 // Middleware pour les sessions
 // app.use(session({

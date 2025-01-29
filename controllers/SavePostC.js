@@ -1,6 +1,6 @@
 // Updated by Youssef
-const { SavePost } = require('../models/SavePost');
-const { Post } = require('../models/Post');
+const SavePost = require('../models/SavePost');
+const Post = require('../models/Post');
 
 const getSavedPostsByUser = async (userId) => {
   try {
@@ -17,7 +17,11 @@ const getSavedPostsByUser = async (userId) => {
 
 const addSaving = async (userId, postId) => {
   try {
-    const savedPost = await SavePost.create({ user_id: userId, post_id: postId });
+    const savedPost = await SavePost.create({
+      user_id: userId,
+      post_id: postId,
+      saveDate: new Date()  // Provide a default value
+    });
     return savedPost;
   } catch (error) {
     console.error('Error saving post:', error);

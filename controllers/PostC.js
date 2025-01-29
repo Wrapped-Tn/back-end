@@ -94,10 +94,6 @@ const addPost = async (req, res) => {
     }
 };
 
-
-
-
-
 // Get all posts of a user 
 const getUserPosts = async (req, res) => {
     try {
@@ -230,6 +226,7 @@ const getPostById = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post.' });
     }
 };
+
 //Get WhatsHot Posts
 const WhatsHotPosts = async (req, res) => {
     try {
