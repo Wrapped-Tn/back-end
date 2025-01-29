@@ -32,6 +32,14 @@ const Auth=require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 
+// Relation avec Brand
+Brand.hasOne(Auth, { foreignKey: 'users_id' });
+Auth.belongsTo(Brand, { foreignKey: 'users_id' });
+
+// Relation avec User
+User.hasOne(Auth, { foreignKey: 'users_id' });
+Auth.belongsTo(User, { foreignKey: 'users_id' });
+
 // Start Added By Youssef
 Post.hasMany(PostImage, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 PostImage.belongsTo(Post, { foreignKey: 'post_id' });
@@ -140,14 +148,6 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // User.hasMany(Article, { foreignKey: 'users_id' }); 
 // Article.belongsTo(User, { foreignKey: 'users_id' }); 
-
-// Relation avec Brand
-// Brand.hasOne(Auth, { foreignKey: 'users_id' });
-// Auth.belongsTo(Brand, { foreignKey: 'users_id' });
-
-// Relation avec User
-// User.hasOne(Auth, { foreignKey: 'users_id' });
-// Auth.belongsTo(User, { foreignKey: 'users_id' });
 
 // Create tables in correct order
 // sequelize

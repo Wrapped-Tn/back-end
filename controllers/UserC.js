@@ -1,7 +1,13 @@
 const bcrypt = require('bcrypt'); // Importer bcrypt
+
+const Post = require('../models/Post');
+const PostImage = require('../models/PostImage');
+const PostPosition = require('../models/PostPosition');
 const User = require('../models/User');
 const Grade = require('../models/Grade');
+
 const Auth = require('../models/Auth');
+
 const moment = require('moment'); // Importer moment pour le formatage des dates
 const { v2: cloudinary } = require('cloudinary');
 require('dotenv').config();
@@ -233,6 +239,7 @@ const updateUserWithAuth = async (req, res) => {
     });
   }
 };
+
 // Lire les informations d'un utilisateur
 const getUserById = async (req, res) => {
   const { id } = req.params;
@@ -340,6 +347,7 @@ const getUserCart = async (req, res) => {
     res.status(500).json({ message: 'An error occurred', error: error.message });
   }
 };
+
 //user profile
 const getUserProfile = async (req, res) => {
   const { idUser } = req.params; // Seul idUser est requis
@@ -387,20 +395,25 @@ try{
 }
 
 
+// Added by Youssef
 // Get data about a profile api's
 const getSomeOneInfo = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    // Fetch user information
+    // Fetch user information from the User model and associated Auth model for profile picture
     const user = await User.findOne({
       where: { id: userId },
-      attributes: ['full_name', 'profile_picture_url'],
+      attributes: ['full_name'], // Fetch the full_name from the User model
       include: [
         {
           model: Grade,
           as: 'grade',
-          attributes: ['grade_name'], // Include grade name
+          attributes: ['grade_name'], // Include grade_name from the Grade table
+        },
+        {
+          model: Auth,
+          attributes: ['profile_picture_url'], // Fetch the profile picture from the Auth model
         },
       ],
     });
@@ -409,16 +422,15 @@ const getSomeOneInfo = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Calculate total sales
-    const totalSales = await PostPosition.count({
-      where: { brand: user.brand_name }, // Adjust depending on your associations
-    });
+    // Check if profile picture URL exists, return the URL if found, otherwise return an empty string
+    const profilePicture = user.auth ? user.auth.profile_picture_url : '';
 
+    // Return user information with profile picture URL or empty string
     return res.status(200).json({
-      fullName: user.full_name,
-      profilePicture: user.profile_picture_url,
-      grade: user.grade ? user.grade.grade_name : 'Unknown',
-      totalSales,
+      fullName: user.full_name,         // Return the full name
+      profilePicture: profilePicture,   // Return the profile picture URL (or empty string)
+      grade: user.grade ? user.grade.grade_name : 'Unknown', // Return grade name, default to 'Unknown'
+      totalSales: 0,                    // Always return 0 for total sales
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -436,18 +448,16 @@ const getSomeOnePosts = async (req, res) => {
       include: [
         {
           model: PostImage,
-          as: 'images',
           attributes: ['url'],
           include: [
             {
               model: PostPosition,
-              as: 'positions',
               attributes: ['x', 'y', 'brand', 'category', 'size', 'prix'],
             },
           ],
         },
       ],
-      attributes: ['id', 'description', 'likes_count', 'pay_trend', 'verified', 'createdAt'],
+      attributes: ['id', 'description', 'likes_count', 'createdAt'],
     });
 
     return res.status(200).json(posts);
