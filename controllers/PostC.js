@@ -296,6 +296,7 @@ const WhatsHotPosts = async (req, res) => {
                         category: position.category,
                         size: position.size,
                         prix: position.prix,
+                        verified: position.verified
                     }))
                 }))
             };
