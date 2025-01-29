@@ -7,7 +7,7 @@ const PostImage = require('../models/PostImage');
 const PostPosition = require('../models/PostPosition');
 
 const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 const { v2: cloudinary } = require('cloudinary');
 require('dotenv').config();
 // Configurer Cloudinary
@@ -366,25 +366,76 @@ const getVerifiedTaggedPosts = async (req, res) => {
   }
 };
 
-// Approve or reject post
-const approvePost = async (req, res) => {
-  const { id } = req.params;
-  const { verified } = req.body;
 
+// Fetch post by ID and include associated images and positions filtered by brand
+const getPostById = async (id, brand) => {
   try {
-    const position = await PostPosition.findByPk(id);
-
-    if (!position) {
-      return res.status(404).json({ error: 'Post position not found' });
-    }
-
-    position.verified = verified;
-    await position.save();
-
-    res.status(200).json(position);
+    const post = await Post.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'full_name'],
+        },
+        {
+          model: PostImage,
+          include: [
+            {
+              model: PostPosition,
+              where: { brand },
+              required: false,  // Only include PostPosition if it matches the brand
+            },
+          ],
+        },
+      ],
+    });
+    return post;
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to update post position' });
+    return null;
+  }
+};
+
+// Approve or reject the post position based on the provided brand
+const approvePost = async (req, res) => {
+  const { id, brand } = req.params;
+  try {
+    // Get the post by ID (no need for `brand` as a query parameter here)
+    const post = await getPostById(id, brand);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Your existing logic for approving/rejecting the post
+    const postPosition = await PostPosition.findOne({
+      where: {
+        post_id: post.id,
+        brand,
+        post_image_id: {
+          [Sequelize.Op.in]: post.PostImages.map((img) => img.id), // Ensure PostImages are included
+        },
+      },
+    });
+
+    if (!postPosition) {
+      return res.status(404).json({ error: 'PostPosition not found for the brand' });
+    }
+
+    // Update the post position with the provided data
+    postPosition.verified = req.body.verified || postPosition.verified;
+    postPosition.prix = req.body.prix || postPosition.prix;
+    postPosition.size = req.body.size || postPosition.size;
+    postPosition.category = req.body.category || postPosition.category;
+
+    await postPosition.save();
+
+    return res.status(200).json({
+      message: 'Post position updated and approval processed',
+      postPosition,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to approve/reject post' });
   }
 };
 
@@ -398,4 +449,5 @@ module.exports = {
   getNamesBrand,
   getTaggedPosts,
   getVerifiedTaggedPosts,
+  approvePost,
 };
