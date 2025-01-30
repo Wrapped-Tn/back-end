@@ -33,12 +33,12 @@ const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 
 // Relation avec Brand
-Brand.hasOne(Auth, { foreignKey: 'users_id' });
-Auth.belongsTo(Brand, { foreignKey: 'users_id' });
+// Brand.hasOne(Auth, { foreignKey: 'users_id' });
+// Auth.belongsTo(Brand, { foreignKey: 'users_id' });
 
-// Relation avec User
-User.hasOne(Auth, { foreignKey: 'users_id' });
-Auth.belongsTo(User, { foreignKey: 'users_id' });
+// // Relation avec User
+// User.hasOne(Auth, { foreignKey: 'users_id' });
+// Auth.belongsTo(User, { foreignKey: 'users_id' });
 
 // Start Added By Youssef
 Post.hasMany(PostImage, { foreignKey: 'post_id', onDelete: 'CASCADE' });
@@ -73,8 +73,8 @@ Comment.belongsTo(User, { foreignKey: 'user_id' });
 // End Added By Youssef
 
 // User et Seller
-User.hasOne(Brand, { foreignKey: 'user_id' });
-Brand.belongsTo(User, { foreignKey: 'user_id' });
+// User.hasOne(Brand, { foreignKey: 'user_id' });
+// Brand.belongsTo(User, { foreignKey: 'user_id' });
 
 // // Seller et Article
 // Brand.hasMany(Post, { foreignKey: 'seller_id' });
@@ -158,7 +158,6 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 //       ['Users'],
 //       ['brands'],  
 //       ['comments'],
-//       ['likes'],
 //       ['ratings'],
 //       ['orders'],
 //       ['invoices'],
