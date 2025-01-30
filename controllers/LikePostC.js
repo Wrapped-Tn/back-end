@@ -24,6 +24,7 @@ const getLikedPostsByUser = async (req, res) => {
     }
 
 };
+
 const getLikedPostImages = async (req, res) => {
   try {
     const  userId  = req.params.user_id; // Récupérer l'ID de l'utilisateur depuis les paramètres de la requête
@@ -70,6 +71,7 @@ const getLikedPostImages = async (req, res) => {
     res.status(500).json({ error: 'Impossible de récupérer les images des posts likés.' });
   }
 };
+
 const toggleLike = async (req, res) => {
   const user_id = req.params.user_id;
   const post_id = req.params.post_id;
@@ -100,6 +102,7 @@ const toggleLike = async (req, res) => {
       res.status(500).json({ message: 'Échec de l\'opération.' });
   }
 };
+
 const getLikeCount = async (req, res) => {
   const post_id = req.params.post_id 
   const user_id = req.params.user_id // L'ID de l'utilisateur qui fait la requête
@@ -132,6 +135,6 @@ const getLikeCount = async (req, res) => {
 
 module.exports = { 
   getLikedPostImages,
-    toggleLike,
-    getLikeCount,
- };
+  toggleLike,
+  getLikeCount,
+};
