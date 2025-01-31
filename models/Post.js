@@ -1,7 +1,9 @@
 // Added By Youssef
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
+
 const User = require('./User');
+const Article = require('./Article');
 
 const Post = sequelize.define('Post', {
     id: {
@@ -15,6 +17,15 @@ const Post = sequelize.define('Post', {
         allowNull: false,
         references: {
             model: User,
+            key: 'id',
+        },
+    },
+
+    article_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Article,
             key: 'id',
         },
     },
@@ -33,6 +44,18 @@ const Post = sequelize.define('Post', {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
+    },
+
+    saves_count: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+
+    comments_count: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     },
 
     trend: {
