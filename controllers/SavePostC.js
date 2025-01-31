@@ -1,20 +1,54 @@
 // Updated by Youssef
 const SavePost = require('../models/SavePost');
 const Post = require('../models/Post');
+const PostImage = require('../models/PostImage');
 
 const getSavedPostsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
+
+    // 1. Récupérer tous les posts sauvegardés par l'utilisateur
     const savedPosts = await SavePost.findAll({
       where: { user_id: userId },
-      include: [{ model: Post }],
+      attributes: ['post_id'], // Récupérer uniquement les IDs des posts sauvegardés
     });
-    res.status(200).json(savedPosts);
+
+    if (savedPosts.length === 0) {
+      return res.status(404).json({ message: 'Aucun post sauvegardé trouvé pour cet utilisateur.' });
+    }
+
+    // 2. Récupérer les informations des posts et leurs images associées
+    const postIds = savedPosts.map((save) => save.post_id);
+
+    const posts = await Post.findAll({
+      where: { id: postIds },
+      include: [
+        {
+          model: PostImage, // Inclure les images du post
+          attributes: ['url'], // Récupérer l'URL de l'image
+        },
+      ],
+    });
+
+    // 3. Vérifier si des posts ont été trouvés
+    if (posts.length === 0) {
+      return res.status(404).json({ message: 'Aucun post trouvé pour les IDs fournis.' });
+    }
+
+    // 4. Extraire les images et les ID des posts
+    const images = posts.map((post) => ({
+      postId: post.id,
+      imageUrl: post.PostImages[0]?.url || null,
+    }));
+
+    // 5. Retourner les images des posts sauvegardés
+    res.status(200).json({ images });
   } catch (error) {
-    console.error('Error retrieving saved posts:', error);
-    res.status(500).json({ message: 'Failed to retrieve saved posts.' });
+    console.error(error);
+    res.status(500).json({ error: 'Impossible de récupérer les images des posts sauvegardés.' });
   }
 };
+
 
 const toggleSave = async (req, res) => {
   const { userId, postId } = req.body;
@@ -41,5 +75,22 @@ const toggleSave = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+// ✅ Nouvelle fonction pour vérifier si un post est sauvegardé
+const checkIfPostIsSaved = async (req, res) => {
+  try {
+    const { userId, postId } = req.params;
 
-module.exports = { getSavedPostsByUser, toggleSave };
+    if (!userId || !postId) {
+      return res.status(400).json({ error: 'Missing userId or postId' });
+    }
+
+    const savedPost = await SavePost.findOne({ where: { user_id: userId, post_id: postId } });
+
+    return res.status(200).json({ isSaved: !!savedPost }); // Retourne true si sauvegardé, sinon false
+  } catch (error) {
+    console.error('Error checking saved post:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { getSavedPostsByUser, toggleSave,checkIfPostIsSaved };

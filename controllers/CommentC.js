@@ -35,8 +35,8 @@ const getCommentsByPost = async (req, res) => {
 
 const addComment = async (req, res) => {
   try {
-    const { userId, content } = req.body;
-    const { postId } = req.params;
+    const {  content } = req.body;
+    const { postId,userId } = req.params;
 
     if (!userId || !content) {
       return res.status(400).json({ message: 'User ID and content are required.' });
@@ -50,26 +50,26 @@ const addComment = async (req, res) => {
     });
 
     // Fetch comment with user details
-    const commentWithUser = await Comment.findOne({
-      where: { id: comment.id },
-      include: [
-        {
-          model: User,
-          as: 'User',
-          attributes: ['full_name'],
-          include: [
-            {
-              model: Auth,
-              attributes: ['profile_picture_url'],
-              where: { users_id: userId },
-              required: false,
-            },
-          ],
-        },
-      ],
-    });
+    // const commentWithUser = await Comment.findOne({
+    //   where: { id: comment.id },
+    //   include: [
+    //     {
+    //       model: User,
+    //       as: 'User',
+    //       attributes: ['full_name'],
+    //       include: [
+    //         {
+    //           model: Auth,
+    //           attributes: ['profile_picture_url'],
+    //           where: { users_id: userId },
+    //           required: false,
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // });
 
-    res.status(201).json(commentWithUser);
+    res.status(201).json(comment);
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Failed to add comment.' });
