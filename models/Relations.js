@@ -5,8 +5,11 @@ console.log('Post Model:', Post);
 
 const PostImage = require('./PostImage');
 const PostPosition = require('./PostPosition');
+
 const LikePost = require('./LikePost');
 const SavePost = require('./SavePost');
+
+const Article = require('./Article');
 // End Added By Youssef
 
 // Causing issue
@@ -50,6 +53,8 @@ PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
 Post.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(Post, { foreignKey: 'user_id', as: 'posts' });
 
+Post.hasMany(Article, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+Article.belongsTo(Post, { foreignKey: 'post_id' });
 // Likes and Posts
 Post.hasMany(LikePost, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 LikePost.belongsTo(Post, { foreignKey: 'post_id' });
@@ -70,6 +75,8 @@ Comment.belongsTo(Post, { foreignKey: 'post_id' });
 
 User.hasMany(Comment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 Comment.belongsTo(User, { foreignKey: 'user_id' });
+
+
 // End Added By Youssef
 
 // User et Seller

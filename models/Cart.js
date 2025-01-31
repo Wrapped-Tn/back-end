@@ -3,7 +3,10 @@ const sequelize = require('../config/config');
 
 const User = require('./User');
 const Brand = require('./Brand');
+
 const Post = require('./Post');
+
+const Article = require('./Article');
 
 const Cart = sequelize.define('Cart', {
     id: {
@@ -28,27 +31,12 @@ const Cart = sequelize.define('Cart', {
         },
     },
 
-    clotheType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-    brandId: {
+    article_id: {
         type: DataTypes.INTEGER,
         references: {
-            model: Brand,
+            model: Article,
             key: 'id',
         },
-    },
-
-    color: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-    size: {
-        type: DataTypes.STRING,
-        allowNull: false,
     },
 
     quantity: {

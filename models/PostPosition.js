@@ -1,7 +1,10 @@
 // Added By Youssef 
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
+
 const PostImage = require('./PostImage');
+const Brand = require('./Brand');
+
 const PostPosition = sequelize.define('PostPosition', {
     id: {
         type: DataTypes.INTEGER,
@@ -31,6 +34,15 @@ const PostPosition = sequelize.define('PostPosition', {
     brand: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+
+    brand_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Brand,
+            key: 'id',
+        },
     },
 
     category: { 
