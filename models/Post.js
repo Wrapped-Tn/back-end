@@ -21,15 +21,6 @@ const Post = sequelize.define('Post', {
         },
     },
 
-    article_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Article,
-            key: 'id',
-        },
-    },
-
     description: {
         type: DataTypes.TEXT,
         allowNull: true,

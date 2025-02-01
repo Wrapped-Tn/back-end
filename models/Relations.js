@@ -84,8 +84,8 @@ Comment.belongsTo(User, { foreignKey: 'user_id' });
 // Brand.belongsTo(User, { foreignKey: 'user_id' });
 
 // // Seller et Article
-// Brand.hasMany(Post, { foreignKey: 'seller_id' });
-// Article.belongsTo(Brand, { foreignKey: 'seller_id' });
+// Brand.hasMany(Post, { foreignKey: 'brand_id' });
+// Article.belongsTo(Brand, { foreignKey: 'brand_id' });
 
 // Article et ItemFilter (Relation N-N avec Filter)
 // Article.belongsToMany(Filter, { through: 'ItemFilter', foreignKey: 'item_id' });
@@ -155,7 +155,13 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // User.hasMany(Article, { foreignKey: 'users_id' }); 
 // Article.belongsTo(User, { foreignKey: 'users_id' }); 
+Brand.hasMany(require('./Article'), { foreignKey: 'brand_id' });
+// Définir les relations
+Article.belongsTo(Brand, { foreignKey: 'brand_id' });
+Brand.hasMany(Article, { foreignKey: 'brand_id' });
 
+Article.belongsTo(Post, { foreignKey: 'post_id' });
+Post.hasMany(Article, { foreignKey: 'post_id' });
 // Create tables in correct order
 // sequelize
 //   .sync({ 
@@ -163,7 +169,7 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 //     order: [
 //       ['Grades'],
 //       ['Users'],
-//       ['brands'],  
+//       ['brands'], 
 //       ['comments'],
 //       ['ratings'],
 //       ['orders'],
@@ -178,6 +184,8 @@ Invoice.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 //       ['PostPosition'],
 //       ['savePost'],
 //       ['likePost'],
+//       ['articles'],
+
 //     ]
 //   })
 //   .then(() => {

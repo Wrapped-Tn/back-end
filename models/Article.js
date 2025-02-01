@@ -2,9 +2,9 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
 
 const Brand = require('./Brand');
-const Post = require('./Post');
+const Post = require('./Post');  // Vérifie que le modèle Post est correctement importé.
 
-const Article = sequelize.define('Article', {
+const Article = sequelize.define('article', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -15,22 +15,26 @@ const Article = sequelize.define('Article', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Brand,
+            model: Brand,  // Correspond au nom de la table en base
             key: 'id',
         },
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE',
     },
 
     post_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Post,
+            model: 'posts',  // Assure-toi que la table `posts` existe et est bien définie
             key: 'id',
         },
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE',
     },
 
     color: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: false,
     },
 
@@ -40,17 +44,17 @@ const Article = sequelize.define('Article', {
     },
 
     taille_disponible: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: true,
     },
 
     category: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: false,
     },
 
     type_clothes: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: false,
     },
     
@@ -59,6 +63,9 @@ const Article = sequelize.define('Article', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
+}, {
+    tableName: 'articles',
+    timestamps: true
 });
 
 module.exports = Article;

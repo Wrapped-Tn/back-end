@@ -39,10 +39,6 @@ const PostPosition = sequelize.define('PostPosition', {
     brand_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: Brand,
-            key: 'id',
-        },
     },
 
     category: { 
