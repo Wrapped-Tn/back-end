@@ -29,7 +29,7 @@ const createUserWithGrade = async (req, res) => {
       profile_picture_url,
       region,
       birthdate,
-      user_type,
+      // user_type,
   } = req.body;
  console.log(req.body);
  
@@ -66,7 +66,7 @@ const createUserWithGrade = async (req, res) => {
           grade_id: newGrade.id,
           birthdate,
           sexe,
-          user_type: user_type || 'regular',
+          // user_type: user_type || 'regular',
           commission_earned: req.body.commission_earned || 0,
       });
 
@@ -81,7 +81,6 @@ const createUserWithGrade = async (req, res) => {
           users_id: newUser.id,
       });
 
-      await sendVerificationCode(req, res); // Ensure to send the verification code
 
       res.status(200).json({ 
           message: 'User, grade, and auth created successfully!',

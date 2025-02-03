@@ -62,7 +62,6 @@ const createBrand = async (req, res) => {
       users_id: newBrand.id,
     });
 
-    await sendVerificationCode(req, res);
 
     // Répondre avec un succès
     res.status(201).json({
@@ -219,15 +218,18 @@ const getNamesBrand = async (req, res) => {
   }
 };
 
-// Get tagged posts
 const getTaggedPosts = async (req, res) => {
-  const { brand } = req.params;
+  const { brand_id } = req.params;
+  const { verified } = req.query; // Récupération de la valeur de `verified` depuis la requête
 
-  console.log(brand); 
+  console.log(`Brand ID: ${brand_id}, Verified: ${verified}`);
+
+  // Vérifier si `verified` est bien un booléen
+  const isVerified = verified === "true";
 
   try {
     const taggedPositions = await PostPosition.findAll({
-      where: { brand },
+      where: { brand_id, verified: isVerified }, // Filtrage par `verified`
       include: [
         {
           model: PostImage,
@@ -237,8 +239,8 @@ const getTaggedPosts = async (req, res) => {
               include: [
                 {
                   model: User,
-                  as: 'user',
-                  attributes: ['id', 'full_name'],
+                  as: "user",
+                  attributes: ["id", "full_name"], // Récupère seulement l'ID et le nom
                 },
               ],
             },
@@ -247,30 +249,46 @@ const getTaggedPosts = async (req, res) => {
       ],
     });
 
-    console.log(taggedPositions); // For tagged posts
-
     if (taggedPositions.length === 0) {
-      return res.status(404).json({ error: 'No posts found for this brand' });
+      return res.status(404).json({ error: "No posts found for this brand" });
     }
 
+    // Récupérer les IDs uniques des utilisateurs pour éviter de faire plusieurs requêtes inutiles
+    const userIds = [
+      ...new Set(taggedPositions.map((pos) => pos.PostImage.Post?.user?.id).filter((id) => id)),
+    ];
+
+    // Requête séparée pour récupérer les images de profil des utilisateurs
+    const authData = await Auth.findAll({
+      where: { users_id: userIds },
+      attributes: ["users_id", "profile_picture_url"],
+    });
+
+    // Créer un objet clé-valeur pour accéder rapidement aux images de profil par `users_id`
+    const authMap = authData.reduce((acc, auth) => {
+      acc[auth.users_id] = auth.profile_picture_url;
+      return acc;
+    }, {});
+
+    // Transformer les données pour inclure `profile_picture_url`
     const posts = taggedPositions.map((position) => {
-      // Check if the PostImage and Post exist
       const post = position.PostImage.Post || {};
-    
+      const user = post.user || {};
+
       return {
-        postId: post.id || null,  // Default to null if not found
-        description: post.description || '',
-        occasion: post.occasion || '',
+        postId: post.id || null,
+        description: post.description || "",
+        occasion: post.occasion || "",
         likesCount: post.likes_count || 0,
-        payTrend: post.trend || 0,  // Default to 0 if not found
-        verified: position.verified,  
+        payTrend: post.trend || 0,
+        verified: position.verified,
         createdAt: post.createdAt || null,
         updatedAt: post.updatedAt || null,
-        user: post.user ? {
-          id: post.user.id,
-          fullName: post.user.full_name
-        } : null,
-        
+        user: {
+          id: user.id,
+          fullName: user.full_name,
+          profile_picture_url: authMap[user.id] || "", // Associer l'image de profil
+        },
         image: {
           id: position.PostImage.id,
           url: position.PostImage.url,
@@ -285,86 +303,14 @@ const getTaggedPosts = async (req, res) => {
         },
       };
     });
-    
 
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve tagged posts' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Get verified tagged posts
-const getVerifiedTaggedPosts = async (req, res) => {
-  const { brand } = req.params;
-
-  try {
-    const verifiedTaggedPositions = await PostPosition.findAll({
-      where: { brand, verified: true },
-      include: [
-        {
-          model: PostImage,
-          required: true,
-          include: [
-            {
-              model: Post,
-              as: 'Post', // Make sure this alias is correct
-              required: true,
-              include: [
-                {
-                  model: User,
-                  as: 'user', // Ensure this alias matches the association
-                  attributes: ['id', 'full_name'], // Only fetch necessary fields
-                  required: false, // Allow posts without users
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    if (!verifiedTaggedPositions || verifiedTaggedPositions.length === 0) {
-      return res.status(404).json({ error: 'No verified posts found for this brand' });
-    }
-
-    const posts = verifiedTaggedPositions
-      .filter((position) => position.PostImage && position.PostImage.Post)
-      .map((position) => ({
-        postId: position.PostImage.Post.id,
-        description: position.PostImage.Post.description,
-        likesCount: position.PostImage.Post.likes_count,
-        verified: position.verified,
-        createdAt: position.PostImage.Post.createdAt,
-        updatedAt: position.PostImage.Post.updatedAt,
-        user: position.PostImage.Post.user // Fixed: 'user' should be accessed directly from `Post` model
-          ? {
-              id: position.PostImage.Post.user.id,
-              fullName: position.PostImage.Post.user.full_name,
-            }
-          : null,
-        image: {
-          id: position.PostImage.id,
-          url: position.PostImage.url,
-        },
-        position: {
-          id: position.id,
-          x: position.x,
-          y: position.y,
-          category: position.category,
-          size: position.size,
-          prix: position.prix,
-        },
-      }));
-
-    console.log(JSON.stringify(verifiedTaggedPositions, null, 2));
-
-    res.status(200).json(posts);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve verified tagged posts' });
-  }
-};
 
 
 // Fetch post by ID and include associated images and positions filtered by brand
@@ -448,6 +394,6 @@ module.exports = {
   getBrandCart,
   getNamesBrand,
   getTaggedPosts,
-  getVerifiedTaggedPosts,
+  // getVerifiedTaggedPosts,
   approvePost,
 };

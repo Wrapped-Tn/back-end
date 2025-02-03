@@ -83,6 +83,7 @@ const addPost = async (req, res) => {
                     category: position.category, // Add category here
                     size: position.size,
                     prix: position.prix,
+                    brand_id: position.brand_id || null
                 });
             }
         }
@@ -305,6 +306,69 @@ const WhatsHotPosts = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
 };
+const verifyPostPosition = async (req, res) => {
+    try {
+        const { postId } = req.params; 
+
+        // Récupérer le post avec ses images et leurs PostPositions
+        const post = await Post.findByPk(postId, {
+            include: [{ 
+                model: PostImage, 
+                include: [PostPosition] 
+            }]
+        });
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found." });
+        }
+
+        // Vérifier si des PostPositions existent
+        const postImageIds = post.PostImages.map(image => image.id);
+        if (postImageIds.length === 0) {
+            return res.status(404).json({ message: "No PostImages found for this post." });
+        }
+
+        // Mettre à jour les PostPositions
+        const updatedCount = await PostPosition.update(
+            { verified: true },
+            { where: { post_image_id: postImageIds } }
+        );
+
+        if (updatedCount[0] === 0) {
+            return res.status(400).json({ message: "No PostPositions updated. Maybe they were already verified." });
+        }
+
+        res.status(200).json({ message: "Post positions verified successfully." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to verify post positions." });
+    }
+};
+const updatePostPositionPrice = async (req, res) => {
+    try {
+        const {postId}=req.params;
+        const { newPrice } = req.body;
+
+        if (!postId || newPrice === undefined) {
+            return res.status(400).json({ error: 'postId et newPrice sont requis.' });
+        }
+
+        // Trouver la position à mettre à jour
+        const position = await PostPosition.findByPk(postId);
+        if (!position) {
+            return res.status(404).json({ error: 'PostPosition non trouvé.' });
+        }
+
+        // Mettre à jour le prix
+        position.prix = newPrice;
+        await position.save();
+
+        res.status(200).json({ message: 'Prix mis à jour avec succès.', position });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur lors de la mise à jour du prix.' });
+    }
+};
 
 module.exports = {
     addPost,
@@ -312,5 +376,7 @@ module.exports = {
     getPostById,
     getMyWordrobes,
     deleteImages,
-    WhatsHotPosts
+    WhatsHotPosts,
+    verifyPostPosition,
+    updatePostPositionPrice
 };

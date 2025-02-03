@@ -26,6 +26,7 @@ const authRoutes = require('./routes/auth/authentificationR');
 const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
 const commentRoutes = require('./routes/CommentR');
+const articleRoutes = require('./routes/ArticleR');
 // const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
@@ -49,7 +50,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 // app.use(passport.session());
 // Routes pour les utilisateurs
 app.use('/api/users', userRoutes);
-
+app.use('/api/articles', articleRoutes);
 // Start Added By Youssef
 app.use('/api/carts', CartRoutes);
 app.use('/api/orders', OrderRoutes);

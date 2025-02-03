@@ -9,7 +9,6 @@ const Auth = sequelize.define('Auth', {
   },
   email: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
     validate: {
       isEmail: true,

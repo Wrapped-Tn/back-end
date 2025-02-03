@@ -38,7 +38,7 @@ const PostPosition = sequelize.define('PostPosition', {
 
     brand_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
 
     category: { 
@@ -48,7 +48,8 @@ const PostPosition = sequelize.define('PostPosition', {
 
     verified: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false,
     },
 
     size: {
