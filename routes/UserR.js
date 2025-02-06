@@ -15,7 +15,7 @@ const {
 } = require('../controllers/UserC.js');
 
 const router = express.Router();
-
+//api/users
 // Créer un utilisateur
 router.post('/', createUserWithGrade);
 

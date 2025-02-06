@@ -369,7 +369,8 @@ const getUserProfile = async (req, res) => {
     // Retourner uniquement le full_name et la photo de profil
     res.status(200).json({
       full_name: user.full_name,
-      profile_picture_url: auth.profile_picture_url || ''
+      profile_picture_url: auth.profile_picture_url || '',
+      grade_id:user.grade_id
     });
   } catch (error) {
     res.status(500).json({ message: 'An error occurred', error: error.message });

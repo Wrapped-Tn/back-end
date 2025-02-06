@@ -251,6 +251,8 @@ const WhatsHotPosts = async (req, res) => {
                 }
             ],
             attributes: ['id', 'description', 'createdAt','occasion','user_id'],
+            order: [['createdAt', 'DESC']], // Ajout du tri par date de création
+
         });
 
         if (!posts || posts.length === 0) {
@@ -282,7 +284,8 @@ const WhatsHotPosts = async (req, res) => {
                 occasion: occasion,  // S'assurer que `occasion` n'est jamais undefined ou null
                 user: {
                     fullName: post.user?.full_name || 'Unknown',
-                    profilePicture: authMap[post.user?.id] || null
+                    profilePicture: authMap[post.user?.id] || null,
+                    id_user:post.user?.id || null, // Correction ici : ajout de l'id de l'utilisateur
                 },
                 images: (post.PostImages || []).map(image => ({
                     id: image.id,
@@ -369,7 +372,98 @@ const updatePostPositionPrice = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la mise à jour du prix.' });
     }
 };
+const getUserPostImages = async (req, res) => {
+    try {
+        const { userId } = req.params;
 
+        const posts = await Post.findAll({
+            where: { user_id: userId },
+            include: [{
+                model: PostImage,
+                attributes: ['id', 'url']
+            }],
+            attributes: ['id'], // Récupérer uniquement l'ID du post
+            order: [['createdAt', 'DESC']]
+        });
+
+        if (!posts.length) {
+            return res.status(404).json({ message: 'No posts found for this user.' });
+        }
+
+        // Formater les données pour ne récupérer que les images avec l'ID du post
+        const postImages = posts.flatMap(post =>
+            post.PostImages.map(image => ({
+                postId: post.id,
+                imageUrl: image.url
+            }))
+        );
+
+        res.status(200).json({ postImages });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to retrieve post images.' });
+    }
+};
+const getDiscrovePosts=async(req,res)=>{
+    try {
+        // Récupérer tous les posts avec leurs relations
+        const posts = await Post.findAll({
+            include: [
+                {
+                    model: PostImage,
+                    as: 'PostImages', // Assurez-vous que cet alias est correct
+                    include: [
+                        {
+                            model: PostPosition,
+                            as: 'PostPositions', // Assurez-vous que cet alias est correct
+                        }
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'user', // Assurez-vous que l'alias "user" correspond au modèle User dans votre association Sequelize
+                    attributes: ['id']
+                }
+            ],
+            attributes: ['id', 'description','occasion','user_id'],
+            order: [['createdAt', 'DESC']], // Ajout du tri par date de création
+
+        });
+
+        if (!posts || posts.length === 0) {
+            return res.status(200).json({ message: 'No posts found.', posts: [] });
+        }    
+        // Formater les posts avec les informations complètes
+        const formattedPosts = posts.map(post => {
+            const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
+            return {
+                id: post.id,
+                description: post.description,
+                createdAt: post.createdAt,
+                occasion: occasion,  // S'assurer que `occasion` n'est jamais undefined ou null
+                user: {
+                    id_user:post.user?.id || null, // Correction ici : ajout de l'id de l'utilisateur
+                },
+                images: (post.PostImages || []).map(image => ({
+                    id: image.id,
+                    url: image.url,
+                    positions: (image.PostPositions || []).map(position => ({
+                        brand: position.brand,
+                        category: position.category,
+                        size: position.size,
+                        prix: position.prix,
+                        verified: position.verified
+                    }))
+                }))
+            };
+        });
+
+        res.status(200).json(formattedPosts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to retrieve posts.' });
+    }
+}
 module.exports = {
     addPost,
     getUserPosts,
@@ -378,5 +472,7 @@ module.exports = {
     deleteImages,
     WhatsHotPosts,
     verifyPostPosition,
-    updatePostPositionPrice
+    updatePostPositionPrice,
+    getUserPostImages,
+    getDiscrovePosts
 };
