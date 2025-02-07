@@ -3,7 +3,7 @@ const router = express.Router();
 const CommentC = require('../controllers/CommentC');
 
 // Get all comments for a post
-router.get('/posts/:postId', CommentC.getCommentsByPost);
+router.get('/commentsbyPost/:postId', CommentC.getCommentsByPost);
 
 // Add a comment to a post
 router.post('/:postId/:userId', CommentC.addComment);

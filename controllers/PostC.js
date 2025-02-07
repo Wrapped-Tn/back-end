@@ -250,7 +250,7 @@ const WhatsHotPosts = async (req, res) => {
                     attributes: ['id', 'full_name']
                 }
             ],
-            attributes: ['id', 'description', 'createdAt','occasion','user_id'],
+            attributes: ['id', 'description', 'createdAt','occasion','user_id','comments_count','likes_count'],
             order: [['createdAt', 'DESC']], // Ajout du tri par date de création
 
         });
@@ -282,6 +282,8 @@ const WhatsHotPosts = async (req, res) => {
                 description: post.description,
                 createdAt: post.createdAt,
                 occasion: occasion,  // S'assurer que `occasion` n'est jamais undefined ou null
+                likes_count: post.likes_count,
+                comments_count: post.comments_count,
                 user: {
                     fullName: post.user?.full_name || 'Unknown',
                     profilePicture: authMap[post.user?.id] || null,
@@ -311,42 +313,25 @@ const WhatsHotPosts = async (req, res) => {
 };
 const verifyPostPosition = async (req, res) => {
     try {
-        const { postId } = req.params; 
+        const { postPositionId } = req.params; 
 
-        // Récupérer le post avec ses images et leurs PostPositions
-        const post = await Post.findByPk(postId, {
-            include: [{ 
-                model: PostImage, 
-                include: [PostPosition] 
-            }]
-        });
-
-        if (!post) {
-            return res.status(404).json({ message: "Post not found." });
-        }
-
-        // Vérifier si des PostPositions existent
-        const postImageIds = post.PostImages.map(image => image.id);
-        if (postImageIds.length === 0) {
-            return res.status(404).json({ message: "No PostImages found for this post." });
-        }
-
-        // Mettre à jour les PostPositions
+        // Mettre à jour la PostPosition
         const updatedCount = await PostPosition.update(
             { verified: true },
-            { where: { post_image_id: postImageIds } }
+            { where: { id: postPositionId } }
         );
 
         if (updatedCount[0] === 0) {
-            return res.status(400).json({ message: "No PostPositions updated. Maybe they were already verified." });
+            return res.status(400).json({ message: "No PostPosition updated. Maybe it was already verified." });
         }
 
-        res.status(200).json({ message: "Post positions verified successfully." });
+        res.status(200).json({ message: "Post position verified successfully." });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to verify post positions." });
+        res.status(500).json({ error: "Failed to verify post position." });
     }
 };
+
 const updatePostPositionPrice = async (req, res) => {
     try {
         const {postId}=req.params;

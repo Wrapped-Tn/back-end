@@ -23,7 +23,7 @@ router.get('/posts/whatshot', WhatsHotPosts);
 // Get Discovery posts
 router.get('/posts/discovry', getDiscrovePosts);
 // Verify post position
-router.put('/verify/:postId', verifyPostPosition);
+router.put('/verify/:postPositionId', verifyPostPosition);
 // Update post position price
 router.put('/updateprice/:postId', updatePostPositionPrice);
 // Delete images
