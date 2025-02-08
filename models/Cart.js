@@ -44,7 +44,18 @@ const Cart = sequelize.define('Cart', {
         allowNull: false,
         defaultValue: 1,
     },
-
+    color:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    size:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    category:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

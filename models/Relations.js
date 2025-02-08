@@ -10,6 +10,8 @@ const LikePost = require('./LikePost');
 const SavePost = require('./SavePost');
 
 const Article = require('./Article');
+const Address = require('./Address');
+const Checkout = require('./Checkout');
 // End Added By Youssef
 
 // Causing issue
@@ -162,6 +164,13 @@ Brand.hasMany(Article, { foreignKey: 'brand_id' });
 
 Article.belongsTo(Post, { foreignKey: 'post_id' });
 Post.hasMany(Article, { foreignKey: 'post_id' });
+
+// User and Addresses
+User.hasMany(Address, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Address.belongsTo(User, { foreignKey: 'addressId' });
+
+// Checkout and Order 
+Order.belongsTo(Checkout, { foreignKey: 'orderId' });
 // Create tables in correct order
 // sequelize
 //   .sync({ 

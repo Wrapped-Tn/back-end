@@ -32,22 +32,19 @@ const Order = sequelize.define('Order', {
     },
 
     status: {
-        type: DataTypes.ENUM('pending', 'preparation', 'shipped', 'delivered', 'returned'),
-        defaultValue: 'pending',
+        type: DataTypes.ENUM('init', 'pending', 'preparation', 'shipped', 'delivered', 'returned'),
+        defaultValue: 'init',
     },
 
-    createdAt: {
-        type: DataTypes.DATE,
+    deliveryCost: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
-    },
+        defaultValue: 8
+    }
 
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
-    },
-
-},
+}, {
+    timestamps: true
+}
 );
 
 module.exports = Order;

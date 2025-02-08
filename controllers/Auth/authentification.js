@@ -245,6 +245,14 @@ async function sendVerificationCode(req, res) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+const finduserbyemail=async(req, res)=>{
+  const user = await Auth.findAll();
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(200).json(user);
+    
+}
 
 module.exports = {
   loginUser,
@@ -253,5 +261,6 @@ module.exports = {
   verifyCode,
   resetPassword,
   checkEmailExists,
-  sendVerificationCode
+  sendVerificationCode,
+  finduserbyemail
 };

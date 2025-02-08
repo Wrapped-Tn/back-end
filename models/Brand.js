@@ -20,6 +20,17 @@ const Brand = sequelize.define('Brand', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  description: {
+    type: DataTypes.STRING,
+  },
+
+  store_location: {
+    type: DataTypes.STRING,
+  },
+
+  bank_account_info: {
+    type: DataTypes.STRING,
+  },
   
 }, {
   tableName: 'brands',

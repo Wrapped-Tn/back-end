@@ -15,6 +15,8 @@ const OrderRoutes = require('./routes/OrderR');
 
 const PostRoutes = require('./routes/PostR');
 const LikePostRoutes = require('./routes/LikePostR');
+const DiscoveryRoutes =  require('./routes/DiscoveryR')
+
 // End Added By Youssef
 
 const userRoutes = require('./routes/UserR');
@@ -57,6 +59,8 @@ app.use('/api/orders', OrderRoutes);
 
 app.use('/api/posts', PostRoutes);
 app.use('/api/likePosts', LikePostRoutes);
+app.use('/api/discovery', DiscoveryRoutes);
+
 // End Added By Youssef
 
 // Routes pour les vendeurs

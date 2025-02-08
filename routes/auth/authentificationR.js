@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { loginUser, checkPass, forgotPassword, verifyCode, resetPassword, checkEmailExists, sendVerificationCode } = require('../../controllers/Auth/authentification');
+const { loginUser, checkPass, forgotPassword, verifyCode, resetPassword, checkEmailExists, sendVerificationCode ,finduserbyemail} = require('../../controllers/Auth/authentification');
 
 // Route pour la connexion de l'utilisateur
 router.post('/login', loginUser);
@@ -22,5 +22,8 @@ router.post('/check-email', checkEmailExists);
 
 // Route to send verification code
 router.post('/send-verification-code', sendVerificationCode);
+
+
+router.get('/email', finduserbyemail);
 
 module.exports = router;
