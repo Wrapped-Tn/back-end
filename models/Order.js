@@ -18,12 +18,9 @@ const Order = sequelize.define('Order', {
         },
     },
 
-    cartId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Cart,
-            key: 'id',
-        },
+    cartIds: {
+        type: DataTypes.JSON(DataTypes.INTEGER),
+        allowNull: false,
     },
 
     totalPrice: {

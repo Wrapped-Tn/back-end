@@ -3,53 +3,77 @@ const Order = require("../models/Order");
 
 const addToCart = async (req, res) => {
     try {
-        const { userId,postId, article_id, color, size, category, quantity } = req.body;
+        const { userId, postId, article_id, color, size, category, quantity, price } = req.body;
 
-        if (!postId || !idarticle || !nomarticle || !color || !size || !category || !qte) {
+        // Vérifier que tous les champs sont fournis
+        if (!postId || !article_id || !userId || !color || !size || !category || !quantity || !price) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // Find or create a cart for the user
-        let cart = await Cart.findOne({ where: { userId: userId } });
-        if (!cart) {
-            cart = await Cart.create({ userId: userId, totalPrice: 0 });
+        // Vérifier que 'price' et 'quantity' sont des nombres valides
+        if (isNaN(price) || price <= 0) {
+            return res.status(400).json({ message: "Invalid price value" });
+        }
+        if (isNaN(quantity) || quantity <= 0) {
+            return res.status(400).json({ message: "Invalid quantity value" });
         }
 
-        // Add item to cart
-        const cartItem = await Cart.create({
+        // Créer un nouveau panier
+        const totalPrice = quantity * price;
+        const cart = await Cart.create({
             userId,
             postId,
             article_id,
             color,
             size,
             category,
-            quantity
+            quantity,
+            totalPrice, // Calcul du prix total pour cet article
         });
 
-        // Calculate total price (Assume you have a price field in CartItem)
-        const cartItems = await Cart.findAll({ where: { cartId: cart.id } });
-        const totalPrice = cartItems.reduce((sum, item) => sum + item.qte * item.price, 0);
-
-        // Update cart total price
-        await cart.update({ totalPrice });
-
-        // Immediately create the order
-        const order = await Order.create({
-            userId: req.user.id,
-            cartId: cart.id,
-            totalPrice
+        // Trouver une commande existante de l'utilisateur avec statut "init"
+        let order = await Order.findOne({
+            where: { userId: userId, status: 'init' }
         });
 
-        return res.status(201).json({
-            message: "Item added to cart and order placed",
-            cartItem,
+        // Si la commande n'existe pas, créer une nouvelle commande
+        if (!order) {
+            order = await Order.create({
+                userId,
+                cartIds: [cart.id], // Associer le panier à la commande
+                totalPrice, // Prix total initial
+                status: 'init', // État de la commande
+                deliveryCost: 8, // Exemple de coût de livraison
+            });
+        } else {
+            // Vérifier que cartIds est bien un tableau
+            let updatedCartIds = Array.isArray(order.cartIds) ? [...order.cartIds, cart.id] : [cart.id];
+
+            // Mise à jour de la commande
+            await Order.update(
+                {
+                    cartIds: updatedCartIds, // Ajout du nouvel ID de panier
+                    totalPrice: order.totalPrice + totalPrice, // Mise à jour du total
+                },
+                { where: { id: order.id } }
+            );
+
+            // Recharger les données mises à jour
+            order = await Order.findOne({ where: { id: order.id } });
+        }
+
+        return res.status(200).json({
+            message: "Item added to cart and order updated",
+            cart,
             order
         });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 const deleteCart = async (req, res) => {
     try {
