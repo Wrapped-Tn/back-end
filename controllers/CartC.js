@@ -10,9 +10,9 @@ const addToCart = async (req, res) => {
         }
 
         // Find or create a cart for the user
-        let cart = await Cart.findOne({ where: { userId: req.user.id } });
+        let cart = await Cart.findOne({ where: { userId: userId } });
         if (!cart) {
-            cart = await Cart.create({ userId: req.user.id, totalPrice: 0 });
+            cart = await Cart.create({ userId: userId, totalPrice: 0 });
         }
 
         // Add item to cart

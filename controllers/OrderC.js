@@ -3,8 +3,10 @@ const Order = require("../models/Order");
 
 const getOrderCount = async (req, res) => {
     try {
+        const{userId}=req.params
+
         const orderCount = await Order.count({
-            where: { userId: req.user.id },
+            where: { userId: userId },
         });
 
         return res.status(200).json({ orderCount });
@@ -16,8 +18,9 @@ const getOrderCount = async (req, res) => {
 
 const getOrder = async (req, res) => {
     try {
+       const{userId}=req.params
         const orders = await Order.findAll({
-            where: { userId: req.user.id },
+            where: { userId: userId },
             include: [
                 {
                     model: Cart,

@@ -44,6 +44,11 @@ const Cart = sequelize.define('Cart', {
         allowNull: false,
         defaultValue: 1,
     },
+    totalPrice: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    
     color:{
         type: DataTypes.STRING,
         allowNull: false,
