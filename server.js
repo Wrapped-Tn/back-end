@@ -29,6 +29,7 @@ const imageUpload =require('./routes/PropsR');
 const BrandRoutes =require('./routes/BrandR');
 const commentRoutes = require('./routes/CommentR');
 const articleRoutes = require('./routes/ArticleR');
+const adressRoutes = require('./routes/AdressR');
 // const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
@@ -96,6 +97,10 @@ app.use('/api/comments', commentRoutes);
 
 // Utiliser les routes de savings
 app.use('/api/savings', savePostRoutes);
+
+// Utiliser les routes de l'adress
+app.use('/api/adresses', adressRoutes);
+
 
 // Middleware pour les sessions
 // app.use(session({

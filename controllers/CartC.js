@@ -1,5 +1,7 @@
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const Post = require("../models/Post");
+const PostImage = require("../models/PostImage");
 
 const addToCart = async (req, res) => {
     try {
@@ -140,4 +142,33 @@ const updateCartQuantity = async (req, res) => {
     }
 };
 
-module.exports = { addToCart, deleteCart, updateCartQuantity };
+const getCartById = async (req, res) => {
+    try {
+        const { cartId } = req.params;
+
+        if (!cartId) {
+            return res.status(400).json({ message: "Cart ID is required" });
+        }
+
+        // Trouver le panier par ID
+        const cart = await Cart.findByPk(cartId);
+
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+        const post=await Post.findOne({where:{id:cart.postId},
+            include: [{
+                model: PostImage,
+                attributes: ['id', 'url']
+            }],
+        })
+        const image=post.PostImages
+
+        return res.status(200).json({cart,image});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { addToCart, deleteCart, updateCartQuantity,getCartById  };

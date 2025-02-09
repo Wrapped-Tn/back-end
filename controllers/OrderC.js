@@ -1,6 +1,7 @@
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
-
+const Post =require("../models/Post");
+const PostImage= require("../models/PostImage")
 const getOrderCount = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -20,43 +21,57 @@ const getOrderCount = async (req, res) => {
     }
 };
 
+const { Op } = require("sequelize");
+
 const getOrder = async (req, res) => {
     try {
-       const{userId}=req.params
-        const orders = await Order.findAll({
-            where: { userId: userId },
-            include: [
-                {
-                    model: Cart,
-                    include: [
-                        {
-                            model: Post,
-                            include: [
-                                {
-                                    model: PostImage,
-                                    attributes: ['url'], // Get post image
-                                },
-                                {
-                                    model: PostPosition,
-                                    attributes: ['category', 'size', 'prix'], // Get category, size, price
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+        const { userId } = req.params;
+
+        // Trouver la commande avec statut 'init' pour l'utilisateur
+        const order = await Order.findOne({
+            where: { userId: userId, status: "init" }
         });
 
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: "No orders found" });
+        if (!order) {
+            return res.status(404).json({ message: "No order found with status 'init'" });
         }
 
-        return res.status(200).json(orders);
+        // Récupérer les paniers associés à la commande
+        const carts = await Cart.findAll({
+            where: { id: order.cartIds },
+        });
+
+        if (carts.length === 0) {
+            return res.status(404).json({ message: "No carts found for this order" });
+        }
+
+        // Trouver les images de chaque panier
+        const cartDetails = await Promise.all(carts.map(async (cart) => {
+            const post = await Post.findOne({
+                where: { id: cart.postId },
+                include: [{
+                    model: PostImage,
+                    attributes: ['id', 'url']
+                }],
+            });
+            return {
+                cart,
+                images: post.PostImages
+            };
+        }));
+
+        return res.status(200).json({
+            order,
+            cartDetails
+        });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
 
 const deleteOrder = async (req, res) => {
     try {

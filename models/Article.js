@@ -57,6 +57,10 @@ const Article = sequelize.define('article', {
         type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: false,
     },
+    price:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     
     createdAt: {
         type: DataTypes.DATE,
