@@ -1,3 +1,4 @@
+const Article = require("../models/Article");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
 const Post = require("../models/Post");
@@ -22,17 +23,7 @@ const addToCart = async (req, res) => {
 
         // Créer un nouveau panier
         const totalPrice = quantity * price;
-        const cart = await Cart.create({
-            userId,
-            postId,
-            article_id,
-            color,
-            size,
-            category,
-            quantity,
-            totalPrice, // Calcul du prix total pour cet article
-        });
-
+    
         // Trouver une commande existante de l'utilisateur avec statut "init"
         let order = await Order.findOne({
             where: { userId: userId, status: 'init' }
@@ -42,19 +33,15 @@ const addToCart = async (req, res) => {
         if (!order) {
             order = await Order.create({
                 userId,
-                cartIds: [cart.id], // Associer le panier à la commande
                 totalPrice, // Prix total initial
                 status: 'init', // État de la commande
                 deliveryCost: 8, // Exemple de coût de livraison
             });
-        } else {
-            // Vérifier que cartIds est bien un tableau
-            let updatedCartIds = Array.isArray(order.cartIds) ? [...order.cartIds, cart.id] : [cart.id];
 
+        } else {
             // Mise à jour de la commande
             await Order.update(
                 {
-                    cartIds: updatedCartIds, // Ajout du nouvel ID de panier
                     totalPrice: order.totalPrice + totalPrice, // Mise à jour du total
                 },
                 { where: { id: order.id } }
@@ -63,6 +50,18 @@ const addToCart = async (req, res) => {
             // Recharger les données mises à jour
             order = await Order.findOne({ where: { id: order.id } });
         }
+        // Ajouter l'article au panier de la commande
+        const cart = await Cart.create({
+            userId,
+            postId,
+            article_id,
+            color,
+            size,
+            category,
+            quantity,
+            totalPrice, // Calcul du prix total pour cet article
+            orderId:order.id
+        });
 
         return res.status(200).json({
             message: "Item added to cart and order updated",
@@ -115,21 +114,43 @@ const updateCartQuantity = async (req, res) => {
             return res.status(400).json({ message: "Quantity cannot be negative" });
         }
 
-        // Find the cart item
+        // Trouver l'article dans le panier
         const cartItem = await Cart.findByPk(cartId);
         if (!cartItem) {
             return res.status(404).json({ message: "Cart item not found" });
         }
 
+        // Trouver l'article associé
+        const articleItem = await Article.findByPk(cartItem.article_id);
+        if (!articleItem) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        // Trouver la commande associée
+        const orderItem = await Order.findByPk(cartItem.orderId);
+        if (!orderItem) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
         if (quantity === 0) {
-            // Remove the item if quantity is set to 0
+            // Soustraire le totalPrice actuel avant de supprimer l'article du panier
+            orderItem.totalPrice -= cartItem.totalPrice;
+            await orderItem.save();
+
+            // Supprimer l'item du panier
             await cartItem.destroy();
             return res.status(200).json({ message: "Item removed from cart" });
         }
 
-        // Update the quantity
+        // Mettre à jour la quantité et recalculer le prix total du panier
+        const oldTotalPrice = cartItem.totalPrice;
         cartItem.quantity = quantity;
+        cartItem.totalPrice = quantity * articleItem.price;
         await cartItem.save();
+
+        // Mettre à jour le prix total de la commande en tenant compte de l'ancien total
+        orderItem.totalPrice = orderItem.totalPrice - oldTotalPrice + cartItem.totalPrice;
+        await orderItem.save();
 
         return res.status(200).json({
             message: "Cart quantity updated successfully",

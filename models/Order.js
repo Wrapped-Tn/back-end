@@ -18,11 +18,6 @@ const Order = sequelize.define('Order', {
         },
     },
 
-    cartIds: {
-        type: DataTypes.JSON(DataTypes.INTEGER),
-        allowNull: false,
-    },
-
     totalPrice: {
         type: DataTypes.FLOAT,
         allowNull: false,
@@ -40,8 +35,8 @@ const Order = sequelize.define('Order', {
     }
 
 }, {
-    timestamps: true
-}
+    timestamps: true,
+    tableName: "orders"}
 );
 
 module.exports = Order;

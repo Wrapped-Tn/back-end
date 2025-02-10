@@ -30,6 +30,7 @@ const BrandRoutes =require('./routes/BrandR');
 const commentRoutes = require('./routes/CommentR');
 const articleRoutes = require('./routes/ArticleR');
 const adressRoutes = require('./routes/AdressR');
+const checkoutRoutes = require('./routes/CheckoutR')
 // const likesRoutes = require('./routes/LikesR');
 
 // Updated By Youssef
@@ -57,7 +58,7 @@ app.use('/api/articles', articleRoutes);
 // Start Added By Youssef
 app.use('/api/carts', CartRoutes);
 app.use('/api/orders', OrderRoutes);
-
+app.use('/api/checkout',checkoutRoutes)
 app.use('/api/posts', PostRoutes);
 app.use('/api/likePosts', LikePostRoutes);
 app.use('/api/discovery', DiscoveryRoutes);

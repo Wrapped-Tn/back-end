@@ -3,10 +3,10 @@ const Brand =require('../models/Brand')
 const createArticle = async (req, res) => {
     try {
         // Récupération des données depuis le corps de la requête
-        const { brand_id, post_id, color, disponibility, taille_disponible, category, type_clothes } = req.body;
+        const { brand_id, post_id, color, disponibility, taille_disponible, category, type_clothes,price } = req.body;
 
         // Vérification des champs obligatoires
-        if (!brand_id || !post_id || !color || !category || !type_clothes) {
+        if (!brand_id || !post_id || !color || !category || !type_clothes|| !price) {
             return res.status(400).json({ message: "Tous les champs obligatoires doivent être remplis." });
         }
 
@@ -18,7 +18,8 @@ const createArticle = async (req, res) => {
             disponibility,
             taille_disponible,
             category,
-            type_clothes
+            type_clothes,
+            price
         });
 
         return res.status(201).json({ message: "Article créé avec succès", article: newArticle });

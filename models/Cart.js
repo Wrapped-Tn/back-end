@@ -3,7 +3,7 @@ const sequelize = require('../config/config');
 
 const User = require('./User');
 const Brand = require('./Brand');
-
+const Order= require('./Order')
 const Post = require('./Post');
 
 const Article = require('./Article');
@@ -38,7 +38,16 @@ const Cart = sequelize.define('Cart', {
             key: 'id',
         },
     },
-
+    orderId: {
+        type: DataTypes.INTEGER, 
+        references: { 
+            model: 'orders', 
+            key: 'id', 
+        },
+        allowNull: true, 
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -71,6 +80,9 @@ const Cart = sequelize.define('Cart', {
         type: DataTypes.DATE,
         allowNull: true,
     },
-});
+},
+    {timestamps: true,
+    tableName: "carts" }
+);
 
 module.exports = Cart;

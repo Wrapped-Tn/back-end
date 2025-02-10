@@ -6,20 +6,25 @@ const getOrderCount = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // Trouver la commande avec statut 'init'
+        // Trouver la commande avec statut 'init' et récupérer les Cart associés
         const order = await Order.findOne({
-            where: { userId: userId, status: 'init' }
+            where: { userId: userId, status: 'init' },
+            include: [{ model: Cart }] // Inclure les carts liés
         });
 
-        // Si la commande existe, retourner la longueur de cartIds
-        const orderCount = order ? order.cartIds.length : 0;
+        let cartCount = 0; // Initialisation
 
-        return res.status(200).json({ orderCount });
+        if (order) {
+            cartCount = order.Carts ? order.Carts.length : 0; // Compter les carts trouvés
+        }
+
+        return res.status(200).json({ cartCount });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ orderCount: 0 }); // Retourne 0 en cas d'erreur serveur
+        return res.status(500).json({ cartCount: 0 }); // Retourne 0 en cas d'erreur serveur
     }
 };
+
 
 const { Op } = require("sequelize");
 
@@ -38,7 +43,7 @@ const getOrder = async (req, res) => {
 
         // Récupérer les paniers associés à la commande
         const carts = await Cart.findAll({
-            where: { id: order.cartIds },
+            where: { orderId: order.id },
         });
 
         if (carts.length === 0) {
@@ -92,5 +97,6 @@ const deleteOrder = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 module.exports = { getOrder, deleteOrder, getOrderCount };

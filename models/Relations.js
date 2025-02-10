@@ -24,11 +24,12 @@ console.log('User Model:', User);
 
 // const Article = require("./Article");
 const Filter = require('./Filter');
+const Order= require('./Order');
 const Commission =require ("./Commission");
 const Transaction = require ("./Transaction");
 const Grade = require('./Grade');
 const Brand= require("./Brand");
-const Order= require('./Orders');
+const Cart =require('./Cart.js')
 const Rating=require('./Rating');
 const FashionistaTag=require('./FashionistaTag');
 const Invoice=require("./Invoice");
@@ -112,9 +113,9 @@ Commission.belongsTo(Transaction, { foreignKey: 'transaction_id' });
 Grade.hasMany(User, { foreignKey: 'transaction_id' });
 User.belongsTo(Grade, { foreignKey: 'grade_id', as: 'grade' });
 
-// Un vendeur peut avoir plusieurs commandes.// Une commande appartient à un vendeur.
-Brand.hasMany(Order, { foreignKey: 'sellerId' });
-Order.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
+// // Un vendeur peut avoir plusieurs commandes.// Une commande appartient à un vendeur.
+// Brand.hasMany(Order, { foreignKey: 'sellerId' });
+// Order.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // Un utilisateur peut passer plusieurs commandes.// Une commande appartient à un utilisateur.
 User.hasMany(Order, { foreignKey: 'userId' });
@@ -171,32 +172,12 @@ Address.belongsTo(User, { foreignKey: 'userId' });
 
 
 // Checkout and Order 
-Order.belongsTo(Checkout, { foreignKey: 'orderId' });
-// Create tables in correct order
+Order.hasMany(Cart, { foreignKey: 'orderId', onDelete: "CASCADE", onUpdate: "CASCADE" });
+Cart.belongsTo(Order, { foreignKey: 'orderId', as: 'order' }); // Create tables in correct order
 // sequelize
 //   .sync({ 
+//     // force: true,
 //     alter: true,
-//     order: [
-//       ['Grades'],
-//       ['Users'],
-//       ['brands'], 
-//       ['comments'],
-//       ['ratings'],
-//       ['orders'],
-//       ['invoices'],
-//       ['transactions'],
-//       ['commissions'],
-//       ['filters'],
-//       ['fashionista_tags'],
-//       ['images'],
-//       ['Post'],
-//       ['PostImage'],
-//       ['PostPosition'],
-//       ['savePost'],
-//       ['likePost'],
-//       ['articles'],
-
-//     ]
 //   })
 //   .then(() => {
 //     console.log("Database tables updated successfully.");
