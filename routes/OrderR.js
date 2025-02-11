@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const OrderC = require('../controllers/OrderC');
-const Order = require('../models/Order');
 
 // Get an order by user ID
 router.get('/get-order/:userId', OrderC.getOrder);

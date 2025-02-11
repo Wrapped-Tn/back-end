@@ -12,6 +12,7 @@ const bodyParser = require('body-parser');
 // Start Added By Youssef
 const CartRoutes = require('./routes/CartR');
 const OrderRoutes = require('./routes/OrderR');
+const OrderBrandRoutes = require('./routes/OrderBrand');
 
 const PostRoutes = require('./routes/PostR');
 const LikePostRoutes = require('./routes/LikePostR');
@@ -58,6 +59,7 @@ app.use('/api/articles', articleRoutes);
 // Start Added By Youssef
 app.use('/api/carts', CartRoutes);
 app.use('/api/orders', OrderRoutes);
+app.use('/api/ordersbrand', OrderBrandRoutes);
 app.use('/api/checkout',checkoutRoutes)
 app.use('/api/posts', PostRoutes);
 app.use('/api/likePosts', LikePostRoutes);
