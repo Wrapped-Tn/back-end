@@ -37,6 +37,7 @@ const Invoice=require("./Invoice");
 const Auth=require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
+const OrderBrand = require('./OrderBrand.js');
 
 // Relation avec Brand
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
@@ -174,6 +175,9 @@ Address.belongsTo(User, { foreignKey: 'userId' });
 // Checkout and Order 
 Order.hasMany(Cart, { foreignKey: 'orderId', onDelete: "CASCADE", onUpdate: "CASCADE" });
 Cart.belongsTo(Order, { foreignKey: 'orderId', as: 'order' }); // Create tables in correct order
+
+OrderBrand.hasMany(Cart, { foreignKey: 'orderBrandId', onDelete: "CASCADE", onUpdate: "CASCADE" });
+Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Create tables in correct order
 // sequelize
 //   .sync({ 
 //     // force: true,

@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config");
 const User = require("./User");
 const Cart = require("./Cart");
+const Address = require('./Address');
 
 const Order = sequelize.define('Order', {
     id: {
@@ -17,7 +18,13 @@ const Order = sequelize.define('Order', {
             key: 'id',
         },
     },
-
+    adressId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Address,
+            key: 'id',
+        },
+    },
     totalPrice: {
         type: DataTypes.FLOAT,
         allowNull: false,

@@ -2,6 +2,8 @@ const Cart = require("../models/Cart");
 const Order = require("../models/Order");
 const Post =require("../models/Post");
 const PostImage= require("../models/PostImage")
+const { Op } = require("sequelize");
+
 const getOrderCount = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -26,7 +28,6 @@ const getOrderCount = async (req, res) => {
 };
 
 
-const { Op } = require("sequelize");
 
 const getOrder = async (req, res) => {
     try {
@@ -77,6 +78,56 @@ const getOrder = async (req, res) => {
 };
 
 
+const getOrdersExceptInit = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Trouver toutes les commandes de l'utilisateur sauf celles avec le statut 'init'
+        const orders = await Order.findAll({
+            where: {
+                userId: userId,
+                status: { [Op.ne]: "init" } // Exclure les commandes avec statut 'init'
+            }
+        });
+
+        if (!orders.length) {
+            return res.status(404).json({ message: "No orders found except 'init' status" });
+        }
+
+        // Récupérer les paniers associés aux commandes
+        const ordersWithCarts = await Promise.all(orders.map(async (order) => {
+            const carts = await Cart.findAll({
+                where: { orderId: order.id },
+            });
+
+            const cartDetails = await Promise.all(carts.map(async (cart) => {
+                const post = await Post.findOne({
+                    where: { id: cart.postId },
+                    include: [{
+                        model: PostImage,
+                        attributes: ['id', 'url']
+                    }],
+                });
+
+                return {
+                    cart,
+                    images: post ? post.PostImages : []
+                };
+            }));
+
+            return {
+                order,
+                cartDetails
+            };
+        }));
+
+        return res.status(200).json(ordersWithCarts);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 const deleteOrder = async (req, res) => {
     try {
@@ -99,4 +150,4 @@ const deleteOrder = async (req, res) => {
 };
 
 
-module.exports = { getOrder, deleteOrder, getOrderCount };
+module.exports = { getOrder, deleteOrder, getOrderCount,getOrdersExceptInit };

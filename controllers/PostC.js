@@ -296,6 +296,7 @@ const WhatsHotPosts = async (req, res) => {
                         x: position.x,
                         y: position.y,
                         brand: position.brand,
+                        brandId:position.brand_id,
                         category: position.category,
                         size: position.size,
                         prix: position.prix,

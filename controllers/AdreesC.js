@@ -27,7 +27,7 @@ const getAddressById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const address = await Address.findByPk(id);
+    const address = await Address.findAll({where:{userId:id}});
     if (address) {
       res.status(200).json(address);
     } else {

@@ -6,5 +6,7 @@ const CheckoutC = require('../controllers/CheckoutC');
 router.post('/checkout', CheckoutC.createCheckout);
 // Get Checkout information:
 router.get('/checkout/:orderId', CheckoutC.getCheckoutInfo);
+// Update Checkout information:
+router.post('/submitCheckout', CheckoutC.checkout);
 
 module.exports = router;

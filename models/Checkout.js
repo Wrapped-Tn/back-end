@@ -17,9 +17,12 @@ const Checkout = sequelize.define('checkout', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-
+    orderBrandId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     payType: {
-        type: DataTypes.ENUM('a','b'),
+        type: DataTypes.ENUM('delivery','sold','cart'),
         allowNull:false
     }
    

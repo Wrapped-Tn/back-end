@@ -6,10 +6,10 @@ const PostImage = require("../models/PostImage");
 
 const addToCart = async (req, res) => {
     try {
-        const { userId, postId, article_id, color, size, category, quantity, price } = req.body;
+        const { userId, postId, article_id, color, size, category, quantity, price,posterId,brandId } = req.body;
 
         // Vérifier que tous les champs sont fournis
-        if (!postId || !article_id || !userId || !color || !size || !category || !quantity || !price) {
+        if (!postId || !article_id || !userId || !color || !size || !category || !quantity || !price || !posterId|| !brandId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -54,7 +54,9 @@ const addToCart = async (req, res) => {
         const cart = await Cart.create({
             userId,
             postId,
+            brandId,
             article_id,
+            posterId,
             color,
             size,
             category,

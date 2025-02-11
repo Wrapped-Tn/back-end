@@ -7,6 +7,9 @@ const Order = require('../models/Order');
 router.get('/get-order/:userId', OrderC.getOrder);
 
 // Get the count of orders for the logged-in user
+router.get('/get-orderchecked/:userId', OrderC.getOrdersExceptInit);
+
+// Get the count of orders for the logged-in user
 router.get('/order-count/:userId', OrderC.getOrderCount);
 
 // Delete an order by cart ID
