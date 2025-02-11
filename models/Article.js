@@ -68,7 +68,7 @@ const Article = sequelize.define('article', {
         defaultValue: DataTypes.NOW,
     },
 }, {
-    tableName: 'articles',
+    tableName: 'Articles',
     timestamps: true
 });
 
