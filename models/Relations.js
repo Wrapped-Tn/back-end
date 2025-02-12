@@ -171,6 +171,10 @@ Post.hasMany(Article, { foreignKey: 'post_id' });
 User.hasMany(Address, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Address.belongsTo(User, { foreignKey: 'userId' });
 
+// Test
+PostPosition.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brands' });
+Brand.hasMany(PostPosition, { foreignKey: 'brand_id', as: 'postPositions' });
+
 
 // Checkout and Order 
 Order.hasMany(Cart, { foreignKey: 'orderId', onDelete: "CASCADE", onUpdate: "CASCADE" });
@@ -180,7 +184,6 @@ OrderBrand.hasMany(Cart, { foreignKey: 'orderBrandId', onDelete: "CASCADE", onUp
 Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Create tables in correct order
 // sequelize
 //   .sync({ 
-//     // force: true,
 //     alter: true,
 //   })
 //   .then(() => {
