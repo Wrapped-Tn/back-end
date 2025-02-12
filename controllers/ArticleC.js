@@ -71,5 +71,21 @@ const getByPostId = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
+const getMinMaxPrice = async (req, res) => {
+    try {
+        // Trouver le prix minimum et maximum parmi les articles
+        const minPrice = await Article.min('price');
+        const maxPrice = await Article.max('price');
 
-module.exports = { createArticle,getByPostId  };
+        // Vérification si des prix ont été trouvés
+        if (minPrice === null || maxPrice === null) {
+            return res.status(404).json({ message: "Aucun article trouvé." });
+        }
+
+        return res.status(200).json({ minPrice, maxPrice });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des prix:", error);
+        return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
+    }
+};
+module.exports = { createArticle,getByPostId,getMinMaxPrice  };
