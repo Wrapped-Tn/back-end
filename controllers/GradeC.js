@@ -40,10 +40,21 @@ const getGradeCart= async (req,res)=>{
   try{
     const grade = await Grade.findByPk(id);
     if(grade){
+      if(grade.min_stars===grade.max_stars && grade.min_sales===grade.max_sales){
+        grade.min_stars=grade.max_stars
+        grade.max_stars=grade.max_stars*10
+        grade.min_sales=grade.max_sales
+        grade.max_sales=grade.max_sales*10
+        grade.grade_name="Level 2"
+        // grade.rewards="Badge, accès aux statistiques de ses recommandations, accès à
+        await grade.save()
+      }
       res.status(200).json( 
        {titre : grade.grade_name,
-        stars : grade.min_stars,
-        sales : grade.min_sales
+        minstars : grade.min_stars,
+        minsales : grade.min_sales,
+        maxstars : grade.max_stars,
+        maxsales : grade.max_sales,
       }
       );
     }

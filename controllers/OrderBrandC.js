@@ -3,6 +3,7 @@ const OrderBrand = require("../models/OrderBrand");
 const { Op } = require("sequelize");
 const Post = require("../models/Post");
 const PostImage = require("../models/PostImage");
+const Brand = require("../models/Brand");
 
 
 const getOrderBrand=async(req,res)=>{
@@ -81,6 +82,16 @@ const updateOrderStatus = async (req, res) => {
         order.status = statusFlow[currentIndex + 1];
         await order.save();
 
+        // Si la commande est marquée comme "delivered", mettre à jour les ventes de la marque
+        if (order.status === 'delivered') {
+            const brand = await Brand.findByPk(order.brandId); // Récupérer la marque liée à la commande
+
+            if (brand) {
+                brand.total_sales += 1; // Incrémentation du total des ventes
+                await brand.save();
+            }
+        }
+
         return res.status(200).json({ message: "Order status updated", order });
 
     } catch (error) {
@@ -89,4 +100,39 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = {getOrderBrand,updateOrderStatus}
+const getSalesByBrand = async (req, res) => {
+    try {
+        const { brandId } = req.params;
+
+        // Récupérer toutes les commandes de la marque avec le statut 'delivered'
+        const deliveredOrders = await OrderBrand.findAll({
+            where: {
+                brandId: brandId,
+                status: 'delivered'
+            }
+        });
+
+        // S'il n'y a aucune commande livrée, retourner 0 ventes
+        if (!deliveredOrders.length) {
+            return res.status(200).json({ brandId, totalSales: 0 });
+        }
+
+        // Récupérer tous les paniers associés aux commandes livrées
+        let totalSales = 0;
+        for (const order of deliveredOrders) {
+            const carts = await Cart.findAll({
+                where: { orderBrandId: order.id }
+            });
+
+            totalSales += carts.length; // Chaque cart représente une vente
+        }
+
+        return res.status(200).json({ brandId, totalSales });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = {getOrderBrand,updateOrderStatus,getSalesByBrand}
