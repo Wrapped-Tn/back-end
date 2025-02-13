@@ -4,52 +4,57 @@ const User = require('../models/User');
 const PostPosition = require('../models/PostPosition');
 const Article = require('../models/Article');
 const PostImage = require('../models/PostImage');
-const Brand = require('../models/Brand');
+const sequelize = require('../config/config');
 
 const search = async (req, res) => {
     try {
-        const query = req.query.q || ''; // Recherche générale
-        const { category, size, brand_name, color, item, type_clothes, maxprice, minprice } = req.query; // Filtres
+        const query = req.query.q || '';
+        const { category, size, brand_name, color, type_clothes, maxprice, minprice, occasion } = req.query;
 
+        // Base WHERE clause for Post
         const whereClause = {
             [Op.or]: [
                 { description: { [Op.like]: `%${query}%` } },
-                { occasion: { [Op.like]: `%${query}%` } }
+                sequelize.where(
+                    sequelize.json('occasion'),
+                    sequelize.literal('JSON_CONTAINS(occasion, \'["' + occasion + '"]\')')
+                )
             ]
         };
 
-        // Ajout des filtres dynamiques
+        // Filtres dynamiques pour PostPosition
         const positionWhere = {};
         if (category) positionWhere.category = category;
         if (size) positionWhere.size = { [Op.like]: `%${size}%` };
-        if (item) positionWhere.category = { [Op.like]: `%${item}%` };
-
-        // Filtrage des prix dans PostPosition
+        if (type_clothes) positionWhere.category = { [Op.like]: `%${type_clothes}%` };
         if (minprice) positionWhere.prix = { [Op.gte]: parseFloat(minprice) };
         if (maxprice) positionWhere.prix = { ...(positionWhere.prix || {}), [Op.lte]: parseFloat(maxprice) };
 
+        // Filtres dynamiques pour Article
         const articleWhere = {};
         if (color) articleWhere.color = { [Op.substring]: color };
         if (type_clothes) articleWhere.type_clothes = { [Op.like]: `%${type_clothes}%` };
         if (size) articleWhere.taille_disponible = { [Op.substring]: size };
-        if (item) articleWhere.category = { [Op.like]: `%${item}%` };
-
-        // Filtrage des prix dans Article (si applicable)
         if (minprice) articleWhere.price = { [Op.gte]: parseFloat(minprice) };
         if (maxprice) articleWhere.price = { ...(articleWhere.price || {}), [Op.lte]: parseFloat(maxprice) };
 
-        const brandWhere = {};
-        if (brand_name) brandWhere.brand_name = { [Op.like]: `%${brand_name}%` };
+        // Formater la clause de recherche (si aucun filtre n'est présent, récupérer tous les posts)
+        const finalWhereClause = {
+            ...whereClause,
+            ...(category || size || brand_name || color || type_clothes || minprice || maxprice || occasion
+                ? {} // Apply dynamic filters if any filter is present
+                : {}) // Return all posts if no filter is applied
+        };
 
+        // Récupérer les posts avec les associations valides
         const postSearch = await Post.findAll({
-            distinct: true,
-            where: whereClause,
+            where: finalWhereClause,
             attributes: ['id', 'description', 'occasion', 'createdAt'],
             include: [
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'full_name']
+                    attributes: ['id']
                 },
                 {
                     model: PostImage,
@@ -59,61 +64,73 @@ const search = async (req, res) => {
                         {
                             model: PostPosition,
                             as: 'PostPositions',
-                            attributes: ['brand_name', 'category', 'size', 'prix', 'verified'],
-                            where: Object.keys(positionWhere).length ? positionWhere : undefined,
-                            include: [
-                                {
-                                    model: Brand,
-                                    as: 'brands',
-                                    attributes: ['id', 'brand_name'],
-                                    where: Object.keys(brandWhere).length ? brandWhere : undefined
-                                }
-                            ]
+                            attributes: ['category', 'size', 'prix', 'verified'],
+                            where: positionWhere
                         }
                     ]
                 },
                 {
                     model: Article,
                     as: 'articles',
-                    attributes: ['color', 'category', 'taille_disponible', 'type_clothes', 'price'],
-                    where: Object.keys(articleWhere).length ? articleWhere : undefined
+                    attributes: ['id', 'color', 'type_clothes', 'taille_disponible', 'price'],
+                    where: articleWhere
                 }
             ]
         });
 
-        const posts = postSearch.map(post => post.get({ plain: true }));
+        // Vérifier combien de posts sont trouvés
+        console.log('Post search results:', postSearch.length);
 
-        const filteredPosts = posts.map(post => ({
-            id: post.id,
-            description: post.description,
-            occasion: post.occasion,
-            createdAt: post.createdAt,
-            user: post.user ? { id: post.user.id, full_name: post.user.full_name } : null,
-            PostImages: post.PostImages.map(image => ({
-                id: image.id,
-                url: image.url,
-                postPositions: image.PostPositions.map(position => ({
-                    brand: position.brand ? { id: position.brand.id, brand_name: position.brand.brand_name } : null,
-                    category: position.category,
-                    size: position.size,
-                    prix: position.prix,
-                    verified: position.verified
+        // Formater les résultats
+        const formattedPosts = postSearch.map(post => {
+            const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
+
+            return {
+                id: post.id,
+                description: post.description,
+                createdAt: post.createdAt,
+                occasion: occasion,
+                user: {
+                    id_user: post.user?.id || null,
+                },
+                images: (post.PostImages || []).map(image => ({
+                    id: image.id,
+                    url: image.url,
+                    positions: (image.PostPositions || []).map(position => ({
+                        brand: position.brand,
+                        category: position.category,
+                        size: position.size,
+                        prix: position.prix,
+                        verified: position.verified
+                    }))
                 }))
-            })),
-            articles: post.articles ? post.articles.map(article => ({
-                color: article.color,
-                category: article.category,
-                size: article.taille_disponible,
-                type_clothes: article.type_clothes,
-                prix: article.price
-            })) : []
-        }));
+            };
+        });
 
-        res.status(200).json({ posts: filteredPosts });
+        res.status(200).json(formattedPosts);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-module.exports = { search };
+const suggestions =async(req,res)=>{
+    try{
+        const user = await User.findAll({
+            attributes: ['full_name'],
+        })
+        const post =await Post.findAll({
+            attributes: ['description'],
+        })
+        if(!user && !post){
+            return res.status(404).json({ message: 'No user or post found' });
+        }
+        const suggestions = user.map(user => user.full_name).concat(post.map(post => post.description));
+        res.status(200).json({ suggestions });
+    }catch(e){
+        console.error(e);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+module.exports = { search,suggestions};

@@ -31,7 +31,7 @@ const PostPosition = sequelize.define('PostPosition', {
         allowNull: false,
     },
 
-    brand_name: {
+    brand: {
         type: DataTypes.STRING,
         allowNull: false,
     },

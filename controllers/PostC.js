@@ -312,7 +312,6 @@ const WhatsHotPosts = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
 };
-
 const verifyPostPosition = async (req, res) => {
     try {
         const { postPositionId } = req.params; 
@@ -359,7 +358,6 @@ const updatePostPositionPrice = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la mise à jour du prix.' });
     }
 };
-
 const getUserPostImages = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -392,7 +390,6 @@ const getUserPostImages = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post images.' });
     }
 };
-
 const getDiscrovePosts=async(req,res)=>{
     try {
         // Récupérer tous les posts avec leurs relations
@@ -452,7 +449,61 @@ const getDiscrovePosts=async(req,res)=>{
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
+}
+const getTopPostByUser = async (req, res) => {
+    try {
+        const { userId } = req.params; // ID de l'utilisateur
+        const { sortBy } = req.query; // Sortir par 'likes', 'saves' ou 'comments'
+        
+        // Récupérer tous les posts de l'utilisateur
+        const posts = await Post.findAll({
+            where: { user_id: userId },
+            include: [
+                { model: PostImage, attributes: ['id', 'url'] },
+            ],
+        });
+
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: 'Aucun post trouvé pour cet utilisateur.' });
+        }
+
+        // Calcul des métriques pour chaque post
+        const postsWithMetrics = posts.map(post => {
+            // Récupération du nombre de likes, saves et commentaires
+            const likes_count = post.LikePosts ? post.LikePosts.length : 0;
+            const saves_count = post.PostImages.reduce((acc, image) => acc + (image.saves_count || 0), 0);
+            const comments_count = post.comments_count || 0;
+
+            // Calcul total des métriques
+            const total_metrics = likes_count + saves_count + comments_count;
+
+            return {
+                post,
+                likes_count,
+                saves_count,
+                comments_count,
+                total_metrics,
+            };
+        });
+
+        // Si aucun critère de tri n'est spécifié, tri par total des métriques
+        if (!sortBy || !['likes', 'saves', 'comments'].includes(sortBy)) {
+            postsWithMetrics.sort((a, b) => b.total_metrics - a.total_metrics);
+        } else {
+            // Sinon, tri selon le critère spécifique
+            postsWithMetrics.sort((a, b) => b[sortBy + '_count'] - a[sortBy + '_count']);
+        }
+
+        // Limiter à 5 posts
+        const topPosts = postsWithMetrics.slice(0, 5);
+
+        res.status(200).json({ topPosts });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erreur lors de la récupération du top post.' });
+    }
 };
+
 
 module.exports = {
     addPost,
@@ -464,5 +515,6 @@ module.exports = {
     verifyPostPosition,
     updatePostPositionPrice,
     getUserPostImages,
-    getDiscrovePosts
+    getDiscrovePosts,
+    getTopPostByUser
 };

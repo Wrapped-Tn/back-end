@@ -48,22 +48,15 @@ const OrderBrand = require('./OrderBrand.js');
 // Auth.belongsTo(User, { foreignKey: 'users_id' });
 
 // Start Added By Youssef
-// Post and Images and Positions
 Post.hasMany(PostImage, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 PostImage.belongsTo(Post, { foreignKey: 'post_id' });
 
 PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCADE' });
 PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
 
-// Test
-PostPosition.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brands' });
-Brand.hasMany(PostPosition, { foreignKey: 'brand_id', as: 'postPositions' });
-
-// Posts and Users
 Post.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(Post, { foreignKey: 'user_id', as: 'posts' });
 
-// Posts and Articles
 Post.hasMany(Article, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 Article.belongsTo(Post, { foreignKey: 'post_id' });
 // Likes and Posts
@@ -178,6 +171,10 @@ Post.hasMany(Article, { foreignKey: 'post_id' });
 User.hasMany(Address, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Address.belongsTo(User, { foreignKey: 'userId' });
 
+// Test
+PostPosition.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brands' });
+Brand.hasMany(PostPosition, { foreignKey: 'brand_id', as: 'postPositions' });
+
 
 // Checkout and Order 
 Order.hasMany(Cart, { foreignKey: 'orderId', onDelete: "CASCADE", onUpdate: "CASCADE" });
@@ -185,15 +182,14 @@ Cart.belongsTo(Order, { foreignKey: 'orderId', as: 'order' }); // Create tables 
 
 OrderBrand.hasMany(Cart, { foreignKey: 'orderBrandId', onDelete: "CASCADE", onUpdate: "CASCADE" });
 Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Create tables in correct order
-
 // sequelize
 //   .sync({ 
-    // alter: true,
+//     alter: true,
 //   })
 //   .then(() => {
-    // console.log("Database tables updated successfully.");
+//     console.log("Database tables updated successfully.");
 //   })
 //   .catch((error) => {
-//     // console.error("Error updating database tables:", error);
+//     console.error("Error updating database tables:", error);
 //   });
 

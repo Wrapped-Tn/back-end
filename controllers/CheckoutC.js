@@ -122,10 +122,13 @@ const checkout = async (req, res) => {
 
             // 5. Associer chaque article du panier à l'OrderBrand
             await Promise.all(cart.map(item => {
-                item.orderBrandId = orderBrand.id;
-                return item.save();
+                // Vérifier si l'article n'a pas encore d'orderBrandId ou si le statut de l'orderBrandId est "pending"
+                if (!item.orderBrandId || (item.orderBrandId && item.status === 'pending')) {
+                    item.orderBrandId = orderBrand.id;
+                    return item.save();
+                }
+                return Promise.resolve(); // Si aucune mise à jour, on résout simplement la promesse
             }));
-            orderBrandId = orderBrand.id;  // Enregistrer l'id du dernier OrderBrand
         }
 
         // 6. Créer l'enregistrement de checkout global

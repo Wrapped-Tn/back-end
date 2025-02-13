@@ -19,7 +19,7 @@ router.get('/:id', getGradeById);
 // Lire tous les grades
 router.get('/', getAllGrades);
 
-router.get('/Gradename/:id',getGradeCart);
+router.post('/Gradename/:id',getGradeCart);
 
 // Mettre à jour un grade
 router.put('/:id', updateGrade);

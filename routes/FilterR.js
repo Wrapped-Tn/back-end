@@ -3,13 +3,17 @@ const {
   createFilter,
   getFilterById,
   updateFilter,
-  deleteFilter
+  deleteFilter,
+  getItemsFilter
 } = require('../controllers/FilterC');
 
 const router = express.Router();
 
 // Créer un filtre
 router.post('/', createFilter);
+
+// Lire les items filtre 
+router.get('/itemsfiltre', getItemsFilter);
 
 // Lire un filtre par ID
 router.get('/:id', getFilterById);

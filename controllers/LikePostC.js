@@ -2,6 +2,8 @@ const LikePost = require('../models/LikePost');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const PostImage = require('../models/PostImage');
+const Grade = require('../models/Grade');
+const { where } = require('sequelize');
 
 const getLikedPostsByUser = async (req, res) => {
     const { user_id } = req.params;
@@ -73,33 +75,48 @@ const getLikedPostImages = async (req, res) => {
 };
 
 const toggleLike = async (req, res) => {
-  const user_id = req.params.user_id;
-  const post_id = req.params.post_id;
+  const { user_id, post_id } = req.params;
 
   try {
       // Vérifier si l'utilisateur a déjà liké le post
       const existingLike = await LikePost.findOne({ where: { user_id, post_id } });
 
+      // Vérifier si l'utilisateur existe
+      const user = await User.findByPk(user_id);
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur non trouvé." });
+      }
+
       if (existingLike) {
           // Si l'utilisateur a déjà liké, supprimer le like (dislike)
-          await LikePost.destroy({ where: { user_id, post_id } });
+          await existingLike.destroy();
 
           // Décrémenter le like_count du post
           await Post.decrement('likes_count', { where: { id: post_id } });
 
+          // Vérifier si l'utilisateur a un grade associé avant de décrémenter
+          if (user.grade_id) {
+              await Grade.decrement('min_stars', { where: { id: user.grade_id } });
+          }
+
           return res.status(200).json({ message: 'Like retiré (dislike).' });
       } else {
-          // Si l'utilisateur n'a pas encore liké, ajouter un like
+          // Ajouter un like
           await LikePost.create({ user_id, post_id, likeDate: new Date() });
 
           // Incrémenter le like_count du post
           await Post.increment('likes_count', { where: { id: post_id } });
 
+          // Vérifier si l'utilisateur a un grade associé avant d'incrémenter
+          if (user.grade_id) {
+              await Grade.increment('min_stars', { where: { id: user.grade_id } });
+          }
+
           return res.status(201).json({ message: 'Like ajouté avec succès.' });
       }
   } catch (error) {
       console.error('Erreur lors de l\'ajout/suppression du like:', error);
-      res.status(500).json({ message: 'Échec de l\'opération.' });
+      return res.status(500).json({ message: 'Échec de l\'opération.' });
   }
 };
 
