@@ -31,6 +31,11 @@ const Brand = sequelize.define('Brand', {
   bank_account_info: {
     type: DataTypes.STRING,
   },
+
+  // The following will represent the avg.
+  rating: {
+    type: DataTypes.FLOAT
+  }
   
 }, {
   tableName: 'brands',

@@ -16,7 +16,8 @@ const OrderBrandRoutes = require('./routes/OrderBrand');
 
 const PostRoutes = require('./routes/PostR');
 const LikePostRoutes = require('./routes/LikePostR');
-const DiscoveryRoutes =  require('./routes/DiscoveryR')
+const DiscoveryRoutes =  require('./routes/DiscoveryR');
+const RatingRoutes = require('./routes/RatingR');
 
 // End Added By Youssef
 
@@ -64,6 +65,7 @@ app.use('/api/checkout',checkoutRoutes)
 app.use('/api/posts', PostRoutes);
 app.use('/api/likePosts', LikePostRoutes);
 app.use('/api/discovery', DiscoveryRoutes);
+app.use('/api/ratings', RatingRoutes);
 
 // End Added By Youssef
 
