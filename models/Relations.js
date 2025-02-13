@@ -56,7 +56,7 @@ PostImage.hasMany(PostPosition, { foreignKey: 'post_image_id', onDelete: 'CASCAD
 PostPosition.belongsTo(PostImage, { foreignKey: 'post_image_id' });
 
 // Test
-PostPosition.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brand' });
+PostPosition.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brands' });
 Brand.hasMany(PostPosition, { foreignKey: 'brand_id', as: 'postPositions' });
 
 // Posts and Users
@@ -188,13 +188,12 @@ Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Crea
 
 // sequelize
 //   .sync({ 
-//     force: true,
-//     alter: true,
+    // alter: true,
 //   })
 //   .then(() => {
-//     console.log("Database tables updated successfully.");
+    // console.log("Database tables updated successfully.");
 //   })
 //   .catch((error) => {
-//     console.error("Error updating database tables:", error);
+//     // console.error("Error updating database tables:", error);
 //   });
 

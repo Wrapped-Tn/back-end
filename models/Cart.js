@@ -20,53 +20,53 @@ const Cart = sequelize.define('Cart', {
     },
     userId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: User,
-            key: 'id',
-        },
+     //   references: {
+        //    model: User,
+         //   key: 'id',
+      //  },
     },
     brandId:{
         type: DataTypes.INTEGER,
-        references:{
-            model:Brand,
-            key:'id'
-        }
+       // references:{
+        //    model:Brand,
+         //   key:'id'
+    //    }
     },
     postId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Post,
-            key: 'id',
-        },
+       // references: {
+        //    model: Post,
+        //    key: 'id',
+       // },
     },
 
     article_id: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Article,
-            key: 'id',
-        },
+       // references: {
+        //    model: Article,
+          //  key: 'id',
+     //   },
     },
     orderId: {
         type: DataTypes.INTEGER, 
-        references: { 
-            model: 'orders', 
-            key: 'id', 
-        },
-        allowNull: true, 
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
+       // references: { 
+         //   model: 'orders', 
+        //    key: 'id', 
+      //  },
+       // allowNull: true, 
+        //onDelete: "CASCADE",
+        //onUpdate: "CASCADE",
         },
         orderBrandId: {
-            type: DataTypes.INTEGER, 
-            references: { 
-                model: 'ordersbrands', 
-                key: 'id', 
+           type: DataTypes.INTEGER, 
+          //  references: { 
+            //    model: 'ordersbrands', 
+           //     key: 'id', 
             },
-            allowNull: true, 
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-            },
+            //allowNull: true, 
+            //onDelete: "CASCADE",
+           // onUpdate: "CASCADE",
+           // },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
