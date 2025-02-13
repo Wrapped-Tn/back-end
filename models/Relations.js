@@ -12,6 +12,8 @@ const SavePost = require('./SavePost');
 const Article = require('./Article');
 const Address = require('./Address');
 const Checkout = require('./Checkout');
+const Rating = require('./Rating');
+
 // End Added By Youssef
 
 // Causing issue
@@ -30,7 +32,6 @@ const Transaction = require ("./Transaction");
 const Grade = require('./Grade');
 const Brand= require("./Brand");
 const Cart =require('./Cart.js')
-const Rating=require('./Rating');
 const FashionistaTag=require('./FashionistaTag');
 const Invoice=require("./Invoice");
 // const Like = require('./Like');
@@ -81,6 +82,14 @@ Comment.belongsTo(Post, { foreignKey: 'post_id' });
 User.hasMany(Comment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 Comment.belongsTo(User, { foreignKey: 'user_id' });
 
+// Brand and Rating
+Brand.hasMany(Rating, { foreignKey: 'brandId' });
+Rating.belongsTo(Brand, { foreignKey: 'brandId', as: 'brand' });
+
+// User and Rating
+User.hasMany(Rating, { foreignKey: 'userId' });
+Rating.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 
 // End Added By Youssef
 
@@ -118,14 +127,6 @@ User.belongsTo(Grade, { foreignKey: 'grade_id', as: 'grade' });
 // Un utilisateur peut passer plusieurs commandes.// Une commande appartient à un utilisateur.
 User.hasMany(Order, { foreignKey: 'userId' });
 Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-
-// Un vendeur peut recevoir plusieurs évaluations.// Une évaluation appartient à un vendeur.
-Brand.hasMany(Rating, { foreignKey: 'sellerId' });
-Rating.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
-
-// Un utilisateur peut laisser plusieurs évaluations.// Une évaluation appartient à un utilisateur.
-User.hasMany(Rating, { foreignKey: 'userId' });
-Rating.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // Un vendeur peut avoir plusieurs tags sur ses articles.// Un tag appartient à un vendeur.
 Brand.hasMany(FashionistaTag, { foreignKey: 'sellerId' });

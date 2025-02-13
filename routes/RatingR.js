@@ -3,9 +3,8 @@ const RatingC = require("../controllers/RatingC")
 
 const router = express.Router();
 
-router.post("/rate", RatingC.rateBrand);
-router.get("/brand/:brandId", RatingC.getBrandRating);
-router.get("/user/:brandId", RatingC.getUserRating);
-router.delete("/delete/:brandId", RatingC.deleteRating);
+router.post("/rate/:userId", RatingC.updateBrandRate);
+router.get("/brandRate/:brandId", RatingC.getAverageRating);
+router.get("/userRate/:brandId/:userId", RatingC.getUserRating);
 
 module.exports = router;

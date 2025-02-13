@@ -31,6 +31,10 @@ const Rating = sequelize.define('Rating', {
         allowNull: false,
         validate: { min: 1, max: 5 }
     }
+
+}, {
+    timestamps: true,
+    tableName: "Ratings"
 });
 
 module.exports = Rating;
