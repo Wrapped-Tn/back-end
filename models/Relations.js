@@ -34,7 +34,7 @@ const Rating=require('./Rating');
 const FashionistaTag=require('./FashionistaTag');
 const Invoice=require("./Invoice");
 // const Like = require('./Like');
-const Auth=require('./Auth');
+const Auth = require('./Auth');
 const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 const OrderBrand = require('./OrderBrand.js');
@@ -43,9 +43,10 @@ const OrderBrand = require('./OrderBrand.js');
 // Brand.hasOne(Auth, { foreignKey: 'users_id' });
 // Auth.belongsTo(Brand, { foreignKey: 'users_id' });
 
-// // Relation avec User
-// User.hasOne(Auth, { foreignKey: 'users_id' });
-// Auth.belongsTo(User, { foreignKey: 'users_id' });
+// Currently testing
+// Auth and User
+User.hasOne(Auth, { foreignKey: 'users_id' });
+Auth.belongsTo(User, { foreignKey: 'users_id' });
 
 // Start Added By Youssef
 Post.hasMany(PostImage, { foreignKey: 'post_id', onDelete: 'CASCADE' });
@@ -182,6 +183,7 @@ Cart.belongsTo(Order, { foreignKey: 'orderId', as: 'order' }); // Create tables 
 
 OrderBrand.hasMany(Cart, { foreignKey: 'orderBrandId', onDelete: "CASCADE", onUpdate: "CASCADE" });
 Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Create tables in correct order
+
 // sequelize
 //   .sync({ 
 //     alter: true,

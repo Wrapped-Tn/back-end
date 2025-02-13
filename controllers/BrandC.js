@@ -311,8 +311,6 @@ const getTaggedPosts = async (req, res) => {
   }
 };
 
-
-
 // Fetch post by ID and include associated images and positions filtered by brand
 const getPostById = async (id, brand) => {
   try {

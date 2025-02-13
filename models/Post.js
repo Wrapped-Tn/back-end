@@ -3,7 +3,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
 
 const User = require('./User');
-const Article = require('./Article');
 
 const Post = sequelize.define('Post', {
     id: {
