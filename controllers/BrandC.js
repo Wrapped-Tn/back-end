@@ -115,46 +115,6 @@ const getAllBrands = async (req, res) => {
   }
 };
 
-// Mettre à jour un vendeur
-const updateBrand = async (req, res) => {
-  const { id } = req.params;
-  const { brand_name, logo_url, accountLevel, email, password } = req.body;
-
-  try {
-    const brand = await Brand.findByPk(id, {
-      include: { model: Auth },
-    });
-
-    if (!brand) {
-      return res.status(404).json({ error: 'Brand not found' });
-    }
-
-    // Mettre à jour les détails de la marque
-    brand.brand_name = brand_name || brand.brand_name;
-    brand.logo_url = logo_url || brand.logo_url;
-    brand.accountLevel = accountLevel || brand.accountLevel;
-    await brand.save();
-
-    // Mettre à jour les détails d'authentification
-    if (email || password) {
-      const auth = await Auth.findByPk(brand.auth_id);
-
-      if (email) auth.email = email;
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        auth.password = await bcrypt.hash(password, salt);
-      }
-
-      await auth.save();
-    }
-
-    res.status(200).json(brand);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update brand' });
-  }
-};
-
 // Supprimer un vendeur
 const deleteBrand = async (req, res) => {
   const { id } = req.params;
@@ -380,6 +340,47 @@ const approvePost = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to approve/reject post' });
+  }
+};
+
+// Mettre à jour un vendeur
+const updateBrand = async (req, res) => {
+  
+  const { id } = req.params;
+  const { brand_name, logo_url, accountLevel, email, password } = req.body;
+
+  try {
+    const brand = await Brand.findByPk(id, {
+      include: { model: Auth },
+    });
+
+    if (!brand) {
+      return res.status(404).json({ error: 'Brand not found' });
+    }
+
+    // Mettre à jour les détails de la marque
+    brand.brand_name = brand_name || brand.brand_name;
+    brand.logo_url = logo_url || brand.logo_url;
+    brand.accountLevel = accountLevel || brand.accountLevel;
+    await brand.save();
+
+    // Mettre à jour les détails d'authentification
+    if (email || password) {
+      const auth = await Auth.findByPk(brand.auth_id);
+
+      if (email) auth.email = email;
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        auth.password = await bcrypt.hash(password, salt);
+      }
+
+      await auth.save();
+    }
+
+    res.status(200).json(brand);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update brand' });
   }
 };
 

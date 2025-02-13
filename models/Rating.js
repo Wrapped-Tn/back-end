@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../config/config.js");
-const Brand = require ("./Brand.js")
-const User =require("./User.js")
+const sequelize = require("../config/config");
+const Brand = require ("./Brand")
+const User =require("./User")
 
 const Rating = sequelize.define('Rating', {
     id: {
@@ -9,6 +9,7 @@ const Rating = sequelize.define('Rating', {
         primaryKey: true,
         autoIncrement: true,
     },
+
     brandId: {
         type: DataTypes.INTEGER,
         references: {
@@ -16,6 +17,7 @@ const Rating = sequelize.define('Rating', {
             key: 'id',
           },  
     },
+
     userId: {
         type: DataTypes.INTEGER,
         references: {
@@ -23,8 +25,9 @@ const Rating = sequelize.define('Rating', {
             key: 'id',
           }, 
     },
+
     rating: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.INTEGER,
         allowNull: false,
         validate: { min: 1, max: 5 }
     }

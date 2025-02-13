@@ -39,9 +39,9 @@ const sequelize = require("../config/config.js");
 const { on } = require('nodemailer/lib/xoauth2/index.js');
 const OrderBrand = require('./OrderBrand.js');
 
-// Relation avec Brand
-// Brand.hasOne(Auth, { foreignKey: 'users_id' });
-// Auth.belongsTo(Brand, { foreignKey: 'users_id' });
+// Auth avec Brand
+Brand.hasOne(Auth, { foreignKey: 'users_id' });
+Auth.belongsTo(Brand, { foreignKey: 'users_id' });
 
 // Currently testing
 // Auth and User
@@ -83,10 +83,6 @@ Comment.belongsTo(User, { foreignKey: 'user_id' });
 
 
 // End Added By Youssef
-
-// User et Seller
-// User.hasOne(Brand, { foreignKey: 'user_id' });
-// Brand.belongsTo(User, { foreignKey: 'user_id' });
 
 // // Seller et Article
 // Brand.hasMany(Post, { foreignKey: 'brand_id' });
