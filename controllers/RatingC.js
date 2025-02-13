@@ -1,8 +1,6 @@
 const Rating = require('../models/Rating');
 
-const RatingC = {
-    // Create or update a rating
-    async rateBrand(req, res) {
+const updateBrandRate = async (req, res) => {
         try {
             const { brandId, rating } = req.body;
             const userId = req.user.id; // Assuming authentication middleware adds `req.user`
@@ -22,10 +20,9 @@ const RatingC = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },
+};
 
-    // Get average rating for a brand
-    async getBrandRating(req, res) {
+const getAverageRating = async (req, res) => {
         try {
             const { brandId } = req.params;
             const ratings = await Rating.findAll({ where: { brandId } });
@@ -39,10 +36,9 @@ const RatingC = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },
+};
 
-    // Get a user's rating for a brand
-    async getUserRating(req, res) {
+const getUserRating = async (req, res) => {
         try {
             const { brandId } = req.params;
             const userId = req.user.id; // Assuming authentication middleware
@@ -57,26 +53,10 @@ const RatingC = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },
-
-    // Delete a rating
-    async deleteRating(req, res) {
-        try {
-            const { brandId } = req.params;
-            const userId = req.user.id;
-
-            const rating = await Rating.findOne({ where: { userId, brandId } });
-
-            if (!rating) {
-                return res.status(404).json({ message: "Rating not found" });
-            }
-
-            await rating.destroy();
-            res.json({ message: "Rating deleted" });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
 };
 
-module.exports = RatingC;
+module.exports = {
+    updateBrandRate,
+    getAverageRating,
+    getUserRating
+};
