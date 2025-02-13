@@ -97,7 +97,23 @@ const getBrandById = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve brand' });
   }
 };
+// Lire les informations d'un utilisateur
+// const getUserById = async (req, res) => {
+//   const { id } = req.params;
 
+//   try {
+//     const user = await User.findByPk(id, {
+//       include: [{ model: Auth }],
+//     });
+//     if (user) {
+//       res.status(200).json(user);
+//     } else {
+//       res.status(404).json({ error: 'User not found' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to retrieve user' });
+//   }
+// };
 // Récupérer tous les vendeurs
 const getAllBrands = async (req, res) => {
   try {
@@ -385,6 +401,35 @@ const approvePost = async (req, res) => {
   }
 };
 
+const getBrandVisitorCart=async(req,res)=>{
+  try{
+    const {id}=req.params;
+    const auth= await Auth.findOne({
+      where:{role:"brand",users_id:id},
+      attributes:["profile_picture_url"]
+    })
+
+    if(!auth){
+      return res.status(404).json({error:"Brand not found"})
+    }
+    const brand=await Brand.findOne({where:{id:id}})
+    if(!brand){
+      return res.status(404).json({error:"Brand not found"})
+    }
+    res.status(200).json({
+        brand_name: brand.brand_name,
+        account_level: brand.accountLevel,
+        total_sales: brand.total_sales,
+        profile_picture_url: auth.profile_picture_url || '', // Photo de profil
+      });
+  }catch(e){
+    console.error(e);
+    res.status(500).json({error:"Failed to get brand visitor cart"})
+  }
+}
+
+
+
 module.exports = {
   createBrand,
   getBrandById,
@@ -396,4 +441,6 @@ module.exports = {
   getTaggedPosts,
   // getVerifiedTaggedPosts,
   approvePost,
+  getBrandVisitorCart
+  
 };

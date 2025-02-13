@@ -1,10 +1,101 @@
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const PostPosition = require('../models/PostPosition');
 const Article = require('../models/Article');
 const PostImage = require('../models/PostImage');
 const sequelize = require('../config/config');
+const Brand = require('../models/Brand');
+
+
+
+// const search = async (req, res) => {
+//     try {
+//         const query = req.query.q || '';
+//         const { category, size, brand_name, color, type_clothes, maxprice, minprice, occasion } = req.query;
+
+//         // Recherche des posts selon la condition 'occasion'
+//         const posts = await Post.findAll({
+//             attributes: ['id', 'occasion', 'description', 'createdAt'],
+//             where: { occasion: occasion ? occasion : { [Op.ne]: null } },
+//             include: [
+//                 {
+//                     model: PostImage,
+//                     as: 'PostImages', // Assurez-vous que cet alias est correct
+//                 }]
+//         });
+
+//         // Recherche des positions des posts
+//         const postPositions = await PostPosition.findAll({
+//             where: {
+//                 brand: brand_name,
+//                 category: type_clothes,
+//                 size: size,
+//             },
+//             attributes: ['brand', 'category', 'size', 'prix', 'verified'],
+//         });
+
+//         // Recherche des marques
+//         const brands = await Brand.findAll({
+//             where: brand_name ? { brand_name: brand_name } : {},
+//             attributes: ['brand_name'],
+//         });
+
+//         // Recherche des articles associés aux posts
+//         const articles = await Article.findAll({
+//             where: {
+//                 color: color,
+//                 post_id: posts.map(post => post.id),
+//                 type_clothes: type_clothes,
+//                 category: category,
+//             },
+//             attributes: ['color', 'category', 'taille_disponible', 'type_clothes'],
+//         });
+
+//         // Recherche des utilisateurs correspondant à la requête de recherche
+//         const users = await User.findAll({
+//             where: { full_name: { [Op.iLike]: `%${query}%` } },
+//             attributes: ["id", "full_name"],
+//         });
+
+//         // Formatage des posts
+//         const formattedPosts = posts.map(post => {
+//             const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
+
+//             return {
+//                 id: post.id,
+//                 description: post.description,
+//                 createdAt: post.createdAt,
+//                 occasion: occasion,
+//                 user: {
+//                     id_user: post.user?.id || null,
+//                     full_name: post.user?.full_name || 'Anonyme',
+//                 },
+//                 images: (post.PostImages || []).map(image => ({
+//                     id: image.id,
+//                     url: image.url,
+//                     positions: (image.PostPositions || []).map(position => ({
+//                         brand: position.brand,
+//                         category: position.category,
+//                         size: position.size,
+//                         prix: position.prix,
+//                         verified: position.verified,
+//                     }))
+//                 })),
+//                 // On ajoute les données de position
+//                 positions: postPositions.filter(position => position.post_id === post.id),
+//             };
+//         });
+
+//         // Réponse JSON formatée
+//         res.status(200).json({ success: true, data: formattedPosts });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ success: false, message: 'Internal server error' });
+//     }
+// };
+
+// module.exports = search;
 
 const search = async (req, res) => {
     try {

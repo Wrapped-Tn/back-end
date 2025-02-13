@@ -71,72 +71,56 @@ const deleteFilter = async (req, res) => {
   }
 };
 
-
 const getItemsFilter = async (req, res) => {
   try {
     const posts = await Post.findAll({
       attributes: ['occasion'],
-      include: [{
-        model: PostImage,
-        required: false,
-        include: [{
-          model: PostPosition,
-          attributes: ['brand', 'category', 'size'],
-          required: false
-        }]
-      }]
+    });
+
+    const postPos = await PostPosition.findAll({
+      attributes: ['brand', 'category', 'size'],
+    });
+
+    const brands = await Brand.findAll({
+      attributes: ['brand_name'],
     });
 
     const articles = await Article.findAll({
       attributes: ['color', 'category', 'taille_disponible', 'type_clothes']
     });
 
-    const brands = await Brand.findAll({
-      attributes: ['brand_name', 'id']
-    });
+    // Fonction pour supprimer les doublons et valeurs nulles
+    const uniqueValues = (arr) => [...new Set(arr.filter(Boolean))];
 
-    if (!posts.length && !articles.length && !brands.length) {
-      return res.status(404).json({ error: "Filter not found" });
-    }
+    // Extraction et nettoyage des données
+    const occasions = uniqueValues(posts.flatMap(post => post.occasion || []));
 
-    // Suppression des doublons et mise à plat des données
-    const occasions = [...new Set(posts.map(post => post?.occasion).filter(Boolean))];
+    const colors = uniqueValues(articles.flatMap(article => article.color || []));
 
-    const colors = [...new Set(articles.flatMap(article => article?.color || []).filter(Boolean))];
+    const sizes = uniqueValues([
+      ...articles.flatMap(article => article.taille_disponible?.split(',').map(s => s.trim().toUpperCase()) || []),
+      ...postPos.flatMap(pos => pos.size?.split(',').map(s => s.trim().toUpperCase()) || [])
+    ]);
 
-    const genders = [...new Set(articles.map(article => article?.category).filter(Boolean))];
+    const clothesTypes = uniqueValues([
+      ...articles.map(article => article.type_clothes),
+      ...postPos.map(pos => pos.category)
+    ]);
 
-    const clothesTypes = [...new Set([
-      ...articles.map(article => article?.type_clothes).filter(Boolean),
-      ...posts.flatMap(post =>
-        (post.PostImages || []).flatMap(img => img?.PostPosition?.category).filter(Boolean)
-      )
-    ])];
+    const genders = uniqueValues(articles.map(article => article.category));
 
-    // Normalisation des tailles
-    const sizes = [...new Set(
-      articles.flatMap(article => article?.taille_disponible?.split(',').map(s => s.trim().toUpperCase()) || [])
-      .concat(posts.flatMap(post =>
-        (post.PostImages || []).flatMap(img => img?.PostPosition?.size?.split(',').map(s => s.trim().toUpperCase()) || [])
-      ))
-    )];
-
-    const itemBrands = [...new Set(
-      posts.flatMap(post =>
-        (post.PostImages || []).flatMap(img => img?.PostPosition?.brand).filter(Boolean)
-      )
-    )];
-
-    const registeredBrands = brands.map(brand => brand.brand_name);
+    const itemBrands = uniqueValues([
+      ...brands.map(brand => brand.brand_name),
+      ...postPos.map(pos => pos.brand?.trim()) // Suppression des espaces inutiles
+    ]);
 
     res.status(200).json({
       occasions,
       colors,
-      genders,
-      clothesTypes,
       sizes,
-      itemBrands,
-      registeredBrands
+      clothesTypes,
+      genders,
+      itemBrands
     });
 
   } catch (error) {
@@ -145,6 +129,104 @@ const getItemsFilter = async (req, res) => {
   }
 };
 
+// const getItemsFilter = async (req, res) => {
+//   try {
+
+//     const posts=await Post.findAll({
+//       attributes: ['occasion'],
+//     })
+//     const postPos=await PostPosition({
+//       attributes: ['brand', 'category', 'size'],
+//     })
+//      const brands = await Brand.findAll({
+//       attributes: ['brand_name', 'id']
+//     });
+//     const articles = await Article.findAll({
+//       attributes: ['color', 'category', 'taille_disponible', 'type_clothes']
+//     });
+
+//     const occasions=posts
+//     // const colors=
+//     // const genders=
+//     // const clothesTypes=
+//     // const sizes=
+//     // const itemBrands=
+//     // const registeredBrands=
+
+
+
+
+//     // const posts = await Post.findAll({
+//     //   attributes: ['occasion'],
+//     //   include: [{
+//     //     model: PostImage,
+//     //     required: false,
+//     //     include: [{
+//     //       model: PostPosition,
+//     //       attributes: ['brand', 'category', 'size'],
+//     //       required: false
+//     //     }]
+//     //   }]
+//     // });
+
+//     // const articles = await Article.findAll({
+//     //   attributes: ['color', 'category', 'taille_disponible', 'type_clothes']
+//     // });
+
+//     // const brands = await Brand.findAll({
+//     //   attributes: ['brand_name', 'id']
+//     // });
+
+//     // if (!posts.length && !articles.length && !brands.length) {
+//     //   return res.status(404).json({ error: "Filter not found" });
+//     // }
+
+//     // // Suppression des doublons et nettoyage des valeurs nulles
+//     // const uniqueValues = (arr) => [...new Set(arr.filter(Boolean))];
+
+//     // const occasions = uniqueValues(posts.map(post => post.occasion));
+
+//     // const colors = uniqueValues(articles.flatMap(article => article.color || []));
+
+//     // const genders = uniqueValues(articles.map(article => article.category));
+
+//     // const clothesTypes = uniqueValues([
+//     //   ...articles.map(article => article.type_clothes),
+//     //   ...posts.flatMap(post =>
+//     //     (post.PostImages || []).flatMap(img => img.PostPosition?.category)
+//     //   )
+//     // ]);
+
+//     // const sizes = uniqueValues([
+//     //   ...articles.flatMap(article => article.taille_disponible?.split(',').map(s => s.trim().toUpperCase()) || []),
+//     //   ...posts.flatMap(post =>
+//     //     (post.PostImages || []).flatMap(img => img.PostPosition?.size?.split(',').map(s => s.trim().toUpperCase()) || [])
+//     //   )
+//     // ]);
+
+//     // const itemBrands = uniqueValues(
+//     //   posts.flatMap(post =>
+//     //     (post.PostImages || []).flatMap(img => img.PostPosition?.brand)
+//     //   )
+//     // );
+
+//     // const registeredBrands = brands.map(brand => brand.brand_name);
+
+//     res.status(200).json({
+//       occasions,
+//       colors,
+//       genders,
+//       clothesTypes,
+//       sizes,
+//       itemBrands,
+//       registeredBrands
+//     });
+
+//   } catch (error) {
+//     console.error("Erreur lors de la récupération des filtres :", error);
+//     res.status(500).json({ error: "Erreur lors de la récupération des filtres." });
+//   }
+// };
 
 
 module.exports = {
