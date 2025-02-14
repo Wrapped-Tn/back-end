@@ -60,6 +60,10 @@ const Post = sequelize.define('Post', {
         defaultValue: DataTypes.NOW,
     },
 
+    verified: {
+        type: DataTypes.BOOLEAN
+    },
+
     updatedAt: {
         type: DataTypes.DATE,
         allowNull: true,
