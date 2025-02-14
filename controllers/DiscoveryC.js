@@ -9,57 +9,172 @@ const Brand = require('../models/Brand');
 
 
 
+const search = async (req, res) => {
+    try {
+      const query = req.query.q || '';
+      const {
+        category,
+        size,
+        brand_name,
+        color,
+        type_clothes,
+        maxprice,
+        minprice,
+        occasion
+      } = req.query;
+  
+      const whereClause = {
+        description: { [Op.like]: `%${query}%` }
+      };
+  
+      if (occasion) {
+        whereClause[Op.and] = [
+          sequelize.literal(`JSON_CONTAINS(occasion, '["${occasion}"]')`)
+        ];
+      }
+ 
+      const positionWhere = {};
+              if (size) positionWhere.size = { [Op.like]: `%${size}%` };
+              if (type_clothes) positionWhere.category = { [Op.like]: `%${type_clothes}%` };
+              if (minprice) positionWhere.prix = { [Op.gte]: parseFloat(minprice) };
+              if (maxprice) positionWhere.prix = { ...(positionWhere.prix || {}), [Op.lte]: parseFloat(maxprice) };
+
+      const postSearch = await Post.findAll({
+        where: whereClause,
+        attributes: ['id', 'description', 'occasion', 'createdAt'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id']
+          },
+          {
+            model: PostImage,
+            as: 'PostImages',
+            attributes: ['id', 'url'],
+            required: true,  // Ajout ici pour exclure les posts sans correspondance
+
+            include: [{
+              model: PostPosition,
+              as: 'PostPositions',
+              attributes: ['category', 'size', 'prix', 'verified'],
+              where:positionWhere,
+              required: true,  // Ajout ici pour exclure les posts sans correspondance
+
+            }]
+          },
+        ],
+      });
+  
+      const formattedPosts = postSearch.map(post => ({
+        id: post.id,
+        description: post.description,
+        createdAt: post.createdAt,
+        occasion: post.occasion && Array.isArray(post.occasion) ? post.occasion : [],
+        user: {
+          id_user: post.user?.id || null,
+        },
+        images: (post.PostImages || []).map(image => ({
+          id: image.id,
+          url: image.url,
+          positions: (image.PostPositions || []).map(position => ({
+            brand: position.brand,
+            category: position.category,
+            size: position.size,
+            prix: position.prix,
+            verified: position.verified
+          }))
+        }))
+      }));
+  
+      res.status(200).json({
+        posts: formattedPosts,
+        total: postSearch.length,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+  };
+
+
 // const search = async (req, res) => {
 //     try {
 //         const query = req.query.q || '';
 //         const { category, size, brand_name, color, type_clothes, maxprice, minprice, occasion } = req.query;
 
-//         // Recherche des posts selon la condition 'occasion'
-//         const posts = await Post.findAll({
-//             attributes: ['id', 'occasion', 'description', 'createdAt'],
-//             where: { occasion: occasion ? occasion : { [Op.ne]: null } },
+//         // Base WHERE clause for Post
+//         const whereClause = {
+//             [Op.or]: [
+//                 { description: { [Op.like]: `%${query}%` } },
+//                 sequelize.where(
+//                     sequelize.json('occasion'),
+//                     sequelize.literal('JSON_CONTAINS(occasion, \'["' + occasion + '"]\')')
+//                 )
+//             ]
+//         };
+
+//         // Filtres dynamiques pour PostPosition
+//         const positionWhere = {};
+//         if (category) positionWhere.category = category;
+//         if (size) positionWhere.size = { [Op.like]: `%${size}%` };
+//         if (type_clothes) positionWhere.category = { [Op.like]: `%${type_clothes}%` };
+//         if (minprice) positionWhere.prix = { [Op.gte]: parseFloat(minprice) };
+//         if (maxprice) positionWhere.prix = { ...(positionWhere.prix || {}), [Op.lte]: parseFloat(maxprice) };
+
+//         // Filtres dynamiques pour Article
+//         const articleWhere = {};
+//         if (color) articleWhere.color = { [Op.substring]: color };
+//         if (type_clothes) articleWhere.type_clothes = { [Op.like]: `%${type_clothes}%` };
+//         if (size) articleWhere.taille_disponible = { [Op.substring]: size };
+//         if (minprice) articleWhere.price = { [Op.gte]: parseFloat(minprice) };
+//         if (maxprice) articleWhere.price = { ...(articleWhere.price || {}), [Op.lte]: parseFloat(maxprice) };
+
+//         // Formater la clause de recherche (si aucun filtre n'est présent, récupérer tous les posts)
+//         const finalWhereClause = {
+//             ...whereClause,
+//             ...(category || size || brand_name || color || type_clothes || minprice || maxprice || occasion
+//                 ? {} // Apply dynamic filters if any filter is present
+//                 : {}) // Return all posts if no filter is applied
+//         };
+
+//         // Récupérer les posts avec les associations valides
+//         const postSearch = await Post.findAll({
+//             where: finalWhereClause,
+//             attributes: ['id', 'description', 'occasion', 'createdAt'],
 //             include: [
 //                 {
+//                     model: User,
+//                     as: 'user',
+//                     attributes: ['id']
+//                 },
+//                 {
 //                     model: PostImage,
-//                     as: 'PostImages', // Assurez-vous que cet alias est correct
-//                 }]
+//                     as: 'PostImages',
+//                     attributes: ['id', 'url'],
+//                     include: [
+//                         {
+//                             model: PostPosition,
+//                             as: 'PostPositions',
+//                             attributes: ['category', 'size', 'prix', 'verified'],
+//                             where: positionWhere
+//                         }
+//                     ]
+//                 },
+//                 {
+//                     model: Article,
+//                     as: 'articles',
+//                     attributes: ['id', 'color', 'type_clothes', 'taille_disponible', 'price'],
+//                     where: articleWhere
+//                 }
+//             ]
 //         });
 
-//         // Recherche des positions des posts
-//         const postPositions = await PostPosition.findAll({
-//             where: {
-//                 brand: brand_name,
-//                 category: type_clothes,
-//                 size: size,
-//             },
-//             attributes: ['brand', 'category', 'size', 'prix', 'verified'],
-//         });
+//         // Vérifier combien de posts sont trouvés
+//         console.log('Post search results:', postSearch.length);
 
-//         // Recherche des marques
-//         const brands = await Brand.findAll({
-//             where: brand_name ? { brand_name: brand_name } : {},
-//             attributes: ['brand_name'],
-//         });
-
-//         // Recherche des articles associés aux posts
-//         const articles = await Article.findAll({
-//             where: {
-//                 color: color,
-//                 post_id: posts.map(post => post.id),
-//                 type_clothes: type_clothes,
-//                 category: category,
-//             },
-//             attributes: ['color', 'category', 'taille_disponible', 'type_clothes'],
-//         });
-
-//         // Recherche des utilisateurs correspondant à la requête de recherche
-//         const users = await User.findAll({
-//             where: { full_name: { [Op.iLike]: `%${query}%` } },
-//             attributes: ["id", "full_name"],
-//         });
-
-//         // Formatage des posts
-//         const formattedPosts = posts.map(post => {
+//         // Formater les résultats
+//         const formattedPosts = postSearch.map(post => {
 //             const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
 
 //             return {
@@ -69,7 +184,6 @@ const Brand = require('../models/Brand');
 //                 occasion: occasion,
 //                 user: {
 //                     id_user: post.user?.id || null,
-//                     full_name: post.user?.full_name || 'Anonyme',
 //                 },
 //                 images: (post.PostImages || []).map(image => ({
 //                     id: image.id,
@@ -79,131 +193,18 @@ const Brand = require('../models/Brand');
 //                         category: position.category,
 //                         size: position.size,
 //                         prix: position.prix,
-//                         verified: position.verified,
+//                         verified: position.verified
 //                     }))
-//                 })),
-//                 // On ajoute les données de position
-//                 positions: postPositions.filter(position => position.post_id === post.id),
+//                 }))
 //             };
 //         });
 
-//         // Réponse JSON formatée
-//         res.status(200).json({ success: true, data: formattedPosts });
+//         res.status(200).json(formattedPosts);
 //     } catch (error) {
 //         console.error(error);
-//         res.status(500).json({ success: false, message: 'Internal server error' });
+//         res.status(500).json({ message: 'Internal server error' });
 //     }
 // };
-
-// module.exports = search;
-
-const search = async (req, res) => {
-    try {
-        const query = req.query.q || '';
-        const { category, size, brand_name, color, type_clothes, maxprice, minprice, occasion } = req.query;
-
-        // Base WHERE clause for Post
-        const whereClause = {
-            [Op.or]: [
-                { description: { [Op.like]: `%${query}%` } },
-                sequelize.where(
-                    sequelize.json('occasion'),
-                    sequelize.literal('JSON_CONTAINS(occasion, \'["' + occasion + '"]\')')
-                )
-            ]
-        };
-
-        // Filtres dynamiques pour PostPosition
-        const positionWhere = {};
-        if (category) positionWhere.category = category;
-        if (size) positionWhere.size = { [Op.like]: `%${size}%` };
-        if (type_clothes) positionWhere.category = { [Op.like]: `%${type_clothes}%` };
-        if (minprice) positionWhere.prix = { [Op.gte]: parseFloat(minprice) };
-        if (maxprice) positionWhere.prix = { ...(positionWhere.prix || {}), [Op.lte]: parseFloat(maxprice) };
-
-        // Filtres dynamiques pour Article
-        const articleWhere = {};
-        if (color) articleWhere.color = { [Op.substring]: color };
-        if (type_clothes) articleWhere.type_clothes = { [Op.like]: `%${type_clothes}%` };
-        if (size) articleWhere.taille_disponible = { [Op.substring]: size };
-        if (minprice) articleWhere.price = { [Op.gte]: parseFloat(minprice) };
-        if (maxprice) articleWhere.price = { ...(articleWhere.price || {}), [Op.lte]: parseFloat(maxprice) };
-
-        // Formater la clause de recherche (si aucun filtre n'est présent, récupérer tous les posts)
-        const finalWhereClause = {
-            ...whereClause,
-            ...(category || size || brand_name || color || type_clothes || minprice || maxprice || occasion
-                ? {} // Apply dynamic filters if any filter is present
-                : {}) // Return all posts if no filter is applied
-        };
-
-        // Récupérer les posts avec les associations valides
-        const postSearch = await Post.findAll({
-            where: finalWhereClause,
-            attributes: ['id', 'description', 'occasion', 'createdAt'],
-            include: [
-                {
-                    model: User,
-                    as: 'user',
-                    attributes: ['id']
-                },
-                {
-                    model: PostImage,
-                    as: 'PostImages',
-                    attributes: ['id', 'url'],
-                    include: [
-                        {
-                            model: PostPosition,
-                            as: 'PostPositions',
-                            attributes: ['category', 'size', 'prix', 'verified'],
-                            where: positionWhere
-                        }
-                    ]
-                },
-                {
-                    model: Article,
-                    as: 'articles',
-                    attributes: ['id', 'color', 'type_clothes', 'taille_disponible', 'price'],
-                    where: articleWhere
-                }
-            ]
-        });
-
-        // Vérifier combien de posts sont trouvés
-        console.log('Post search results:', postSearch.length);
-
-        // Formater les résultats
-        const formattedPosts = postSearch.map(post => {
-            const occasion = post.occasion && Array.isArray(post.occasion) ? post.occasion : [];
-
-            return {
-                id: post.id,
-                description: post.description,
-                createdAt: post.createdAt,
-                occasion: occasion,
-                user: {
-                    id_user: post.user?.id || null,
-                },
-                images: (post.PostImages || []).map(image => ({
-                    id: image.id,
-                    url: image.url,
-                    positions: (image.PostPositions || []).map(position => ({
-                        brand: position.brand,
-                        category: position.category,
-                        size: position.size,
-                        prix: position.prix,
-                        verified: position.verified
-                    }))
-                }))
-            };
-        });
-
-        res.status(200).json(formattedPosts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
 
 const suggestions =async(req,res)=>{
     try{
