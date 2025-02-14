@@ -14,10 +14,12 @@ const Cart = sequelize.define('Cart', {
         primaryKey: true,
         autoIncrement: true,
     },
+
     posterId:{
         type: DataTypes.INTEGER,
         allowNull:false
     },
+
     userId: {
         type: DataTypes.INTEGER,
         references: {
@@ -25,6 +27,7 @@ const Cart = sequelize.define('Cart', {
             key: 'id',
         },
     },
+
     brandId:{
         type: DataTypes.INTEGER,
         references:{
@@ -32,6 +35,7 @@ const Cart = sequelize.define('Cart', {
             key:'id'
         }
     },
+
     postId: {
         type: DataTypes.INTEGER,
         references: {
@@ -47,6 +51,7 @@ const Cart = sequelize.define('Cart', {
             key: 'id',
         },
     },
+
     orderId: {
         type: DataTypes.INTEGER, 
         references: { 
@@ -57,21 +62,24 @@ const Cart = sequelize.define('Cart', {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
         },
-        orderBrandId: {
-            type: DataTypes.INTEGER, 
-            references: { 
-                model: 'ordersbrands', 
-                key: 'id', 
-            },
-            allowNull: true, 
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-            },
+
+    orderBrandId: {
+        type: DataTypes.INTEGER, 
+        references: { 
+            model: 'ordersbrands', 
+            key: 'id', 
+        },
+        allowNull: true, 
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    },
+
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
     },
+
     totalPrice: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -81,14 +89,17 @@ const Cart = sequelize.define('Cart', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+
     size:{
         type: DataTypes.STRING,
         allowNull: false,
     },
+
     category:{
         type: DataTypes.STRING,
         allowNull: false,
     },
+    
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

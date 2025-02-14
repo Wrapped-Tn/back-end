@@ -1,5 +1,6 @@
 Issues:
 PostC: Currently it  just del the image but not the post.
+To verify all the relations between tabs.
 
 Updates:
 Update the auto db creation to verify creating before creating so no more need to comment the code after execution.

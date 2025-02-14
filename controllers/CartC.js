@@ -77,7 +77,6 @@ const addToCart = async (req, res) => {
     }
 };
 
-
 const deleteCart = async (req, res) => {
     try {
         const cartId = req.params.cartId;
@@ -86,17 +85,14 @@ const deleteCart = async (req, res) => {
             return res.status(400).json({ message: "Cart ID is required" });
         }
 
-        // Find the cart
+        // Find the cart by its ID
         const cart = await Cart.findByPk(cartId);
         if (!cart) {
             return res.status(404).json({ message: "Cart not found" });
         }
 
-        // Delete associated cart items first
-        await Cart.destroy({ where: { cartId: cart.id } });
-
         // Delete associated order(s)
-        await Order.destroy({ where: { cartId: cart.id } });
+        await Order.destroy({ where: { id: cart.orderId } });
 
         // Delete the cart itself
         await Cart.destroy({ where: { id: cart.id } });

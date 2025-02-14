@@ -1,5 +1,6 @@
 const Article = require('../models/Article');
-const Brand =require('../models/Brand')
+const Brand =require('../models/Brand');
+
 const createArticle = async (req, res) => {
     try {
         // Récupération des données depuis le corps de la requête
@@ -29,6 +30,7 @@ const createArticle = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
+
 const getByPostId = async (req, res) => {
     try {
         const { post_id } = req.params;
@@ -71,6 +73,7 @@ const getByPostId = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
+
 const getMinMaxPrice = async (req, res) => {
     try {
         // Trouver le prix minimum et maximum parmi les articles
@@ -88,4 +91,27 @@ const getMinMaxPrice = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
-module.exports = { createArticle,getByPostId,getMinMaxPrice  };
+
+// Added By Youssef
+const deleteArticle = async (req, res) => {
+
+    const { id } = req.params;
+
+    try {
+        
+        const deleteArticle = await Article.destroy({ where: { id } });
+
+        if (!deleteArticle) {
+            res.status(401).json({ message: "Article non trouvé" });
+        }
+
+        res.status(200).json({ message: "Article supprimé avec succès" });
+
+    } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+        res.status(500).json({ error: "Échec de la suppression de l'article" });
+    }
+};
+// End Added By Youssef
+
+module.exports = { createArticle, getByPostId, getMinMaxPrice, deleteArticle };
