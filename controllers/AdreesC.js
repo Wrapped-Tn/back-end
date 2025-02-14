@@ -73,6 +73,7 @@ const deleteAddress = async (req, res) => {
     res.status(500).json({ error: 'Échec de la suppression de l\'adresse' });
   }
 };
+
 // Mettre à jour le statut d'une adresse pour un utilisateur spécifique
 const updateAddressStatus = async (req, res) => {
     const { id } = req.params;  // ID de l'adresse à mettre à jour
@@ -112,9 +113,9 @@ const updateAddressStatus = async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: 'Échec de la mise à jour du statut de l\'adresse' });
     }
-  };
+};
   
-  // Obtenir une adresse où le statut est true pour un userId spécifique
+// Obtenir une adresse où le statut est true pour un userId spécifique
 const getAddressByStatusTrueAndUserId = async (req, res) => {
     const { userId } = req.params;  // Récupérer userId à partir des paramètres
   
@@ -130,8 +131,7 @@ const getAddressByStatusTrueAndUserId = async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: 'Échec de la récupération de l\'adresse' });
     }
-  };
-  
+};
   
 module.exports = {
   createAddress,
