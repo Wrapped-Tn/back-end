@@ -61,7 +61,8 @@ const Post = sequelize.define('Post', {
     },
 
     verified: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
 
     updatedAt: {

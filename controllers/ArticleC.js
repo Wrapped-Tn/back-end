@@ -1,5 +1,6 @@
 const Article = require('../models/Article');
 const Brand =require('../models/Brand');
+const Post = require('../models/Post');
 
 const createArticle = async (req, res) => {
     try {
@@ -94,18 +95,31 @@ const getMinMaxPrice = async (req, res) => {
 
 // Added By Youssef
 const deleteArticle = async (req, res) => {
-
-    const { id } = req.params;
+    const { id } = req.params; // Get article ID from request params
 
     try {
-        
-        const deleteArticle = await Article.destroy({ where: { id } });
+        // Find the article first
+        const article = await Article.findOne({ where: { id } });
 
-        if (!deleteArticle) {
-            res.status(401).json({ message: "Article non trouvé" });
+        if (!article) {
+            return res.status(404).json({ message: "Article non trouvé" });
         }
 
-        res.status(200).json({ message: "Article supprimé avec succès" });
+        // Extract the associated post ID
+        const postId = article.post_id;
+
+        // Delete the article
+        await Article.destroy({ where: { id } });
+
+        // If the article has an associated post, update the post
+        if (postId) {
+            await Post.update(
+                { verified: false }, 
+                { where: { id: postId } }
+            );
+        }
+
+        res.status(200).json({ message: "Article supprimé avec succès et post dévalidé." });
 
     } catch (error) {
         console.error("Erreur lors de la suppression :", error);
