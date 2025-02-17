@@ -3,7 +3,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
 
 const User = require('./User');
-const Article = require('./Article');
 
 const Post = sequelize.define('Post', {
     id: {
@@ -59,6 +58,11 @@ const Post = sequelize.define('Post', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
+    },
+
+    verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
 
     updatedAt: {

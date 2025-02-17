@@ -18,6 +18,7 @@ const Order = sequelize.define('Order', {
             key: 'id',
         },
     },
+
     adressId: {
         type: DataTypes.INTEGER,
         references: {
@@ -25,6 +26,7 @@ const Order = sequelize.define('Order', {
             key: 'id',
         },
     },
+    
     totalPrice: {
         type: DataTypes.FLOAT,
         allowNull: false,

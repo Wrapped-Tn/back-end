@@ -37,6 +37,7 @@ const Address = sequelize.define('address', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    
     status: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

@@ -312,6 +312,7 @@ const WhatsHotPosts = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
 };
+
 const verifyPostPosition = async (req, res) => {
     try {
         const { postPositionId } = req.params; 
@@ -358,6 +359,7 @@ const updatePostPositionPrice = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la mise à jour du prix.' });
     }
 };
+
 const getUserPostImages = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -390,6 +392,7 @@ const getUserPostImages = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve post images.' });
     }
 };
+
 const getDiscrovePosts=async(req,res)=>{
     try {
         // Récupérer tous les posts avec leurs relations
@@ -503,8 +506,6 @@ const getTopPostByUser = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la récupération du top post.' });
     }
 };
-
-
 module.exports = {
     addPost,
     getUserPosts,

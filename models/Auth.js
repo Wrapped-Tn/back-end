@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
+const { tableName } = require('./LikePost.js');
 
 const Auth = sequelize.define('Auth', {
   id: {
@@ -7,6 +8,7 @@ const Auth = sequelize.define('Auth', {
     primaryKey: true,
     autoIncrement: true,
   },
+  
   email: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -14,45 +16,60 @@ const Auth = sequelize.define('Auth', {
       isEmail: true,
     },
   },
+
   password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
+
   social_login: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+
   social_platform: {
     type: DataTypes.STRING,
     allowNull: true,
   },
+
   creation_date: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+
   last_login: {
     type: DataTypes.DATE,
     allowNull: true,
   },
+
   phone_number: {
     type: DataTypes.STRING,
     validate: {
       is: /^[0-9]{8}$/,
     },
   },
+
   profile_picture_url: {
     type: DataTypes.STRING,
     allowNull: false,
   },
+
   region: {
     type: DataTypes.STRING,
   },
+
    role: {
     type: DataTypes.ENUM('brand', 'user'),
   },
+
   users_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   }
+  
+}, {
+  tableName: 'Auths',
+  timestamps: true,
 });
+
 module.exports = Auth;

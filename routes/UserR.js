@@ -1,5 +1,7 @@
 const express = require('express');
+
 const {
+
   createUserWithGrade,
   getUserById,
   updateUser,
@@ -12,7 +14,8 @@ const {
   getUserProfile,
   getSomeOnePosts,
   getSomeOneInfo
-} = require('../controllers/UserC.js');
+  
+} = require('../controllers/UserC');
 
 const router = express.Router();
 //api/users

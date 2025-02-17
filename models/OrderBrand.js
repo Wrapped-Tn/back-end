@@ -35,7 +35,7 @@ const OrderBrand = sequelize.define('OrderBrand', {
 
 }, {
     timestamps: true,
-    tableName: "ordersbrands"}
-);
+    tableName: "ordersbrands"
+});
 
 module.exports = OrderBrand;
