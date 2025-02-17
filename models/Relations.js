@@ -119,8 +119,8 @@ User.belongsTo(Grade, { foreignKey: 'grade_id', as: 'grade' });
 // Order.belongsTo(Brand, { foreignKey: 'sellerId', as: 'Brand' });
 
 // Un utilisateur peut passer plusieurs commandes.// Une commande appartient à un utilisateur.
-User.hasMany(Order, { foreignKey: 'userId' });
-Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+// User.hasMany(Order, { foreignKey: 'userId' });
+// Order.belongsTo(User, { foreignKey: 'userId', as: 'Users' });
 
 // Un vendeur peut recevoir plusieurs évaluations.// Une évaluation appartient à un vendeur.
 Brand.hasMany(Rating, { foreignKey: 'sellerId' });

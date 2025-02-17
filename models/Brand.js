@@ -31,7 +31,9 @@ const Brand = sequelize.define('Brand', {
   bank_account_info: {
     type: DataTypes.STRING,
   },
-  
+  rating: {
+    type: DataTypes.FLOAT
+  }
 }, {
   tableName: 'brands',
   timestamps: true

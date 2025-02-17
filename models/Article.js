@@ -26,7 +26,7 @@ const Article = sequelize.define('article', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'posts',  // Assure-toi que la table `posts` existe et est bien définie
+            model: 'Posts',  // Assure-toi que la table `posts` existe et est bien définie
             key: 'id',
         },
         onDelete: 'CASCADE', 
