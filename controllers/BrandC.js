@@ -399,7 +399,7 @@ const updateBrand = async (req, res) => {
     res.status(500).json({ error: 'Failed to update brand' });
   }
 };
-=======
+
 const getBrandVisitorCart=async(req,res)=>{
   try{
     const {id}=req.params;

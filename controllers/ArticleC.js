@@ -74,16 +74,7 @@ const getByPostId = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
-const getMinMaxPrice = async (req, res) => {
-    try {
-        // Trouver le prix minimum et maximum parmi les articles
-        const minPrice = await Article.min('price');
-        const maxPrice = await Article.max('price');
 
-        // Vérification si des prix ont été trouvés
-        if (minPrice === null || maxPrice === null) {
-            return res.status(404).json({ message: "Aucun article trouvé." });
-        }
 const getMinMaxPrice = async (req, res) => {
     try {
         // Trouver le prix minimum et maximum parmi les articles
