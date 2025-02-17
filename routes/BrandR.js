@@ -23,6 +23,8 @@ router.delete('/:id', BrandC.deleteBrand);
 // Récupérer le panier d'une marque
 router.post('/BrandCart', BrandC.getBrandCart);
 
+router.get('/BrandVisitorCart/:id', BrandC.getBrandVisitorCart);
+
 // Récupérer les posts où la marque a été taguée
 router.get('/taggedPosts/:brand_id', BrandC.getTaggedPosts); 
 

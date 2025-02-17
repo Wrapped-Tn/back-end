@@ -24,7 +24,14 @@ const Article = sequelize.define('article', {
 
     // Updated by removing the ref
     post_id: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Posts',  // Assure-toi que la table `posts` existe et est bien définie
+            key: 'id',
+        },
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE',
     },
 
     color: {

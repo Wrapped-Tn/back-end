@@ -452,8 +452,7 @@ const getDiscrovePosts=async(req,res)=>{
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
-};
-
+}
 const getTopPostByUser = async (req, res) => {
     try {
         const { userId } = req.params; // ID de l'utilisateur
@@ -507,7 +506,6 @@ const getTopPostByUser = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la récupération du top post.' });
     }
 };
-
 module.exports = {
     addPost,
     getUserPosts,
