@@ -71,7 +71,7 @@ const Article = sequelize.define('article', {
     },
 
 }, {
-    tableName: 'Articles',
+    tableName: 'articles',
     timestamps: true
 });
 
