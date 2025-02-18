@@ -182,13 +182,13 @@ Cart.belongsTo(Order, { foreignKey: 'orderId', as: 'order' }); // Create tables 
 
 OrderBrand.hasMany(Cart, { foreignKey: 'orderBrandId', onDelete: "CASCADE", onUpdate: "CASCADE" });
 Cart.belongsTo(Order, { foreignKey: 'orderBrandId', as: 'orderbrand' }); // Create tables in correct order
-sequelize
-  .sync({ 
-    alter: true,
-  })
-  .then(() => {
-    console.log("Database tables updated successfully.");
-  })
-  .catch((error) => {
-    console.error("Error updating database tables:", error);
-  });
+// sequelize
+//   .sync({ 
+//     alter: true,
+//   })
+//   .then(() => {
+//     console.log("Database tables updated successfully.");
+//   })
+//   .catch((error) => {
+//     console.error("Error updating database tables:", error);
+//   });
