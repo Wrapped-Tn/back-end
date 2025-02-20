@@ -15,21 +15,23 @@ const updateBrandRate = async (req, res) => {
         const { userId } = req.params;
         const { brandId, rating } = req.body;
 
-        // Check if the user already rated this brand
-        let existingRating = await Rating.findOne({ where: { userId, brandId } });
+        // Trouver ou créer un enregistrement
+        const [existingRating, created] = await Rating.findOrCreate({
+            where: { userId, brandId },
+            defaults: { rating }
+        });
 
-        if (existingRating) {
+        // Si l'enregistrement existait, on le met à jour
+        if (!created) {
             existingRating.rating = rating;
             await existingRating.save();
-        } else {
-            await Rating.create({ userId, brandId, rating });
         }
 
-        // Recalculate and update the brand's average rating
+        // Recalculer et mettre à jour la moyenne des notes de la marque
         const newAverage = await calculateAverageRating(brandId);
         await Brand.update({ rating: newAverage }, { where: { id: brandId } });
 
-        res.json({ message: "Rating updated", brandId, average: newAverage });
+        res.status(201).json({ message: created ? "Rating created" : "Rating updated", brandId, average: newAverage });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -42,14 +44,15 @@ const getAverageRating = async (req, res) => {
         const brand = await Brand.findByPk(brandId, { attributes: ["rating"] });
 
         if (!brand) {
-            return res.status(404).json({ message: "Brand not found" });
+            return res.json({ brandId, average: 0 }); // Retourne 0 si la marque n'existe pas
         }
 
-        res.json({ brandId, average: brand.rating });
+        res.json({ brandId, average: brand.rating || 0 }); // Retourne 0 si la note est `null`
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // Get user Rate on a specific brand
 const getUserRating = async (req, res) => {
@@ -58,15 +61,12 @@ const getUserRating = async (req, res) => {
 
         const rating = await Rating.findOne({ where: { userId, brandId } });
 
-        if (!rating) {
-            return res.status(404).json({ message: "No rating found for this user and brand" });
-        }
-
-        res.json({ brandId, userId, rating: rating.rating });
+        res.json({ brandId, userId, rating: rating ? rating.rating : 0 }); // Retourne 0 si aucune note trouvée
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 module.exports = {
     updateBrandRate,

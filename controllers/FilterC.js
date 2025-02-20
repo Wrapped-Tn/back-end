@@ -115,7 +115,7 @@ const getItemsFilter = async (req, res) => {
     ]);
 
     res.status(200).json({
-      occasions,
+    occasions,
       colors,
       sizes,
       clothesTypes,
@@ -128,6 +128,7 @@ const getItemsFilter = async (req, res) => {
     res.status(500).json({ error: "Erreur lors de la récupération des filtres." });
   }
 };
+
 
 // const getItemsFilter = async (req, res) => {
 //   try {
