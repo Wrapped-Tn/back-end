@@ -8,7 +8,7 @@ const {
   deleteUser,
   getAllUser,
   getUserCart,
-  updatePofileImg,
+  updateProfileImg,
   getUserWithAuth,
   updateUserWithAuth,
   getUserProfile,
@@ -40,7 +40,7 @@ router.put('/UserAuth/:user_id',updateUserWithAuth)
 router.put('/:id', updateUser);
 
 // Mettre à jour Photo de profile
-router.put('/profilepic/:id',updatePofileImg);
+router.put('/profilepic/:id',updateProfileImg);
 
 // Supprimer un utilisateur
 router.delete('/:id', deleteUser);

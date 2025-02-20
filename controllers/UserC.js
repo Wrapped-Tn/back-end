@@ -10,6 +10,7 @@ const Auth = require('../models/Auth');
 
 const moment = require('moment'); // Importer moment pour le formatage des dates
 const { v2: cloudinary } = require('cloudinary');
+
 require('dotenv').config();
 // Configurer Cloudinary
 cloudinary.config({
@@ -457,28 +458,41 @@ const updateUserWithAuth = async (req, res) => {
   }
 };
 
-const updatePofileImg = async(req,res)=>{
+const updateProfileImg = async (req, res) => {
 
   try {
-    
-    const { id } = req.params;
-    const { profile_picture_url } = req.body;
-    const user = await Auth.findByPk(id);
+      const { id } = req.params;
+      const { profile_picture_url } = req.body; // Assuming this is the new image URL or base64
 
-    if (user) {
+      // Find the user
+      const user = await Auth.findByPk(id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
 
-      user.profile_picture_url = profile_picture_url; 
-      await user.save()
-      res.status(200).json({ message:'Profile picture updated successfully' })
+      // Delete the old image from Cloudinary (if exists)
+      if (user.profile_picture_url) {
+          const oldImagePublicId = user.profile_picture_url.split('/').pop().split('.')[0]; // Extract public_id
+          await cloudinary.uploader.destroy(oldImagePublicId);
+      }
 
-    } else {
-      res.status(404).json({ message:'User not found' })
-    } 
+      // Upload the new image to Cloudinary
+      const uploadResponse = await cloudinary.uploader.upload(profile_picture_url, {
+          folder: 'profile_pictures', // You can change the folder name
+      });
 
-  } catch(e) {
-    res.status(500).json({ message:'An error occurred', error:e.message })
+      // Update user's profile picture URL in the database
+      user.profile_picture_url = uploadResponse.secure_url;
+      await user.save();
+
+      res.status(200).json({
+          message: 'Profile picture updated successfully',
+          profile_picture_url: user.profile_picture_url,
+      });
+
+  } catch (e) {
+      res.status(500).json({ message: 'An error occurred', error: e.message });
   }
-
 };
 
 module.exports = {
@@ -489,7 +503,7 @@ module.exports = {
   deleteUser,
   getAllUser,
   getUserCart,
-  updatePofileImg,
+  updateProfileImg,
   getUserWithAuth,
   updateUserWithAuth,
   getUserProfile,

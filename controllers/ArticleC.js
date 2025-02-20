@@ -1,5 +1,6 @@
 const Article = require('../models/Article');
-const Brand =require('../models/Brand')
+const Brand =require('../models/Brand');
+
 const createArticle = async (req, res) => {
     try {
         // Récupération des données depuis le corps de la requête
@@ -29,6 +30,7 @@ const createArticle = async (req, res) => {
         return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
     }
 };
+
 const getByPostId = async (req, res) => {
     try {
         const { post_id } = req.params;
@@ -72,17 +74,7 @@ const getByPostId = async (req, res) => {
     }
 };
 
-        // Vérification si des prix ont été trouvés
-        if (minPrice === null || maxPrice === null) {
-            return res.status(404).json({ message: "Aucun article trouvé." });
-        }
-
-
-        return res.status(200).json({ minPrice, maxPrice });
-    } catch (error) {
-        console.error("Erreur lors de la récupération des prix:", error);
-        return res.status(500).json({ message: "Une erreur s'est produite", error: error.message });
-    }
+const getMinMaxPrice = async (req, res) => {
 };
 
 // Added By Youssef
