@@ -97,7 +97,23 @@ const getBrandById = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve brand' });
   }
 };
+// Lire les informations d'un utilisateur
+// const getUserById = async (req, res) => {
+//   const { id } = req.params;
 
+//   try {
+//     const user = await User.findByPk(id, {
+//       include: [{ model: Auth }],
+//     });
+//     if (user) {
+//       res.status(200).json(user);
+//     } else {
+//       res.status(404).json({ error: 'User not found' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to retrieve user' });
+//   }
+// };
 // Récupérer tous les vendeurs
 const getAllBrands = async (req, res) => {
   try {
@@ -112,6 +128,46 @@ const getAllBrands = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to retrieve brands' });
+  }
+};
+
+// Mettre à jour un vendeur
+const updateBrand = async (req, res) => {
+  const { id } = req.params;
+  const { brand_name, logo_url, accountLevel, email, password } = req.body;
+
+  try {
+    const brand = await Brand.findByPk(id, {
+      include: { model: Auth },
+    });
+
+    if (!brand) {
+      return res.status(404).json({ error: 'Brand not found' });
+    }
+
+    // Mettre à jour les détails de la marque
+    brand.brand_name = brand_name || brand.brand_name;
+    brand.logo_url = logo_url || brand.logo_url;
+    brand.accountLevel = accountLevel || brand.accountLevel;
+    await brand.save();
+
+    // Mettre à jour les détails d'authentification
+    if (email || password) {
+      const auth = await Auth.findByPk(brand.auth_id);
+
+      if (email) auth.email = email;
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        auth.password = await bcrypt.hash(password, salt);
+      }
+
+      await auth.save();
+    }
+
+    res.status(200).json(brand);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update brand' });
   }
 };
 
@@ -271,6 +327,8 @@ const getTaggedPosts = async (req, res) => {
   }
 };
 
+
+
 // Fetch post by ID and include associated images and positions filtered by brand
 const getPostById = async (id, brand) => {
   try {
@@ -343,46 +401,34 @@ const approvePost = async (req, res) => {
   }
 };
 
-// Mettre à jour un vendeur
-const updateBrand = async (req, res) => {
-  
-  const { id } = req.params;
-  const { brand_name, logo_url, accountLevel, email, password } = req.body;
+const getBrandVisitorCart=async(req,res)=>{
+  try{
+    const {id}=req.params;
+    const auth= await Auth.findOne({
+      where:{role:"brand",users_id:id},
+      attributes:["profile_picture_url"]
+    })
 
-  try {
-    const brand = await Brand.findByPk(id, {
-      include: { model: Auth },
-    });
-
-    if (!brand) {
-      return res.status(404).json({ error: 'Brand not found' });
+    if(!auth){
+      return res.status(404).json({error:"Brand not found"})
     }
-
-    // Mettre à jour les détails de la marque
-    brand.brand_name = brand_name || brand.brand_name;
-    brand.logo_url = logo_url || brand.logo_url;
-    brand.accountLevel = accountLevel || brand.accountLevel;
-    await brand.save();
-
-    // Mettre à jour les détails d'authentification
-    if (email || password) {
-      const auth = await Auth.findByPk(brand.auth_id);
-
-      if (email) auth.email = email;
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        auth.password = await bcrypt.hash(password, salt);
-      }
-
-      await auth.save();
+    const brand=await Brand.findOne({where:{id:id}})
+    if(!brand){
+      return res.status(404).json({error:"Brand not found"})
     }
-
-    res.status(200).json(brand);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update brand' });
+    res.status(200).json({
+        brand_name: brand.brand_name,
+        account_level: brand.accountLevel,
+        total_sales: brand.total_sales,
+        profile_picture_url: auth.profile_picture_url || '', // Photo de profil
+      });
+  }catch(e){
+    console.error(e);
+    res.status(500).json({error:"Failed to get brand visitor cart"})
   }
-};
+}
+
+
 
 module.exports = {
   createBrand,
@@ -395,4 +441,6 @@ module.exports = {
   getTaggedPosts,
   // getVerifiedTaggedPosts,
   approvePost,
+  getBrandVisitorCart
+  
 };
