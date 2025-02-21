@@ -4,6 +4,7 @@ const sequelize = require('../config/config');
 
 const PostImage = require('./PostImage');
 const Brand = require('./Brand');
+const { tableName } = require('./LikePost');
 
 const PostPosition = sequelize.define('PostPosition', {
     id: {
@@ -61,6 +62,8 @@ const PostPosition = sequelize.define('PostPosition', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+}, {
+    tableName: "PostPositions"
 });
 
 module.exports = PostPosition;
