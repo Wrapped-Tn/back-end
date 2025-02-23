@@ -8,4 +8,3 @@ router.get("/brandRate/:brandId", RatingC.getAverageRating);
 router.get("/userRate/:brandId/:userId", RatingC.getUserRating);
 
 module.exports = router;
-

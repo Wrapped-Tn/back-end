@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../config/config.js");
 const Grade = require('./Grade');
+const { tableName } = require('./LikePost.js');
 
 const User = sequelize.define('User', {
   id: {
@@ -41,6 +42,8 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
   }
   
+}, {
+  tableName: "Users"
 });
 
 module.exports = User;

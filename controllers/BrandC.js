@@ -359,41 +359,60 @@ const approvePost = async (req, res) => {
   }
 };
 
-// Mettre à jour un vendeur
 const updateBrand = async (req, res) => {
-  
   const { id } = req.params;
   const { brand_name, logo_url, accountLevel, email, password } = req.body;
 
   try {
+    // Find the brand by id, including its associated Auth
     const brand = await Brand.findByPk(id, {
       include: { model: Auth },
     });
 
+    // If brand is not found, return an error
     if (!brand) {
       return res.status(404).json({ error: 'Brand not found' });
     }
 
-    // Mettre à jour les détails de la marque
+    // Update brand details (brand_name, accountLevel)
     brand.brand_name = brand_name || brand.brand_name;
-    brand.logo_url = logo_url || brand.logo_url;
     brand.accountLevel = accountLevel || brand.accountLevel;
+
+    // If new logo URL is provided, upload it to Cloudinary
+    if (logo_url) {
+      try {
+        const uploadResult = await cloudinary.uploader.upload(logo_url, {
+          folder: 'brand_logos',
+        });
+
+        // Update the brand's logo URL with the Cloudinary secure URL
+        brand.logo_url = uploadResult.secure_url;
+      } catch (cloudinaryError) {
+        return res.status(500).json({ error: 'Failed to upload logo to Cloudinary', details: cloudinaryError.message });
+      }
+    }
+
+    // Save the updated brand
     await brand.save();
 
-    // Mettre à jour les détails d'authentification
+    // Update brand authentication details (email and/or password)
     if (email || password) {
       const auth = await Auth.findByPk(brand.auth_id);
 
-      if (email) auth.email = email;
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        auth.password = await bcrypt.hash(password, salt);
-      }
+      if (auth) {
+        if (email) auth.email = email;
+        if (password) {
+          const salt = await bcrypt.genSalt(10);
+          auth.password = await bcrypt.hash(password, salt);
+        }
 
-      await auth.save();
+        await auth.save();
+      }
     }
 
+    // Return the updated brand data
     res.status(200).json(brand);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update brand' });
@@ -425,9 +444,7 @@ const getBrandVisitorCart=async(req,res)=>{
     console.error(e);
     res.status(500).json({error:"Failed to get brand visitor cart"})
   }
-}
-
-
+};
 
 module.exports = {
   createBrand,

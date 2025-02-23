@@ -26,6 +26,10 @@ cloudinary.config({
 
 // Add a post with images and positions
 const addPost = async (req, res) => {
+
+    // Debuging
+    res.send('Hello World!');
+
     try {
         const { userId, description, occasion, images } = req.body;
 
@@ -43,6 +47,10 @@ const addPost = async (req, res) => {
             description: description || null,
             occasion: parsedOccasion,
         });
+
+        // Debuging
+        console.log("Post created:", post);
+        
 
         // Process each image
         for (const image of images) {
@@ -452,7 +460,8 @@ const getDiscrovePosts=async(req,res)=>{
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve posts.' });
     }
-}
+};
+
 const getTopPostByUser = async (req, res) => {
     try {
         const { userId } = req.params; // ID de l'utilisateur
@@ -506,6 +515,8 @@ const getTopPostByUser = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la récupération du top post.' });
     }
 };
+
+
 module.exports = {
     addPost,
     getUserPosts,

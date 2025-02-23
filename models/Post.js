@@ -3,6 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
 
 const User = require('./User');
+const { tableName } = require('./LikePost');
 
 const Post = sequelize.define('Post', {
     id: {
@@ -69,6 +70,8 @@ const Post = sequelize.define('Post', {
         type: DataTypes.DATE,
         allowNull: true,
     },
+}, {
+    tableName: "Posts"
 });
 
 module.exports = Post;

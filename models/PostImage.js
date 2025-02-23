@@ -2,6 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config'); 
 const Post = require('./Post');
+const { tableName } = require('./LikePost');
 const PostImage = sequelize.define('PostImage', {
     id: {
         type: DataTypes.INTEGER,
@@ -22,6 +23,8 @@ const PostImage = sequelize.define('PostImage', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+}, {
+    tableName: "PostImages"
 });
 
 module.exports = PostImage;

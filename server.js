@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const db = require ('./config/index');
 
+require("dotenv").config();
+
 // require('dotenv').config();
 // require('./Middleware Passport/passport-setup');
 const app = express()
@@ -42,9 +44,10 @@ const savePostRoutes = require('./routes/SavePostR');
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 const path = require('path');
 const uploadRoutes = require('./routes/PropsR');
+const { configDotenv } = require('dotenv');
 
 
-const PORT =  3000;
+const PORT =  process.env.PORT || 3307;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));

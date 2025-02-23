@@ -22,7 +22,6 @@ const Article = sequelize.define('article', {
         onUpdate: 'CASCADE',
     },
 
-    // Updated by removing the ref
     post_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -58,7 +57,6 @@ const Article = sequelize.define('article', {
         type: DataTypes.JSON,  // Utiliser JSON pour stocker des tableaux
         allowNull: false,
     },
-    
     price:{
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -69,7 +67,6 @@ const Article = sequelize.define('article', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-
 }, {
     tableName: 'articles',
     timestamps: true
