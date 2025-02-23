@@ -44,10 +44,6 @@ const savePostRoutes = require('./routes/SavePostR');
 // const authRoutesGoFb = require('./routes/auth/authGoogleFb');
 const path = require('path');
 const uploadRoutes = require('./routes/PropsR');
-const { configDotenv } = require('dotenv');
-
-
-const PORT =  process.env.PORT || 3307;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -128,6 +124,9 @@ app.use('/posts', express.static(path.join(__dirname, 'posts')));
 
 // Use upload routes
 app.use('/api', uploadRoutes);
+
+
+const PORT =  process.env.SERVER_PORT || 3307;
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);

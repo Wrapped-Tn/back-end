@@ -28,6 +28,8 @@ cloudinary.config({
 const addPost = async (req, res) => {
 
     // Debuging
+    console.log('Received POST request:', req.body);
+    res.status(200).json({ message: 'Success' });
     res.send('Hello World!');
 
     try {
